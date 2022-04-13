@@ -1,11 +1,25 @@
 <!-- index.html -->
 <html>
-  <head>
+
+<head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Demo</title>
     <link rel="shortcut icon" href="#" />
-  </head>
-  <body>
-      Hello World
-  </body>
+</head>
+
+<body>
+    <button @click="$('#counter').value += 1">+</button>
+    <input id="counter" value="99" />
+    <button @click="$('#counter').value -= 1">-</button>
+    <p :style.color="$('#counter').value > 100 ? 'red' : 'black'" 
+        :innerHTML="`value is: ${$('#counter').value}`" />
+    <script type="module">
+        import { startObserver } from 'incremental-html';
+        // start observing @click and :innerHTML
+        startObserver({
+            // inject platform api here
+        });
+    </script>
+</body>
+
 </html>
