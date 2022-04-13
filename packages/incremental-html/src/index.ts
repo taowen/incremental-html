@@ -4,7 +4,7 @@ var domObserver = new MutationObserver(function (mutation) {
     // TODO: register new nodes
 });
 
-const nodeVersions = reactive({});
+const nodeVersions = reactive<Record<string, number>>({});
 let nextId = 1;
 let nextVer = 1;
 
@@ -18,17 +18,23 @@ export function startObserver(apis: Record<string, any>) {
     walkNode(container);
 }
 
+function scopedEval(context: Record<string, any>, expr: string) {
+    const evaluator = Function.apply(null, [...Object.keys(context), 'expr', "return eval('expr = undefined;' + expr)"]);
+    return evaluator.apply(null, [...Object.values(context), expr]);
+}
+
 function subscribeNode(node?: Element | null) {
-    if (node) {
-        const xid = node.getAttribute('xid');
-        if (xid) {
-            Reflect.get(nodeVersions, xid);
-        }
+    if (!node) {
+        return;
+    }
+    const xid = node.getAttribute('xid');
+    if (xid) {
+        nodeVersions[xid]; // read from reactive object to subscribe
     }
 }
 
 function notifyNodeSubscribers(xid: string) {
-    Reflect.set(nodeVersions, xid, nextVer++);
+    nodeVersions[xid] = nextVer++;
 }
 
 function walkNode(node: Element) {
@@ -60,7 +66,7 @@ function walkNode(node: Element) {
         const attr = node.attributes[i];
         if (attr.name.startsWith('@')) {
             node.addEventListener(attr.name.substring(1), () => {
-                eval(attr.value);
+                scopedEval({ $ }, attr.value);
             });
         }
     }
@@ -80,7 +86,7 @@ function refreshNode(node: Element) {
         for (let i = 0; i < node.attributes.length; i++) {
             const attr = node.attributes[i];
             if (attr.name.startsWith(':')) {
-                setAttribute(node, attr.name, eval(attr.value));
+                setAttribute(node, attr.name, scopedEval({ $ }, attr.value));
             }
         }
     })
