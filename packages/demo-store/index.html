@@ -1,0 +1,25 @@
+<!-- index.html -->
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Demo</title>
+    <link rel="shortcut icon" href="#" />
+</head>
+
+<body @init="theStore.counter = 99">
+    <button @click="theStore.counter -= 1">-</button>
+    <input :value="theStore.counter" @input="theStore.counter = parseInt(arguments[0].target.value)"/>
+    <button @click="theStore.counter += 1">+</button>
+    <p :style.color="theStore.counter > 100 ? 'red' : 'black'" :innerHTML="`value is: ${theStore.counter}`" />
+    <script type="module">
+        import { startObserver } from 'incremental-html';
+        import { reactive } from '@vue/reactivity';
+        // start observing @click and :innerHTML
+        startObserver({
+            theStore: reactive({}),
+        });
+    </script>
+</body>
+
+</html>

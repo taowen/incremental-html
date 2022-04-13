@@ -13,6 +13,19 @@ importers:
       typescript: 4.6.3
       vite: 2.9.1
 
+  packages/demo-store:
+    specifiers:
+      '@vue/reactivity': ^3.2.32
+      incremental-html: workspace:*
+      typescript: ^4.5.5
+      vite: ^2.9.1
+    dependencies:
+      '@vue/reactivity': 3.2.32
+      incremental-html: link:../incremental-html
+    devDependencies:
+      typescript: 4.6.3
+      vite: 2.9.1
+
   packages/incremental-html:
     specifiers:
       '@types/jest': 27.4.1
