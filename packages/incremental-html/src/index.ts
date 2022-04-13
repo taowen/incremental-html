@@ -48,9 +48,9 @@ function registerNode(node: Element) {
         node.addEventListener('input', () => {
             notifyNodeSubscribers(xid);
         });
-        var superProps = Object.getPrototypeOf(node);
-        var superSet = Object.getOwnPropertyDescriptor(superProps, "value")!.set!;
-        var superGet = Object.getOwnPropertyDescriptor(superProps, "value")!.get!;
+        const superProps = Object.getPrototypeOf(node);
+        const superSet = Object.getOwnPropertyDescriptor(superProps, "value")!.set!;
+        const superGet = Object.getOwnPropertyDescriptor(superProps, "value")!.get!;
         Object.defineProperty(node, "value", {
             get: function () {
                 return superGet.apply(this);
