@@ -23,8 +23,11 @@ async function main() {
     server.use('*', async (req, res) => {
         try {
             console.log(req.method, req.originalUrl);
-            const { render } = await vite.ssrLoadModule('./src/server/server-entry.tsx');
-            const result = await render();
+            const handlers = await vite.ssrLoadModule(req.originalUrl === '/' ? './src/server/index.tsx' : `./src/server${req.originalUrl}.tsx`);
+            if (!handlers[req.method]) {
+                throw new Error(`missing handler of ${req.method}`);
+            }
+            const result = await handlers[req.method]();
             res.status(200).set({ 'Content-Type': 'text/html' }).end(result);
         } catch (e) {
             vite && vite.ssrFixStacktrace(e)

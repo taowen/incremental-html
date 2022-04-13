@@ -1,6 +1,10 @@
 import { jsxToHtml } from 'incremental-html';
+import { Request, Response } from 'express';
 
-export async function render() {
+export async function POST(req: Request, resp: Response) {
+}
+
+export async function GET(req: Request, resp: Response) {
     return await jsxToHtml(<html>
         <head>
             <meta http-equiv="content-type" content="text/html; charset=utf-8" />
@@ -14,7 +18,7 @@ export async function render() {
     </html>)
 }
 
-export async function Comp1() {
+async function Comp1() {
     await new Promise(resolve => setTimeout(resolve, 0));
     return <>hello</>
 }
