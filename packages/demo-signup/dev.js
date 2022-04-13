@@ -17,8 +17,12 @@ async function main() {
         }
     })
     server.use(vite.middlewares);
+    server.use('/favicon.ico', async (req, res) => {
+        res.status(404).end();
+    });
     server.use('*', async (req, res) => {
         try {
+            console.log(req.method, req.originalUrl);
             const { render } = await vite.ssrLoadModule('./src/index.tsx');
             const result = await render();
             res.status(200).set({ 'Content-Type': 'text/html' }).end(result);
