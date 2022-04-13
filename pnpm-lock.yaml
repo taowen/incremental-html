@@ -16,7 +16,6 @@ importers:
   packages/demo-signup:
     specifiers:
       '@types/express': ^4.17.13
-      '@types/react': ^18.0.3
       express: ^4.17.1
       incremental-html: workspace:*
       typescript: ^4.5.5
@@ -26,7 +25,6 @@ importers:
       incremental-html: link:../incremental-html
     devDependencies:
       '@types/express': 4.17.13
-      '@types/react': 18.0.3
       typescript: 4.6.3
       vite: 2.9.1
 
@@ -47,11 +45,13 @@ importers:
     specifiers:
       '@types/jest': 27.4.1
       '@vue/reactivity': ^3.2.32
+      csstype: ^2.6.8
       jest: 27.5.1
       npm-run-all: ^4.1.5
       typescript: ^4.5.5
     dependencies:
       '@vue/reactivity': 3.2.32
+      csstype: 2.6.20
     devDependencies:
       '@types/jest': 27.4.1
       jest: 27.5.1
@@ -722,28 +722,12 @@ packages:
     resolution: {integrity: sha512-G/AdOadiZhnJp0jXCaBQU449W2h716OW/EoXeYkCytxKL06X1WCXB4DZpp8TpZ8eyIJVS1cw4lrlkkSYU21cDw==}
     dev: true
 
-  /@types/prop-types/15.7.5:
-    resolution: {integrity: sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==}
-    dev: true
-
   /@types/qs/6.9.7:
     resolution: {integrity: sha512-FGa1F62FT09qcrueBA6qYTrJPVDzah9a+493+o2PCXsesWHIn27G98TsSMs3WPNbZIEj4+VJf6saSFpvD+3Zsw==}
     dev: true
 
   /@types/range-parser/1.2.4:
     resolution: {integrity: sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==}
-    dev: true
-
-  /@types/react/18.0.3:
-    resolution: {integrity: sha512-P8QUaMW4k+kH9aKNPl9b3XWcKMSSALYprLL8xpAMJOLUn3Pl6B+6nKC4F7dsk9oJPwkiRx+qlwhG/Zc1LxFVuQ==}
-    dependencies:
-      '@types/prop-types': 15.7.5
-      '@types/scheduler': 0.16.2
-      csstype: 3.0.11
-    dev: true
-
-  /@types/scheduler/0.16.2:
-    resolution: {integrity: sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==}
     dev: true
 
   /@types/serve-static/1.13.10:
@@ -1180,9 +1164,9 @@ packages:
       cssom: 0.3.8
     dev: true
 
-  /csstype/3.0.11:
-    resolution: {integrity: sha512-sa6P2wJ+CAbgyy4KFssIb/JNMLxFvKF1pCYCSXS8ZMuqZnMsrxqI2E5sPyoTpxoPU/gVZMzr2zjOfg8GIZOMsw==}
-    dev: true
+  /csstype/2.6.20:
+    resolution: {integrity: sha512-/WwNkdXfckNgw6S5R125rrW8ez139lBHWouiBvX8dfMFtcn6V81REDqnH7+CRpRipfYlyU1CmOnOxrmGcFOjeA==}
+    dev: false
 
   /data-urls/2.0.0:
     resolution: {integrity: sha512-X5eWTSXO/BJmpdIKCRuKUgSCgAN0OwliVK3yPKbwIWU1Tdw5BRajxlzMidvh+gwko9AfQ9zIj52pzF91Q3YAvQ==}

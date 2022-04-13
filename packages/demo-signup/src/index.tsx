@@ -1,4 +1,4 @@
-import jsxToHtml from './jsxToHtml';
+import { jsxToHtml } from 'incremental-html';
 
 export async function render() {
     return await jsxToHtml(<html>
@@ -7,8 +7,8 @@ export async function render() {
             <title>Demo</title>
             <link rel="shortcut icon" href="#" />
         </head>
-        <body>
-        <Comp1 />
+        <body on:init="console.log('hello')">
+            <Comp1 />
         </body>
     </html>)
 }

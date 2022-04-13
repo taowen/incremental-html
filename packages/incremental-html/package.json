@@ -4,9 +4,10 @@
     "description": "update ui incrementally with html",
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
-    "types": "dist/esm/index.d.ts",
+    "types": "src/index.d.ts",
     "dependencies": {
-      "@vue/reactivity": "^3.2.32"
+      "@vue/reactivity": "^3.2.32",
+      "csstype": "^2.6.8"
     },
     "devDependencies": {
       "typescript": "^4.5.5",
@@ -14,7 +15,7 @@
       "jest": "27.5.1",
       "@types/jest": "27.4.1"
     },
-    "files": ["dist/*", "README.md", "LICENSE"],
+    "files": ["dist/*", "src/index.d.ts", "README.md", "LICENSE"],
     "scripts": {
       "build": "npm-run-all -p build:*",
       "build:lib": "tsc --watch",

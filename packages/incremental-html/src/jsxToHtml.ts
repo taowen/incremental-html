@@ -4,7 +4,7 @@ export function createElement(tag: string, props: Record<string, any>, ...childr
 
 export const Fragment = 'Fragment';
 
-export default async function toHtml(node: any): Promise<string> {
+export async function jsxToHtml(node: any): Promise<string> {
     if (!node) {
         return '';
     }
@@ -14,7 +14,7 @@ export default async function toHtml(node: any): Promise<string> {
     if (node.tag === Fragment) {
         const children = [];
         for (const child of node.children) {
-            children.push(await toHtml(child));
+            children.push(await jsxToHtml(child));
         }
         return children.join('\n');
     }
@@ -31,13 +31,13 @@ export default async function toHtml(node: any): Promise<string> {
         }
         parts.push('>\n');
         for (const child of node.children) {
-            parts.push(await toHtml(child));
+            parts.push(await jsxToHtml(child));
         }
         parts.push('\n</', node.tag, '>');
         return parts.join('');
     }
-    return await toHtml(await node.tag({...node.props, children: node.children }));
+    return await jsxToHtml(await node.tag({...node.props, children: node.children }));
 }
 
-toHtml.createElement = createElement;
-toHtml.Fragment = Fragment;
+jsxToHtml.createElement = createElement;
+jsxToHtml.Fragment = Fragment;

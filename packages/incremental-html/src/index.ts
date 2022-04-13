@@ -1,4 +1,5 @@
 import { effect, reactive } from '@vue/reactivity';
+export * from './jsxToHtml';
 
 const nodeVersions = reactive<Record<string, number>>({});
 let nextId = 1;
