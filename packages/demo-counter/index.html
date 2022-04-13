@@ -8,7 +8,10 @@
 </head>
 
 <body>
-    <button @click="$('#counter').value = parseInt($('#counter').value) - 1">-</button>
+    <button @click="
+        const counter = $('#counter'); 
+        counter.value = parseInt(counter.value) - 1
+    ">-</button>
     <input id="counter" value="99" />
     <button @click="$('#counter').value = parseInt($('#counter').value) + 1">+</button>
     <p :style.color="$('#counter').value > 100 ? 'red' : 'black'" 
