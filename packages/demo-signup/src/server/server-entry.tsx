@@ -7,9 +7,10 @@ export async function render() {
             <title>Demo</title>
             <link rel="shortcut icon" href="#" />
         </head>
-        <body on:init="console.log('hello')" _style="">
+        <body on:init="console.log('hello')">
             <Comp1 />
         </body>
+        <script type="module" src="./src/client/client-entry.js" />
     </html>)
 }
 

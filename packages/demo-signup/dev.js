@@ -23,7 +23,7 @@ async function main() {
     server.use('*', async (req, res) => {
         try {
             console.log(req.method, req.originalUrl);
-            const { render } = await vite.ssrLoadModule('./src/index.tsx');
+            const { render } = await vite.ssrLoadModule('./src/server/server-entry.tsx');
             const result = await render();
             res.status(200).set({ 'Content-Type': 'text/html' }).end(result);
         } catch (e) {
