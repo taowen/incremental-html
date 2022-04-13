@@ -1,22 +1,34 @@
 import { effect, reactive } from '@vue/reactivity';
 
 var domObserver = new MutationObserver(function (mutation) {
-    console.log()
+    // TODO: register new nodes
 });
 
-const nodesTracker = reactive({});
+const nodeVersions = reactive({});
 let nextId = 1;
+let nextVer = 1;
 
 // html will lowercase attribute name
 const lookup: Record<string, string> = {
     ':innerhtml': 'innerHTML',
-    ':style': 'style',
-    'color': 'color'
 }
 
 export function startObserver(apis: Record<string, any>) {
     var container = document.documentElement || document.body;
     walkNode(container);
+}
+
+function subscribeNode(node?: Element | null) {
+    if (node) {
+        const xid = node.getAttribute('xid');
+        if (xid) {
+            Reflect.get(nodeVersions, xid);
+        }
+    }
+}
+
+function notifyNodeSubscribers(xid: string) {
+    Reflect.set(nodeVersions, xid, nextVer++);
 }
 
 function walkNode(node: Element) {
@@ -29,7 +41,7 @@ function walkNode(node: Element) {
     refreshNode(node);
     if (node.tagName === 'INPUT') {
         node.addEventListener('input', () => {
-            Reflect.set(nodesTracker, xid, nextId++);
+            notifyNodeSubscribers(xid);
         });
         var superProps = Object.getPrototypeOf(node);
         var superSet = Object.getOwnPropertyDescriptor(superProps, "value")!.set!;
@@ -40,7 +52,7 @@ function walkNode(node: Element) {
             },
             set: function (t) {
                 superSet.call(this, t);
-                Reflect.set(nodesTracker, xid, nextId++);
+                notifyNodeSubscribers(xid);
             }
         });
     }
@@ -59,12 +71,7 @@ function walkNode(node: Element) {
 
 function $(selector: any) {
     const elem = document.getElementById(selector.substring(1));
-    if (elem) {
-        const xid = elem.getAttribute('xid');
-        if (xid) {
-            Reflect.get(nodesTracker, xid);
-        }
-    }
+    subscribeNode(elem);
     return elem;
 }
 
@@ -81,15 +88,15 @@ function refreshNode(node: Element) {
 
 function setAttribute(node: Element, name: string, value: any) {
     if (name.startsWith(':style.')) {
-        const key = lookup[name.substring(':style.'.length)];
+        let key = lookup[name.substring(':style.'.length)];
         if (!key) {
-            throw new Error('lookup not defined for: ' + name);
+            key = name.substring(':style.'.length);
         }
         return Reflect.set((node as HTMLElement).style, key, value);
     }
-    const key = lookup[name];
+    let key = lookup[name];
     if (!key) {
-        throw new Error('lookup not defined for: ' + name);
+        key = name.substring(1);
     }
     Reflect.set(node, key, value);
 }
