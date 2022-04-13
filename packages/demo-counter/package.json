@@ -1,0 +1,11 @@
+{
+    "name": "demo-counter",
+    "private": true,
+    "version": "1.0.0",
+    "dependencies": {
+        "incremental-html": "workspace:*"
+    },
+    "devDependencies": {
+        "typescript": "^4.5.5"
+    }
+}

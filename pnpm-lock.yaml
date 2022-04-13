@@ -1,0 +1,26 @@
+lockfileVersion: 5.3
+
+importers:
+
+  packages/demo-counter:
+    specifiers:
+      incremental-html: workspace:*
+      typescript: ^4.5.5
+    dependencies:
+      incremental-html: link:../incremental-html
+    devDependencies:
+      typescript: 4.6.3
+
+  packages/incremental-html:
+    specifiers:
+      typescript: ^4.5.5
+    devDependencies:
+      typescript: 4.6.3
+
+packages:
+
+  /typescript/4.6.3:
+    resolution: {integrity: sha512-yNIatDa5iaofVozS/uQJEl3JRWLKKGJKh6Yaiv0GLGSuhpFJe7P3SbHZ8/yjAHRQwKRoA6YZqlfjXWmVzoVSMw==}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
+    dev: true
