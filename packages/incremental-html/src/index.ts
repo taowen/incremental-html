@@ -7,7 +7,7 @@ let nextVer = 1;
 
 // html will lowercase attribute name
 const lookup: Record<string, string> = {
-    ':innerhtml': 'innerHTML',
+    '_innerhtml': 'innerHTML',
 }
 
 const apis: Record<string, any> = {};
@@ -64,10 +64,10 @@ function registerNode(node: Element) {
     }
     for (let i = 0; i < node.attributes.length; i++) {
         const attr = node.attributes[i];
-        if (attr.name === '@init') {
+        if (attr.name === 'on:init') {
             scopedEval(attr.value);
-        } else if (attr.name.startsWith('@')) {
-            node.addEventListener(attr.name.substring(1), function() {
+        } else if (attr.name.startsWith('on:')) {
+            node.addEventListener(attr.name.substring('on:'.length), function() {
                 scopedEval(attr.value, { arguments });
             });
         }
@@ -87,7 +87,7 @@ function refreshNode(node: Element) {
     effect(() => {
         for (let i = 0; i < node.attributes.length; i++) {
             const attr = node.attributes[i];
-            if (attr.name.startsWith(':')) {
+            if (attr.name.startsWith('_')) {
                 setAttribute(node, attr.name, scopedEval(attr.value));
             }
         }
@@ -95,16 +95,16 @@ function refreshNode(node: Element) {
 }
 
 function setAttribute(node: Element, name: string, value: any) {
-    if (name.startsWith(':style.')) {
-        let key = lookup[name.substring(':style.'.length)];
+    if (name.startsWith('_style.')) {
+        let key = lookup[name.substring('_style.'.length)];
         if (!key) {
-            key = name.substring(':style.'.length);
+            key = name.substring('_style.'.length);
         }
         return Reflect.set((node as HTMLElement).style, key, value);
     }
     let key = lookup[name];
     if (!key) {
-        key = name.substring(1);
+        key = name.substring('_'.length);
     }
     Reflect.set(node, key, value);
 }

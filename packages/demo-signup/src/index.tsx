@@ -7,7 +7,7 @@ export async function render() {
             <title>Demo</title>
             <link rel="shortcut icon" href="#" />
         </head>
-        <body on:init="console.log('hello')">
+        <body on:init="console.log('hello')" _style="">
             <Comp1 />
         </body>
     </html>)
