@@ -1,4 +1,5 @@
 /// <reference types="vite-plugin-pages/client" />
+/// <reference types="incremental-html/jsx" />
 import { Request, Response } from 'express';
 import { jsxToHtml } from 'incremental-html';
 import { createMemoryHistory, createRouter } from 'vue-router';
@@ -21,5 +22,5 @@ export default async function (req: Request, resp: Response) {
         resp.status(404).end('missing handler for method: ' + req.method);
         return '';
     }
-    return await jsxToHtml(await methodHandler(req, resp));
+    return "<!DOCTYPE html>" + await jsxToHtml(await methodHandler(req, resp));
 }
