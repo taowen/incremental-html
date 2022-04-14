@@ -20,20 +20,19 @@ async function main() {
     server.use('/favicon.ico', async (req, res) => {
         res.status(404).end();
     });
-    server.use('*', async (req, res) => {
+    server.use('*', async (req, resp) => {
         try {
             console.log(req.method, req.originalUrl);
-            const handlers = await vite.ssrLoadModule(req.originalUrl === '/' ? './src/server/index.tsx' : `./src/server${req.originalUrl}.tsx`);
-            if (!handlers[req.method]) {
-                throw new Error(`missing handler of ${req.method}`);
+            const { default: handle } = await vite.ssrLoadModule('./src/server/server-entry.ts');
+            let result = await handle(req, resp);
+            if (result) {
+                result = result.replace('</body>', '<script type="module" src="./src/client/client-entry.js"></script></body>');
+                resp.status(200).set({ 'Content-Type': 'text/html' }).end(result);
             }
-            let result = await handlers[req.method]();
-            result = result.replace('</body>', '<script type="module" src="./src/client/client-entry.js"></script></body>');
-            res.status(200).set({ 'Content-Type': 'text/html' }).end(result);
         } catch (e) {
             vite && vite.ssrFixStacktrace(e)
             console.log(e.stack)
-            res.status(500).end(e.stack)
+            resp.status(500).end(e.stack)
         }
     })
     server.listen(3000, () => {

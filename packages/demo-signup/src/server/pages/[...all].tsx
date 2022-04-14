@@ -1,11 +1,13 @@
-import { jsxToHtml } from 'incremental-html';
+/// <reference types="incremental-html/jsx" />
 import { Request, Response } from 'express';
+import { jsxToHtml } from 'incremental-html';
 
-export async function POST(req: Request, resp: Response) {
+export function POST() {
+
 }
 
-export async function GET(req: Request, resp: Response) {
-    return await jsxToHtml(<html>
+export function GET(req: Request, resp: Response) {
+    return <html>
         <head>
             <meta http-equiv="content-type" content="text/html; charset=utf-8" />
             <title>Demo</title>
@@ -14,7 +16,7 @@ export async function GET(req: Request, resp: Response) {
         <body oninit="console.log('hello')">
             <Comp1 />
         </body>
-    </html>)
+    </html>
 }
 
 async function Comp1() {
