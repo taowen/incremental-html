@@ -4,7 +4,6 @@ export function POST() {
     return '~~~';
 }
 
-
 export function GET() {
     const state: "idle" | "success" | "error" | "submitting" = 'idle' as any;
     const actionData = {} as any;
@@ -17,7 +16,7 @@ export function GET() {
         </head>
         <body>
             <main>
-                <form method="post" aria-hidden={state === "success"}>
+                <form method="post" aria-hidden={state === "success"} onSubmit="$$.onSubmit(...arguments)">
                     <h2>Subscribe!</h2>
                     <p>Don't miss any of the action!</p>
                     <fieldset>

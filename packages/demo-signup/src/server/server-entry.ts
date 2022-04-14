@@ -1,4 +1,3 @@
-/// <reference types="incremental-html/jsx" />
 import { Request, Response } from 'express';
 import { jsxToHtml } from 'incremental-html';
 import * as indexPage from './pages/[...all]'
