@@ -11,10 +11,9 @@ export async function GET(req: Request, resp: Response) {
             <title>Demo</title>
             <link rel="shortcut icon" href="#" />
         </head>
-        <body on:init="console.log('hello')">
+        <body oninit="console.log('hello')">
             <Comp1 />
         </body>
-        <script type="module" src="./src/client/client-entry.js" />
     </html>)
 }
 

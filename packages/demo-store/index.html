@@ -1,4 +1,3 @@
-<!-- index.html -->
 <html>
 
 <head>
@@ -7,18 +6,18 @@
     <link rel="shortcut icon" href="#" />
 </head>
 
-<body on:init="theStore.counter = 99">
-    <button on:click="theStore.counter -= 1">-</button>
-    <input _value="theStore.counter" on:input="theStore.counter = parseInt(arguments[0].target.value)"/>
-    <button on:click="theStore.counter += 1">+</button>
+<!-- oninit is executed when startObserver -->
+<body oninit="theStore.counter = 99">
+    <button onclick="theStore.counter -= 1">-</button>
+    <input _value="theStore.counter" oninput="theStore.counter = parseInt(arguments[0].target.value)"/>
+    <button onclick="theStore.counter += 1">+</button>
     <p _style.color="theStore.counter > 100 ? 'red' : 'black'" _innerHTML="`value is: ${theStore.counter}`" />
     <script type="module">
         import { startObserver } from 'incremental-html';
         import { reactive } from '@vue/reactivity';
-        // start observing on:click and :innerHTML
-        startObserver({
-            theStore: reactive({}),
-        });
+        window.theStore = reactive({});
+        // for properties like _style.color or _innerHTML
+        startObserver();
     </script>
 </body>
 

@@ -236,7 +236,7 @@ interface AriaAttributes {
 export type StyleValue = string | CSSProperties | Array<StyleValue>
 
 export interface HTMLAttributes extends AriaAttributes, EventHandlers<Events> {
-  ['on:init']?: string
+  oninit?: string
   innerHTML?: string
 
   class?: any

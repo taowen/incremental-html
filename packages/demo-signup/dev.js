@@ -27,7 +27,8 @@ async function main() {
             if (!handlers[req.method]) {
                 throw new Error(`missing handler of ${req.method}`);
             }
-            const result = await handlers[req.method]();
+            let result = await handlers[req.method]();
+            result = result.replace('</body>', '<script type="module" src="./src/client/client-entry.js"></script></body>');
             res.status(200).set({ 'Content-Type': 'text/html' }).end(result);
         } catch (e) {
             vite && vite.ssrFixStacktrace(e)

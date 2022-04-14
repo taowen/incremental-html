@@ -8,20 +8,18 @@
 </head>
 
 <body>
-    <button on:click="
+    <button onclick="
         const counter = $('#counter'); 
         counter.value = parseInt(counter.value) - 1
     ">-</button>
     <input id="counter" value="99" />
-    <button on:click="$('#counter').value = parseInt($('#counter').value) + 1">+</button>
+    <button onclick="$('#counter').value = parseInt($('#counter').value) + 1">+</button>
     <p _style.color="$('#counter').value > 100 ? 'red' : 'black'" 
         _innerHTML="`value is: ${$('#counter').value}`" />
     <script type="module">
         import { startObserver } from 'incremental-html';
-        // start observing on:click and :innerHTML
-        startObserver({
-            // inject platform api here
-        });
+        // for properties like _style.color or _innerHTML
+        startObserver();
     </script>
 </body>
 
