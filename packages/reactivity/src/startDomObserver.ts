@@ -9,7 +9,7 @@ const lookup: Record<string, string> = {
     '_innerhtml': 'innerHTML',
 }
 
-export function startObserver() {
+export function startDomObserver() {
     (window as any).$ = $;
     registerNode(document.documentElement || document.body);
 }

@@ -3,8 +3,7 @@
     "private": true,
     "version": "1.0.0",
     "dependencies": {
-        "incremental-html": "workspace:*",
-        "@vue/reactivity": "^3.2.32"
+        "@incremental-html/reactivity": "workspace:*"
     },
     "devDependencies": {
         "typescript": "^4.5.5",

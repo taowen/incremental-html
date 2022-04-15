@@ -13,11 +13,10 @@
     <button onclick="theStore.counter += 1">+</button>
     <p _style.color="theStore.counter > 100 ? 'red' : 'black'" _innerHTML="`value is: ${theStore.counter}`" />
     <script type="module">
-        import { startObserver } from 'incremental-html';
-        import { reactive } from '@vue/reactivity';
+        import { startDomObserver, reactive } from '@incremental-html/reactivity';
         window.theStore = reactive({});
         // for properties like _style.color or _innerHTML
-        startObserver();
+        startDomObserver();
     </script>
 </body>
 
