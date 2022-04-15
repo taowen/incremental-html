@@ -1,12 +1,11 @@
 {
-    "name": "@incremental-html/reactivity",
+    "name": "@incremental-html/navigator",
     "version": "1.0.0",
-    "description": "make DOM interactive via computed property",
+    "description": "load/reload HTML without whole page refresh",
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
     "types": "dist/esm/index.d.ts",
     "dependencies": {
-      "@vue/reactivity": "^3.2.32"
     },
     "devDependencies": {
       "typescript": "^4.5.5",
