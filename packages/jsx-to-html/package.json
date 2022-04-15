@@ -4,7 +4,7 @@
     "description": "render jsx to html",
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
-    "types": "dist/esm/index.d.ts",
+    "types": "index.d.ts",
     "dependencies": {
       "csstype": "^2.6.8"
     },

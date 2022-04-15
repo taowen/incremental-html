@@ -1,4 +1,4 @@
-import { jsxToHtml } from 'incremental-html';
+import { jsxToHtml } from '@incremental-html/jsx-to-html';
 import { Request, Response } from 'express';
 
 export function POST(req: Request, resp: Response) {
