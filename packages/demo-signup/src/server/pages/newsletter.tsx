@@ -1,7 +1,9 @@
 import { jsxToHtml } from 'incremental-html';
+import { Request, Response } from 'express';
 
-export function POST() {
-    return '~~~';
+export function POST(req: Request, resp: Response) {
+    resp.redirect('/success');
+    return;
 }
 
 export function GET() {
