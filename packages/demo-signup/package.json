@@ -4,6 +4,7 @@
     "version": "1.0.0",
     "dependencies": {
         "incremental-html": "workspace:*",
+        "@incremental-html/jsx-to-html": "workspace:*",
         "express": "^4.17.1"
     },
     "devDependencies": {

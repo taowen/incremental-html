@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { jsxToHtml } from 'incremental-html';
+import { jsxToHtml } from '@incremental-html/jsx-to-html';
 import * as indexPage from './pages/[...all]'
 import * as newsletter from './pages/newsletter'
 
