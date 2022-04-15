@@ -2,6 +2,8 @@
 
 Render in server side, using html as virtual DOM to update ui incrementally. The goal is making client side logic minimal so that we can release new version without update client, and we can implement native clients (Android, iOS, miniprogram) with similar web development experience and reusing server code between them.
 
+Inspired by https://hotwired.dev/ like [previous effort](https://github.com/taowen/awesome-html), incremental-html try to avoid re-inventing javascript, and try to be declaractive. The API to remember should be minimal, normal javascript programming as we are familiar with should be encouraged (compared to programming by turbo-stream/htmx action).
+
 There are several independent libraries to load/reload html without whole page refresh (just like F5, but without trashing client side input and state). When client side code handle some input, it either update the DOM directly somehow (such as showing form validation error), or it will use `@incremental-html/navigator` to refresh latest data from server.
 
 * [web] navigator: update DOM via html diff to reload, go forward or go backward. unlike https://turbo.hotwired.dev/ it is declarative instead of imperative. and navigator does not try to handle form submission.
