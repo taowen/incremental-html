@@ -7,7 +7,8 @@ interface SignupForm {
 }
 
 export function POST(req: Request, resp: Response) {
-    const form = decodeForm(req.body);
+    const form = decodeForm<SignupForm>(req.body);
+    form.setError('email', 'required');
     console.log('!!!', form);
     return;
 }

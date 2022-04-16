@@ -1,7 +1,8 @@
 export type FormObject<T> = { [P in keyof T]: FormObject<T[P]> } & {
-    setError(field: string, errorMessage: string): void;
-    getError(field: string): string;
-    nameOf(field: string | number): string;
+    setError(field: keyof T, errorMessage: string): void;
+    getError(field: keyof T): string;
+    dumpErrors(): Record<string, string>;
+    nameOf(field: keyof T): string;
 }
 
 export function createForm<T extends Object>(fields: T): FormObject<T> {
@@ -27,7 +28,7 @@ class FormObjectImpl {
         Object.assign(this, fields);
     }
 
-    public nameOf(field: string | number) {
+    public nameOf(field: string) {
         const path = [...this._prefix, field];
         let parts: string[] = [path[0] as string];
         for (let i = 1; i < path.length; i++) {
@@ -44,7 +45,21 @@ class FormObjectImpl {
         return parts.join('');
     }
 
-    public hasValidationError(): string {
-        throw new Error('not implemented');
+    public setError(field: string, errorMessage: string) {
+        (this as any)[`${field}_ERROR`] = errorMessage;
+    }
+
+    public getError(field: string) {
+        return (this as any)[`${field}_ERROR`];
+    }
+
+    public dumpErrors(): Record<string, string> {
+        const errors: Record<string, string> = {};
+        for (const [k, v] of Object.entries(this)) {
+            if (k.endsWith('_ERROR')) {
+                errors[k.substring(0, k.length - '_ERROR'.length)] = v;
+            }
+        }
+        return errors;
     }
 }

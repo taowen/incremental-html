@@ -17,3 +17,11 @@ test('nameOf indexed by string', () => {
     expect(formObject.country.province).toBe(undefined);
     expect(formObject.country.nameOf('province')).toBe('country.province');
 })
+
+test('setError one level', () => {
+    const formObject = createForm({} as any);
+    formObject.setError('email', 'required');
+    expect(formObject.dumpErrors()).toEqual({
+        email: 'required'
+    });
+})
