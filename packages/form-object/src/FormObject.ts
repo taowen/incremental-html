@@ -1,33 +1,32 @@
-export type AsForm<T> = { [P in keyof T]: AsForm<T[P]> } & {
+export type FormObject<T> = { [P in keyof T]: FormObject<T[P]> } & {
     setError(field: string, errorMessage: string): void;
     getError(field: string): string;
     nameOf(field: string | number): string;
 }
 
-export class FormObject {
+export function decodeForm<T = any>(encoded: string): FormObject<T> {
+    throw new Error('not implemented');
+}
 
-    public static fromString<T = any>(encoded: string): AsForm<T> {
-        throw new Error('not implemented');
-    }
-
-    public static fromObject<T extends Object>(fields: T): AsForm<T> {
-        return new Proxy(new FormObject(fields, []) as any, {
-            get(target, p, receiver) {
-                const field = target[p];
-                if (p === '_prefix') {
-                    return field;
-                }
-                if (field === undefined) {
-                    return new FormObject({}, [...target._prefix, p]);
-                }
-                if (typeof field === 'object') {
-                    return new FormObject(field, [...target._prefix, p]);
-                }
+export function createForm<T extends Object>(fields: T): FormObject<T> {
+    return new Proxy(new FormObjectImpl(fields, []) as any, {
+        get(target, p, receiver) {
+            const field = target[p];
+            if (p === '_prefix') {
                 return field;
             }
-        });
-    }
+            if (field === undefined) {
+                return new FormObjectImpl({}, [...target._prefix, p]);
+            }
+            if (typeof field === 'object') {
+                return new FormObjectImpl(field, [...target._prefix, p]);
+            }
+            return field;
+        }
+    });
+}
 
+class FormObjectImpl {
     constructor(fields: Record<string, any>, private _prefix: string | number[]) {
         Object.assign(this, fields);
     }

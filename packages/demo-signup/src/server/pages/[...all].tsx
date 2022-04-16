@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { jsxToHtml } from 'incremental-html';
+import { jsxToHtml } from '@incremental-html/jsx-to-html';
 
 export function GET(req: Request, resp: Response) {
     return <html>

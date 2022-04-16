@@ -1,12 +1,18 @@
 import { jsxToHtml } from '@incremental-html/jsx-to-html';
+import { createForm, decodeForm } from '@incremental-html/form-object';
 import { Request, Response } from 'express';
 
+interface SignupForm {
+    email: string;
+}
+
 export function POST(req: Request, resp: Response) {
-    resp.redirect('/success');
+    console.log(req.body);
     return;
 }
 
 export function GET() {
+    const form = createForm({} as SignupForm);
     const state: "idle" | "success" | "error" | "submitting" = 'idle' as any;
     const actionData = {} as any;
     return <html>
@@ -26,7 +32,7 @@ export function GET() {
                             aria-label="Email address"
                             aria-describedby="error-message"
                             type="email"
-                            name="email"
+                            name={form.nameOf('email')}
                             placeholder="you@example.com"
                         />
                         <button type="submit">

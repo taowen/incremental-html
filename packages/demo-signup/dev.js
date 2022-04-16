@@ -1,9 +1,11 @@
+const bodyParser = require('body-parser');
 const express = require('express');
 const { createServer: createViteServer} = require('vite');
 
 const root = process.cwd();
 async function main() {
     const server = express()
+    server.use(bodyParser.urlencoded());
     const vite = await createViteServer({
         root,
         server: {
