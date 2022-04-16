@@ -1,5 +1,5 @@
 {
-    "name": "@incremental-html/validate-form",
+    "name": "@incremental-html/form-object",
     "version": "1.0.0",
     "description": "read form submitted from client and send back validation error",
     "main": "dist/cjs/index.js",
