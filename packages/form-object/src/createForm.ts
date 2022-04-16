@@ -12,11 +12,18 @@ export function createForm<T extends Object>(fields: T): FormObject<T> {
             if (p === '_prefix') {
                 return field;
             }
+            if (field instanceof FormObjectImpl) {
+                return field;
+            }
             if (field === undefined) {
-                return new FormObjectImpl({}, [...target._prefix, p]);
+                const subForm = new FormObjectImpl({}, [...target._prefix, p]);
+                target[p] = subForm;
+                return subForm;
             }
             if (typeof field === 'object') {
-                return new FormObjectImpl(field, [...target._prefix, p]);
+                const subForm = new FormObjectImpl(field, [...target._prefix, p]);
+                target[p] = subForm;
+                return subForm;
             }
             return field;
         }
@@ -53,12 +60,19 @@ class FormObjectImpl {
         return (this as any)[`${field}_ERROR`];
     }
 
-    public dumpErrors(): Record<string, string> {
+    public dumpErrors(): Record<string, string> | undefined {
         const errors: Record<string, string> = {};
         for (const [k, v] of Object.entries(this)) {
             if (k.endsWith('_ERROR')) {
-                errors[k.substring(0, k.length - '_ERROR'.length)] = v;
+                errors[this.nameOf(k.substring(0, k.length - '_ERROR'.length))] = v;
+                continue;
+            } 
+            if (v instanceof FormObjectImpl) {
+                Object.assign(errors, v.dumpErrors());
             }
+        }
+        if (Object.keys(errors).length === 0) {
+            return undefined;
         }
         return errors;
     }

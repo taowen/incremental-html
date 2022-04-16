@@ -25,3 +25,11 @@ test('setError one level', () => {
         email: 'required'
     });
 })
+
+test('setError in nested form', () => {
+    const formObject = createForm({} as any);
+    formObject.emails.setError('primary', 'required');
+    expect(formObject.dumpErrors()).toEqual({
+        ['emails.primary']: 'required'
+    });
+})
