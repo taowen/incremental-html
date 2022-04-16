@@ -15,6 +15,6 @@ There are several independent libraries to load/reload html without whole page r
 some optional libraries to make client side interaction code mordern and declarative, feels like vue/react, but working directly with real DOM instead of virtual DOM.
 
 * [client] reactivity: a reactive version jquery to make page interactive, built on top of @vue/reactivity. unlike https://stimulus.hotwired.dev/ it is declarative instead of imperative.
-* [server] validate-form: read the form-object submitted from client, and send back validation errors. unlike page-state, form-object only exists in one http roundtrip.
 * [client] submit-form: the client part of validate-form, submit form-object to server and render validation errors back.
+* [server] form-object: read the form-object submitted from client, and send back validation errors. unlike page-state, form-object only exists in one http roundtrip.
 * libraries written in language other than javascript will be provided after `@incremental-html/navigator` library ported to more platform (Android, iOS)
