@@ -7,7 +7,8 @@ interface SignupForm {
 }
 
 export function POST(req: Request, resp: Response) {
-    console.log(req.body);
+    const form = decodeForm(req.body);
+    console.log('!!!', form);
     return;
 }
 

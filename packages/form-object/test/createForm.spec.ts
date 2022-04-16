@@ -1,4 +1,4 @@
-import { createForm } from "../src/FormObject"
+import { createForm } from "../src/createForm"
 
 test('nameOf one level', () => {
     const formObject = createForm({ email: 'taowen@gmail.com' });

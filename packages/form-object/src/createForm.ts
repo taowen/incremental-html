@@ -4,10 +4,6 @@ export type FormObject<T> = { [P in keyof T]: FormObject<T[P]> } & {
     nameOf(field: string | number): string;
 }
 
-export function decodeForm<T = any>(encoded: string): FormObject<T> {
-    throw new Error('not implemented');
-}
-
 export function createForm<T extends Object>(fields: T): FormObject<T> {
     return new Proxy(new FormObjectImpl(fields, []) as any, {
         get(target, p, receiver) {
