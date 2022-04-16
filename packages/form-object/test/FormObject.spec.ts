@@ -11,3 +11,9 @@ test('nameOf indexed by number', () => {
     expect(formObject.emails[0]).toBe('taowen@gmail.com');
     expect(formObject.emails.nameOf(0)).toBe('emails[0]');
 })
+
+test('nameOf indexed by string', () => {
+    const formObject = FormObject.fromObject({} as any);
+    expect(formObject.country.province).toBe(undefined);
+    expect(formObject.country.nameOf('province')).toBe('country.province');
+})
