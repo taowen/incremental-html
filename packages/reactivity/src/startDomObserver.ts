@@ -9,14 +9,20 @@ const lookup: Record<string, string> = {
     '_innerhtml': 'innerHTML',
 }
 
+const mutationObserver = new MutationObserver((mutationList) => {
+    for (const mutation of mutationList) {
+        notifyNodeSubscribers((mutation.target as Element).getAttribute('xid') as string)
+    }
+});
+
 export function startDomObserver() {
     (window as any).$ = $;
     registerNode(document.documentElement || document.body);
 }
 
 const evaluator = Function.apply(null, ['expr', "return eval('expr = undefined;' + expr)"]);
-function scopedEval(expr: string) {
-    return evaluator.apply(null, [expr]);
+function scopedEval(expr: string, theThis?: any) {
+    return evaluator.apply(theThis, [expr]);
 }
 
 function subscribeNode(node?: Element | null) {
@@ -66,6 +72,10 @@ function registerNode(node: Element) {
     for (let i = 0; i < node.children.length; i++) {
         registerNode(node.children[i])
     }
+    mutationObserver.observe(node, {
+        attributes: true,
+        attributeOldValue: false,
+    });
 }
 
 function $(selector: any) {
@@ -73,8 +83,29 @@ function $(selector: any) {
         throw new Error('not implemented');
     }
     const elem = document.getElementById(selector.substring(1));
+    if (!elem) {
+        return undefined;
+    }
     subscribeNode(elem);
-    return elem;
+    return elementProxy(elem);
+}
+
+function elementProxy(target: Element): any {
+    return new Proxy(target, {
+        get(target, p, receiver) {
+            const v = (target as any)[p];
+            if (typeof v === 'function') {
+                return (...args: any[]) => {
+                    const ret =  v.apply(target, args);
+                    if (ret.nodeType === 1) {
+                        subscribeNode(ret);
+                    }
+                    return ret;
+                }
+            }
+            return v;
+        }
+    })
 }
 
 function refreshNode(node: Element) {
@@ -82,7 +113,7 @@ function refreshNode(node: Element) {
         for (let i = 0; i < node.attributes.length; i++) {
             const attr = node.attributes[i];
             if (attr.name.startsWith('_')) {
-                setAttribute(node, attr.name, scopedEval(attr.value));
+                setAttribute(node, attr.name, scopedEval(attr.value, elementProxy(node)));
             }
         }
     })

@@ -44,8 +44,7 @@ export function GET() {
                         </button>
                     </fieldset>
 
-                    <p id="error-message">
-                        {state === "error" ? actionData.message : <>&nbsp;</>}
+                    <p id="error-message" _innerHTML="this.closest('form').getAttribute('error')">
                     </p>
                 </form>
 
