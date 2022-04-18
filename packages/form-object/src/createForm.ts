@@ -1,14 +1,10 @@
 import { sendFormErrors } from "./sendFormErrors";
 
-export type FormObject<T> = { [P in keyof T]: FormObject<T[P]> } & {
-    setError(field: keyof T, errorMessage: string): void;
-    getError(field: keyof T): string;
-    dumpErrors(): Record<string, string>;
-    sendErrors(response: any, errorMessage: string): boolean;
+export type NewForm<T> = { [P in keyof T]: NewForm<T[P]> } & {
     nameOf(field: keyof T): string;
 }
 
-export function createForm<T extends Object>(fields: T): FormObject<T> {
+export function createForm<T extends Object>(fields: T): NewForm<T> {
     return new Proxy(new FormObjectImpl(fields, []) as any, {
         get(target, p, receiver) {
             const field = target[p];

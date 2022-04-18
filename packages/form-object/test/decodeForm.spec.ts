@@ -29,3 +29,19 @@ test('decode double array', () => {
     expect(form.emails[0][1]).toBe('taowen@gmail.com');
     expect(form.emails[0][0]).toBe('example@example.com');
 })
+
+test('setError one level', () => {
+    const formObject = decodeForm({} as any);
+    formObject.setError('email', 'required');
+    expect(formObject.dumpErrors()).toEqual({
+        email: 'required'
+    });
+})
+
+test('setError in nested form', () => {
+    const formObject = decodeForm({} as any);
+    formObject.emails.setError('primary', 'required');
+    expect(formObject.dumpErrors()).toEqual({
+        ['emails.primary']: 'required'
+    });
+})

@@ -1,6 +1,13 @@
-import { createForm, FormObject } from "./createForm";
+import { createForm } from "./createForm";
 
-export function decodeForm<T = any>(encoded: Record<string, string>): FormObject<T> {
+export type SubmittedForm<T> = { [P in keyof T]: SubmittedForm<T[P]> } & {
+    setError(field: keyof T, errorMessage: string): void;
+    getError(field: keyof T): string;
+    dumpErrors(): Record<string, string> | undefined;
+    sendErrors(response: any, errorMessage: string): boolean;
+}
+
+export function decodeForm<T = any>(encoded: Record<string, string>): SubmittedForm<T> {
     const form = {};
     for (const [path, v] of Object.entries(encoded)) {
         const parts = decodePath(path);

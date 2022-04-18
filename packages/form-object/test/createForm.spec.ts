@@ -1,3 +1,4 @@
+import { decodeForm } from "../src";
 import { createForm } from "../src/createForm"
 
 test('nameOf one level', () => {
@@ -16,20 +17,4 @@ test('nameOf indexed by string', () => {
     const formObject = createForm({} as any);
     expect(formObject.country.province).toBe(undefined);
     expect(formObject.country.nameOf('province')).toBe('country.province');
-})
-
-test('setError one level', () => {
-    const formObject = createForm({} as any);
-    formObject.setError('email', 'required');
-    expect(formObject.dumpErrors()).toEqual({
-        email: 'required'
-    });
-})
-
-test('setError in nested form', () => {
-    const formObject = createForm({} as any);
-    formObject.emails.setError('primary', 'required');
-    expect(formObject.dumpErrors()).toEqual({
-        ['emails.primary']: 'required'
-    });
 })
