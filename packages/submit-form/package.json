@@ -10,7 +10,11 @@
     "devDependencies": {
       "typescript": "^4.5.5",
       "jest": "27.5.1",
+      "typedoc": "^0.22.15",
       "@types/jest": "27.4.1"
     },
-    "files": ["dist/*", "README.md", "LICENSE"]
+    "files": ["dist/*", "README.md", "LICENSE"],
+    "scripts": {
+      "build:docs": "typedoc src/index.ts --out ../../docs/submit-form"
+    }
   }
