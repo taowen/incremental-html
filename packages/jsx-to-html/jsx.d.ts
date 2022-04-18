@@ -1217,6 +1217,7 @@ export interface Events {
   onInput: Event
   onReset: Event
   onSubmit: Event
+  ['on:Submit']: Event
   onInvalid: Event
 
   // image events

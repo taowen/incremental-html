@@ -20,9 +20,15 @@ export function startDomObserver() {
     registerNode(document.documentElement || document.body);
 }
 
-const evaluator = Function.apply(null, ['expr', "return eval('expr = undefined;' + expr)"]);
-function scopedEval(expr: string, theThis?: any) {
-    return evaluator.apply(theThis, [expr]);
+const syncEvaluator = Function.apply(null, ['expr', 'arguments', "return eval('expr = undefined;' + expr)"]);
+function evalSync(expr: string, theThis?: any, ...args: any[]) {
+    return syncEvaluator.apply(theThis, [expr, args]);
+}
+
+
+const asyncEvaluator = Function.apply(null, ['expr', 'arguments', "return eval('expr = undefined; (async() => {' + expr + '})();')"]);
+function evalAsync(expr: string, theThis?: any, ...args: any[]) {
+    return asyncEvaluator.apply(theThis, [expr, args]);
 }
 
 function subscribeNode(node?: Element | null) {
@@ -65,8 +71,13 @@ function registerNode(node: Element) {
     }
     for (let i = 0; i < node.attributes.length; i++) {
         const attr = node.attributes[i];
-        if (attr.name === 'oninit') {
-            scopedEval(attr.value);
+        if (attr.name === 'oninit' || attr.name === 'on:init') {
+            evalSync(attr.value);
+        } else if (attr.name.startsWith('on:')) {
+            node.addEventListener(attr.name.substring('on:'.length), (...args) => {
+                args[0].preventDefault();
+                evalAsync(attr.value, node, ...args);
+            })
         }
     }
     for (let i = 0; i < node.children.length; i++) {
@@ -113,7 +124,7 @@ function refreshNode(node: Element) {
         for (let i = 0; i < node.attributes.length; i++) {
             const attr = node.attributes[i];
             if (attr.name.startsWith('_')) {
-                setAttribute(node, attr.name, scopedEval(attr.value, elementProxy(node)));
+                setAttribute(node, attr.name, evalSync(attr.value, elementProxy(node)));
             }
         }
     })

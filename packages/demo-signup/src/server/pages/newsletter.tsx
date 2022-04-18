@@ -27,7 +27,16 @@ export function GET() {
         </head>
         <body>
             <main>
-                <form method="post" onSubmit="$$.onSubmit(...arguments)">
+                <form method="post" on:Submit="
+                const [e] = arguments;
+                const form = e.target;
+                form.setAttribute('submitting', 'true');
+                try {
+                    await $$.submitForm(form)
+                } finally {
+                    form.setAttribute('submitting', '');
+                }
+                ">
                     <h2>Subscribe!</h2>
                     <p>Don't miss any of the action!</p>
                     <fieldset>

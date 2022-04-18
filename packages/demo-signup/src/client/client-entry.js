@@ -1,8 +1,8 @@
 // client side entry
 import { startDomObserver } from '@incremental-html/reactivity';
-import { onSubmit } from '@incremental-html/submit-form';
+import { submitForm } from '@incremental-html/submit-form';
 
 window.$$ = {
-    onSubmit
+    submitForm
 };
 startDomObserver();
