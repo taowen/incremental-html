@@ -3,7 +3,6 @@
         "target": "esnext",
         "useDefineForClassFields": true,
         "declaration": true,
-        "module": "commonjs",
         "moduleResolution": "node",
         "incremental": true,
         "strict": true,
@@ -12,7 +11,6 @@
         "sourceMap": true,
         "resolveJsonModule": true,
         "esModuleInterop": true,
-        "outDir": "dist/cjs",
         "lib": [
             "esnext",
             "dom"

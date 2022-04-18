@@ -4,6 +4,7 @@
     "version": "1.0.0",
     "dependencies": {
         "@incremental-html/jsx-to-html": "workspace:*",
+        "@incremental-html/reactivity": "workspace:*",
         "@incremental-html/form-object": "workspace:*",
         "@incremental-html/submit-form": "workspace:*",
         "express": "^4.17.1",

@@ -2,6 +2,14 @@ lockfileVersion: 5.3
 
 importers:
 
+  .:
+    specifiers:
+      npm-run-all: ^4.1.5
+      typescript: ^4.5.5
+    devDependencies:
+      npm-run-all: 4.1.5
+      typescript: 4.6.3
+
   packages/demo-counter:
     specifiers:
       '@incremental-html/reactivity': workspace:*
@@ -17,6 +25,7 @@ importers:
     specifiers:
       '@incremental-html/form-object': workspace:*
       '@incremental-html/jsx-to-html': workspace:*
+      '@incremental-html/reactivity': workspace:*
       '@incremental-html/submit-form': workspace:*
       '@types/express': ^4.17.13
       body-parser: ^1.12.0
@@ -26,6 +35,7 @@ importers:
     dependencies:
       '@incremental-html/form-object': link:../form-object
       '@incremental-html/jsx-to-html': link:../jsx-to-html
+      '@incremental-html/reactivity': link:../reactivity
       '@incremental-html/submit-form': link:../submit-form
       body-parser: 1.19.2
       express: 4.17.3
@@ -49,31 +59,12 @@ importers:
     specifiers:
       '@types/jest': 27.4.1
       jest: 27.5.1
-      npm-run-all: ^4.1.5
       typedoc: ^0.22.15
       typescript: ^4.5.5
     devDependencies:
       '@types/jest': 27.4.1
       jest: 27.5.1
-      npm-run-all: 4.1.5
       typedoc: 0.22.15_typescript@4.6.3
-      typescript: 4.6.3
-
-  packages/incremental-html:
-    specifiers:
-      '@types/jest': 27.4.1
-      '@vue/reactivity': ^3.2.32
-      csstype: ^2.6.8
-      jest: 27.5.1
-      npm-run-all: ^4.1.5
-      typescript: ^4.5.5
-    dependencies:
-      '@vue/reactivity': 3.2.32
-      csstype: 2.6.20
-    devDependencies:
-      '@types/jest': 27.4.1
-      jest: 27.5.1
-      npm-run-all: 4.1.5
       typescript: 4.6.3
 
   packages/jsx-to-html:
@@ -81,26 +72,22 @@ importers:
       '@types/jest': 27.4.1
       csstype: ^2.6.8
       jest: 27.5.1
-      npm-run-all: ^4.1.5
       typescript: ^4.5.5
     dependencies:
       csstype: 2.6.20
     devDependencies:
       '@types/jest': 27.4.1
       jest: 27.5.1
-      npm-run-all: 4.1.5
       typescript: 4.6.3
 
   packages/navigator:
     specifiers:
       '@types/jest': 27.4.1
       jest: 27.5.1
-      npm-run-all: ^4.1.5
       typescript: ^4.5.5
     devDependencies:
       '@types/jest': 27.4.1
       jest: 27.5.1
-      npm-run-all: 4.1.5
       typescript: 4.6.3
 
   packages/reactivity:
@@ -108,26 +95,22 @@ importers:
       '@types/jest': 27.4.1
       '@vue/reactivity': ^3.2.32
       jest: 27.5.1
-      npm-run-all: ^4.1.5
       typescript: ^4.5.5
     dependencies:
       '@vue/reactivity': 3.2.32
     devDependencies:
       '@types/jest': 27.4.1
       jest: 27.5.1
-      npm-run-all: 4.1.5
       typescript: 4.6.3
 
   packages/submit-form:
     specifiers:
       '@types/jest': 27.4.1
       jest: 27.5.1
-      npm-run-all: ^4.1.5
       typescript: ^4.5.5
     devDependencies:
       '@types/jest': 27.4.1
       jest: 27.5.1
-      npm-run-all: 4.1.5
       typescript: 4.6.3
 
 packages:
