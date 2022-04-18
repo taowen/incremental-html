@@ -1,5 +1,5 @@
 import { jsxToHtml } from '@incremental-html/jsx-to-html';
-import { createForm, decodeForm } from '@incremental-html/form-object';
+import { createForm, decodeForm, sendFormErrors } from '@incremental-html/form-object';
 import { Request, Response } from 'express';
 
 interface SignupForm {
@@ -9,7 +9,9 @@ interface SignupForm {
 export function POST(req: Request, resp: Response) {
     const form = decodeForm<SignupForm>(req.body);
     form.setError('email', 'required');
-    console.log('!!!', form);
+    if (form.sendErrors(resp, 'validation failed')) {
+        return;
+    }
     return;
 }
 

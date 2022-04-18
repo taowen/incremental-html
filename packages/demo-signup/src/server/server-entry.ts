@@ -15,5 +15,9 @@ export default async function (req: Request, resp: Response) {
         resp.status(404).end('missing handler for method: ' + req.method);
         return '';
     }
-    return "<!DOCTYPE html>" + await jsxToHtml(await methodHandler(req, resp));
+    const result = await jsxToHtml(await methodHandler(req, resp));
+    if (result) {
+        return "<!DOCTYPE html>" + result;
+    }
+    return result;
 }

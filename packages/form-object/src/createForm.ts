@@ -1,7 +1,10 @@
+import { sendFormErrors } from "./sendFormErrors";
+
 export type FormObject<T> = { [P in keyof T]: FormObject<T[P]> } & {
     setError(field: keyof T, errorMessage: string): void;
     getError(field: keyof T): string;
     dumpErrors(): Record<string, string>;
+    sendErrors(response: any, errorMessage: string): boolean;
     nameOf(field: keyof T): string;
 }
 
@@ -75,5 +78,13 @@ class FormObjectImpl {
             return undefined;
         }
         return errors;
+    }
+
+    public sendErrors(resp: any, errorMessage: string) {
+        const formErrors = this.dumpErrors();
+        if (formErrors) {
+            sendFormErrors(resp, { errorMessage, formErrors });
+        }
+        return !!formErrors;
     }
 }

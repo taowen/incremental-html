@@ -1,6 +1,6 @@
 const bodyParser = require('body-parser');
 const express = require('express');
-const { createServer: createViteServer} = require('vite');
+const { createServer: createViteServer } = require('vite');
 
 const root = process.cwd();
 async function main() {
@@ -34,7 +34,9 @@ async function main() {
         } catch (e) {
             vite && vite.ssrFixStacktrace(e)
             console.log(e.stack)
-            resp.status(500).end(e.stack)
+            if (!resp.statusCode) {
+                resp.status(500).end(e.stack)
+            }
         }
     })
     server.listen(3000, () => {
