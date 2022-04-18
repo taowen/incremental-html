@@ -6,7 +6,8 @@ interface SignupForm {
     email: string;
 }
 
-export function POST(req: Request, resp: Response) {
+export async function POST(req: Request, resp: Response) {
+    await new Promise(resolve => setTimeout(resolve, 1000));
     const form = decodeForm<SignupForm>(req.body);
     form.setError('email', 'required');
     if (form.sendErrors(resp, 'validation failed')) {
@@ -17,8 +18,6 @@ export function POST(req: Request, resp: Response) {
 
 export function GET() {
     const form = createForm({} as SignupForm);
-    const state: "idle" | "success" | "error" | "submitting" = 'idle' as any;
-    const actionData = {} as any;
     return <html>
         <head>
             <meta http-equiv="content-type" content="text/html; charset=utf-8" />
@@ -28,7 +27,7 @@ export function GET() {
         </head>
         <body>
             <main>
-                <form method="post" aria-hidden={state === "success"} onSubmit="$$.onSubmit(...arguments)">
+                <form method="post" onSubmit="$$.onSubmit(...arguments)">
                     <h2>Subscribe!</h2>
                     <p>Don't miss any of the action!</p>
                     <fieldset>
@@ -38,23 +37,17 @@ export function GET() {
                             type="email"
                             name={form.nameOf('email')}
                             placeholder="you@example.com"
+                            onInput="this.closest('form').setAttribute('error', '')"
                         />
-                        <button type="submit">
-                            {state === "submitting" ? "Subscribing..." : "Subscribe"}
+                        <button type="submit" 
+                            _innerHTML="this.closest('form').getAttribute('submitting') ? 'Subscribing...' : 'Subscribe'">
                         </button>
                     </fieldset>
 
-                    <p id="error-message" _innerHTML="this.closest('form').getAttribute('error')">
+                    <p id="error-message" 
+                        _innerHTML="this.closest('form').getAttribute('error') || '\xa0'">
                     </p>
                 </form>
-
-                <div aria-hidden={state !== "success"}>
-                    <h2 tabindex={-1}>
-                        You're subscribed!
-                    </h2>
-                    <p>Please check your email to confirm your subscription.</p>
-                    <a>Start over</a>
-                </div>
             </main>
         </body>
     </html>;
