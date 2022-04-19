@@ -8,15 +8,22 @@ export async function jsxToHtml(node: any): Promise<string> {
     if (!node) {
         return '';
     }
-    if (node.tag === undefined) {
-        return `${node}`;
-    }
     if (node.tag === Fragment) {
         const children = [];
         for (const child of node.children) {
             children.push(await jsxToHtml(child));
         }
         return children.join('\n');
+    }
+    if (Array.isArray(node)) {
+        const children = [];
+        for (const child of node) {
+            children.push(await jsxToHtml(child));
+        }
+        return children.join('\n');
+    }
+    if (node.tag === undefined) {
+        return `${node}`;
     }
     if (typeof node.tag === 'string') {
         const parts = ['<', node.tag];
