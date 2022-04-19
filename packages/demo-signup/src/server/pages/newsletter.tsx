@@ -46,7 +46,7 @@ export function GET() {
                             type="email"
                             name={form.nameOf('email')}
                             placeholder="you@example.com"
-                            onInput="this.closest('form').setAttribute('error', '')"
+                            on:input="this.closest('form').setAttribute('error', '')"
                         />
                         <button type="submit" 
                             bind:textContent="this.closest('form').getAttribute('submitting') ? 'Subscribing...' : 'Subscribe'">

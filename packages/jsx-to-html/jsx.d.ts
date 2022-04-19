@@ -1216,6 +1216,7 @@ export interface Events {
   onChange: Event
   onBeforeinput: Event
   onInput: Event
+  ['on:input']: Event
   onReset: Event
   onSubmit: Event
   ['on:submit']: Event

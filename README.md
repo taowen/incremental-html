@@ -19,8 +19,10 @@ incremental-html want to enable following interaction styles
 * [ ] show error next to the input
 * [ ] avoid multi page form, prefer minimal data entry initially, grow the form gradually as user provided more information
 * [ ] use infinite scroll to load more
+* [ ] use pull down to refresh
 * [ ] use swipe to show/hide more actions
 * [ ] use drag and drop to re-order items
+* [ ] use drag and drop to connect relationship
 * [ ] use half screen dialog to replace page jumping, use inline editing to replace modal dialog, avoid jumping around if possible
 * [ ] use mansonry to layout double columns, use screen space more efficiently
 * [ ] use FLIP layout animation to avoid content suddenly appear/disappear

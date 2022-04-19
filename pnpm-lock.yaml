@@ -21,6 +21,29 @@ importers:
       typescript: 4.6.3
       vite: 2.9.1
 
+  packages/demo-server-todo:
+    specifiers:
+      '@incremental-html/form-object': workspace:*
+      '@incremental-html/jsx-to-html': workspace:*
+      '@incremental-html/reactivity': workspace:*
+      '@incremental-html/submit-form': workspace:*
+      '@types/express': ^4.17.13
+      body-parser: ^1.12.0
+      express: ^4.17.1
+      typescript: ^4.5.5
+      vite: ^2.9.1
+    dependencies:
+      '@incremental-html/form-object': link:../form-object
+      '@incremental-html/jsx-to-html': link:../jsx-to-html
+      '@incremental-html/reactivity': link:../reactivity
+      '@incremental-html/submit-form': link:../submit-form
+      body-parser: 1.19.2
+      express: 4.17.3
+    devDependencies:
+      '@types/express': 4.17.13
+      typescript: 4.6.3
+      vite: 2.9.1
+
   packages/demo-signup:
     specifiers:
       '@incremental-html/form-object': workspace:*
