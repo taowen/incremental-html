@@ -27,6 +27,8 @@ incremental-html want to enable following interaction styles
 * [ ] preload next page, show progress, save the waiting time after switching
 * [ ] show current and next page side by side with transition animation, if no loading required
 * [ ] go back to previous page without reload waiting
+* [ ] perserve unsaved form in browser 
+* [ ] render big page with many dom nodes, showing only the porition in viewport
 
 ## reusable libraries
 
