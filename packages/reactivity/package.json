@@ -6,7 +6,8 @@
     "module": "dist/esm/index.js",
     "types": "dist/esm/index.d.ts",
     "dependencies": {
-      "@vue/reactivity": "^3.2.32"
+      "@vue/reactivity": "^3.2.32",
+      "morphdom": "^2.6.1"
     },
     "devDependencies": {
       "typescript": "^4.5.5",

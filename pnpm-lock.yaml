@@ -95,9 +95,11 @@ importers:
       '@types/jest': 27.4.1
       '@vue/reactivity': ^3.2.32
       jest: 27.5.1
+      morphdom: ^2.6.1
       typescript: ^4.5.5
     dependencies:
       '@vue/reactivity': 3.2.32
+      morphdom: 2.6.1
     devDependencies:
       '@types/jest': 27.4.1
       jest: 27.5.1
@@ -2806,6 +2808,10 @@ packages:
     dependencies:
       brace-expansion: 2.0.1
     dev: true
+
+  /morphdom/2.6.1:
+    resolution: {integrity: sha512-Y8YRbAEP3eKykroIBWrjcfMw7mmwJfjhqdpSvoqinu8Y702nAwikpXcNFDiIkyvfCLxLM9Wu95RZqo4a9jFBaA==}
+    dev: false
 
   /ms/2.0.0:
     resolution: {integrity: sha1-VgiurfwAvmwpAd9fmGF4jeDVl8g=}

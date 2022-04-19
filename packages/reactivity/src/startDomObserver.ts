@@ -1,4 +1,5 @@
 import { effect, reactive } from '@vue/reactivity';
+import morphdom from 'morphdom';
 
 const nodeVersions = reactive<Record<string, number>>({});
 const rawNode = Symbol();
@@ -7,7 +8,7 @@ let nextVer = 1;
 
 // html will lowercase attribute name
 const lookup: Record<string, string> = {
-    'bind:innerhtml': 'innerHTML',
+    'bind:textcontent': 'textContent'
 }
 
 const mutationObserver = new MutationObserver((mutationList) => {
@@ -141,6 +142,20 @@ function setAttribute(node: Element, name: string, value: any) {
             key = name.substring('bind:style.'.length);
         }
         return Reflect.set((node as HTMLElement).style, key, value);
+    }
+    if (name === 'bind:innerhtml') {
+        const newNode = document.createElement('div');
+        newNode.innerHTML = value;
+        morphdom(node, newNode,  {
+            getNodeKey(node) {
+                if (node.nodeType === 1) {
+                    return (node as Element).id;
+                }
+                return '';
+            },
+            childrenOnly: true
+        })
+        return;
     }
     let key = lookup[name];
     if (!key) {
