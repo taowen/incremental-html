@@ -4,6 +4,32 @@ Render in server side, using html as "virtual DOM" to update ui incrementally. T
 
 Inspired by https://hotwired.dev/ like [previous effort](https://github.com/taowen/awesome-html), incremental-html try to avoid re-inventing javascript, and try to be declaractive. The API to remember should be minimal, normal javascript programming as we are familiar with should be encouraged (compared to programming by turbo-stream/htmx action).
 
+## interaction styles
+
+incremental-html want to enable following interaction styles
+
+* [ ] load server generated page without waiting in blank state for too long, load as much as possible within a time budget, defer unfinished loading to second roundtrip
+* [ ] show loading indicator to allow other areas to show before everything ready, but not too many indicators
+* [ ] show error in area, instead of make whole page unusable
+* [ ] show result of my action without whole page refresh, keep uncommited edit state in other area
+* [ ] show feedback while typing, save extra click
+* [ ] show search results while typing, save extra click
+* [ ] if button click takes some time, show a processing indicator on the button to prevent user clicking twice
+* [ ] if server processing takes time, client may optimistically update before server confirm
+* [ ] show error next to the input
+* [ ] avoid multi page form, prefer minimal data entry initially, grow the form gradually as user provided more information
+* [ ] use infinite scroll to load more
+* [ ] use swipe to show/hide more actions
+* [ ] use drag and drop to re-order items
+* [ ] use half screen dialog to replace page jumping, use inline editing to replace modal dialog, avoid jumping around if possible
+* [ ] use mansonry to layout double columns, use screen space more efficiently
+* [ ] use FLIP layout animation to avoid content suddenly appear/disappear
+* [ ] preload next page, show progress, save the waiting time after switching
+* [ ] show current and next page side by side with transition animation, if no loading required
+* [ ] go back to previous page without reload waiting
+
+## reusable libraries
+
 There are several independent libraries to load/reload html without whole page refresh (just like F5, but without trashing client side input and state). When client side code handle some input, it either update the DOM directly somehow (such as showing form validation error), or it will use `@incremental-html/navigator` to refresh latest data from server.
 
 * [web] navigator: update DOM via html diff to reload, go forward or go backward. unlike https://turbo.hotwired.dev/ it is declarative instead of imperative. and navigator does not try to handle form submission.
