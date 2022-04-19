@@ -5,7 +5,7 @@ const { createServer: createViteServer } = require('vite');
 const root = process.cwd();
 async function main() {
     const server = express()
-    server.use(bodyParser.urlencoded({ extended: true }));
+    server.use(bodyParser.urlencoded({ extended: false }));
     const vite = await createViteServer({
         root,
         server: {

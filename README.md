@@ -31,6 +31,7 @@ incremental-html want to enable following interaction styles
 * [ ] go back to previous page without reload waiting
 * [ ] perserve unsaved form in browser 
 * [ ] render big page with many dom nodes, showing only the porition in viewport
+* [ ] multiple concurrent actions, end up with a consistent final state
 
 ## reusable libraries
 

@@ -6,6 +6,7 @@
         "@incremental-html/jsx-to-html": "workspace:*",
         "@incremental-html/reactivity": "workspace:*",
         "@incremental-html/form-object": "workspace:*",
+        "@incremental-html/navigator": "workspace:*",
         "@incremental-html/submit-form": "workspace:*",
         "express": "^4.17.1",
         "body-parser": "^1.12.0"
