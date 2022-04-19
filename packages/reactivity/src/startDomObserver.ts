@@ -1,6 +1,7 @@
 import { effect, reactive } from '@vue/reactivity';
 
 const nodeVersions = reactive<Record<string, number>>({});
+const rawNode = Symbol();
 let nextId = 1;
 let nextVer = 1;
 
@@ -61,10 +62,10 @@ function registerNode(node: Element) {
         const superGet = Object.getOwnPropertyDescriptor(superProps, "value")!.get!;
         Object.defineProperty(node, "value", {
             get: function () {
-                return superGet.apply(this);
+                return superGet.apply(this[rawNode] || this);
             },
             set: function (t) {
-                superSet.call(this, t);
+                superSet.call(this[rawNode] || this, t);
                 notifyNodeSubscribers(xid);
             }
         });
@@ -104,6 +105,9 @@ function $(selector: any) {
 function elementProxy(target: Element): any {
     return new Proxy(target, {
         get(target, p, receiver) {
+            if (p === rawNode) {
+                return target;
+            }
             const v = (target as any)[p];
             if (typeof v === 'function') {
                 return (...args: any[]) => {
