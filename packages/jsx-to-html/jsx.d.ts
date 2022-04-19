@@ -241,8 +241,8 @@ export interface HTMLAttributes extends AriaAttributes, EventHandlers<Events> {
 
   class?: any
   style?: StyleValue
-  _style?: string
-  _innerHTML?: string
+  ['bind:style']?: string
+  ['bind:innerHTML']?: string
 
   // Standard HTML Attributes
   accesskey?: string
@@ -1217,7 +1217,7 @@ export interface Events {
   onInput: Event
   onReset: Event
   onSubmit: Event
-  ['on:Submit']: Event
+  ['on:submit']: Event
   onInvalid: Event
 
   // image events

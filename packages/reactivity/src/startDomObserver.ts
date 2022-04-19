@@ -7,7 +7,7 @@ let nextVer = 1;
 
 // html will lowercase attribute name
 const lookup: Record<string, string> = {
-    '_innerhtml': 'innerHTML',
+    'bind:innerhtml': 'innerHTML',
 }
 
 const mutationObserver = new MutationObserver((mutationList) => {
@@ -127,7 +127,7 @@ function refreshNode(node: Element) {
     effect(() => {
         for (let i = 0; i < node.attributes.length; i++) {
             const attr = node.attributes[i];
-            if (attr.name.startsWith('_')) {
+            if (attr.name.startsWith('bind:')) {
                 setAttribute(node, attr.name, evalSync(attr.value, elementProxy(node)));
             }
         }
@@ -135,16 +135,16 @@ function refreshNode(node: Element) {
 }
 
 function setAttribute(node: Element, name: string, value: any) {
-    if (name.startsWith('_style.')) {
-        let key = lookup[name.substring('_style.'.length)];
+    if (name.startsWith('bind:style.')) {
+        let key = lookup[name.substring('bind:style.'.length)];
         if (!key) {
-            key = name.substring('_style.'.length);
+            key = name.substring('bind:style.'.length);
         }
         return Reflect.set((node as HTMLElement).style, key, value);
     }
     let key = lookup[name];
     if (!key) {
-        key = name.substring('_'.length);
+        key = name.substring('bind:'.length);
     }
     Reflect.set(node, key, value);
 }

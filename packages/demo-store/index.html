@@ -7,14 +7,16 @@
 </head>
 
 <!-- oninit is executed when startObserver -->
-<body oninit="theStore.counter = 99">
-    <button onclick="theStore.counter -= 1">-</button>
-    <input _value="theStore.counter" oninput="theStore.counter = parseInt(arguments[0].target.value)"/>
-    <button onclick="theStore.counter += 1">+</button>
-    <p _style.color="theStore.counter > 100 ? 'red' : 'black'" _innerHTML="`value is: ${theStore.counter}`" />
+<body bind:store="$$.reactive({ counter: 99 })">
+    <button on:click="document.body.store.counter -= 1">-</button>
+    <input bind:value="document.body.store.counter" 
+    on:input="document.body.store.counter = parseInt(arguments[0].target.value)"/>
+    <button on:click="document.body.store.counter += 1">+</button>
+    <p bind:style.color="document.body.store.counter > 100 ? 'red' : 'black'" 
+        bind:innerHTML="`value is: ${document.body.store.counter}`" />
     <script type="module">
         import { startDomObserver, reactive } from '@incremental-html/reactivity';
-        window.theStore = reactive({});
+        window.$$ = { reactive };
         // for properties like _style.color or _innerHTML
         startDomObserver();
     </script>

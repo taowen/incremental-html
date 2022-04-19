@@ -13,9 +13,9 @@
         counter.value = parseInt(counter.value) - 1
     ">-</button>
     <input id="counter" value="99" />
-    <button onclick="$('#counter').value = parseInt($('#counter').value) + 1">+</button>
-    <p _style.color="$('#counter').value > 100 ? 'red' : 'black'" 
-        _innerHTML="`value is: ${$('#counter').value}`" />
+    <button on:click="$('#counter').value = parseInt($('#counter').value) + 1">+</button>
+    <p bind:style.color="$('#counter').value > 100 ? 'red' : 'black'" 
+        bind:innerHTML="`value is: ${$('#counter').value}`" />
     <script type="module">
         import { startDomObserver } from '@incremental-html/reactivity';
         // for properties like _style.color or _innerHTML

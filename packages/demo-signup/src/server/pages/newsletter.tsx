@@ -1,5 +1,5 @@
 import { jsxToHtml } from '@incremental-html/jsx-to-html';
-import { createForm, decodeForm, sendFormErrors } from '@incremental-html/form-object';
+import { createForm, decodeForm } from '@incremental-html/form-object';
 import { Request, Response } from 'express';
 
 interface SignupForm {
@@ -27,7 +27,7 @@ export function GET() {
         </head>
         <body>
             <main>
-                <form method="post" on:Submit="
+                <form method="post" on:submit="
                 const [e] = arguments;
                 const form = e.target;
                 form.setAttribute('submitting', 'true');
@@ -49,12 +49,12 @@ export function GET() {
                             onInput="this.closest('form').setAttribute('error', '')"
                         />
                         <button type="submit" 
-                            _innerHTML="this.closest('form').getAttribute('submitting') ? 'Subscribing...' : 'Subscribe'">
+                            bind:innerHTML="this.closest('form').getAttribute('submitting') ? 'Subscribing...' : 'Subscribe'">
                         </button>
                     </fieldset>
 
                     <p id="error-message" 
-                        _innerHTML="this.closest('form').getAttribute('error') || '\xa0'">
+                        bind:innerHTML="this.closest('form').getAttribute('error') || '\xa0'">
                     </p>
                 </form>
             </main>
