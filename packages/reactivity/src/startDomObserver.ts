@@ -13,7 +13,9 @@ const lookup: Record<string, string> = {
 
 const mutationObserver = new MutationObserver((mutationList) => {
     for (const mutation of mutationList) {
-        notifyNodeSubscribers((mutation.target as Element).getAttribute('xid') as string)
+        if (mutation.attributeName) {
+            notifyNodeSubscribers((mutation.target as any).$xid)
+        }
         for (let i = 0; i < mutation.addedNodes.length; i++) {
             const addedNode = mutation.addedNodes.item(i)!;
             if (addedNode.nodeType === 1) {
@@ -43,7 +45,7 @@ function subscribeNode(node?: Element | null) {
     if (!node) {
         return;
     }
-    const xid = node.getAttribute('xid');
+    const xid = (node as any).$xid;
     if (xid) {
         nodeVersions[xid]; // read from reactive object to subscribe
     }
@@ -54,12 +56,14 @@ function notifyNodeSubscribers(xid: string) {
 }
 
 function registerNode(node: Element) {
-    if (node.getAttribute('xid')) {
-        return;
+    if ((node as any).$xid) {
+        return (node as any).$xid;
     }
     const xid = `n${nextId++}`;
-    node.setAttribute('xid', xid);
-    refreshNode(node);
+    (node as any).$xid = xid;
+    effect(() => {
+        refreshNode(node);
+    })
     if (node.tagName === 'INPUT') {
         node.addEventListener('input', () => {
             notifyNodeSubscribers(xid);
@@ -83,10 +87,10 @@ function registerNode(node: Element) {
             const eventName = attr.name.substring('on:'.length);
             node.addEventListener(eventName, (...args) => {
                 args[0].preventDefault();
-                (async() => {
+                (async () => {
                     try {
-                        await evalAsync(attr.value, node, ...args);
-                    } catch(e) {
+                        await evalAsync(attr.value, args[0].target, ...args);
+                    } catch (e) {
                         console.error('failed to handle ' + eventName, { e });
                     }
                 })();
@@ -101,6 +105,7 @@ function registerNode(node: Element) {
         attributeOldValue: false,
         childList: true
     });
+    return xid;
 }
 
 function $(selector: any) {
@@ -137,19 +142,17 @@ function elementProxy(target: Element): any {
 }
 
 function refreshNode(node: Element) {
-    effect(() => {
-        for (let i = 0; i < node.attributes.length; i++) {
-            const attr = node.attributes[i];
-            if (attr.name.startsWith('bind:')) {
-                try {
-                    const newValue = evalSync(attr.value, elementProxy(node));
-                    setAttribute(node, attr.name, newValue);
-                } catch(e) {
-                    console.error(`failed to eval ${attr.name}`, { node, e });
-                }
+    for (let i = 0; i < node.attributes.length; i++) {
+        const attr = node.attributes[i];
+        if (attr.name.startsWith('bind:')) {
+            try {
+                const newValue = evalSync(attr.value, elementProxy(node));
+                setAttribute(node, attr.name, newValue);
+            } catch (e) {
+                console.error(`failed to eval ${attr.name}`, { node, e });
             }
         }
-    })
+    }
 }
 
 function setAttribute(node: Element, name: string, value: any) {
@@ -158,20 +161,25 @@ function setAttribute(node: Element, name: string, value: any) {
         if (!key) {
             key = name.substring('bind:style.'.length);
         }
-        return Reflect.set((node as HTMLElement).style, key, value);
+        Reflect.set((node as HTMLElement).style, key, value)
+        return;
     }
     if (name === 'bind:innerhtml') {
         const newNode = document.createElement('div');
         newNode.innerHTML = value;
-        morphdom(node, newNode, {
-            getNodeKey(node) {
-                if (node.nodeType === 1) {
-                    return (node as Element).id;
-                }
-                return '';
-            },
-            childrenOnly: true
-        })
+        updateChildNodesIncrementally(node, newNode);
+        return;
+    }
+    if (name === 'bind:childnodes') {
+        const newNode = document.createElement('div');
+        if (Array.isArray(value)) {
+            for (const child of value) {
+                newNode.appendChild(child);
+            }
+        } else {
+            newNode.appendChild(value);
+        }
+        updateChildNodesIncrementally(node, newNode);
         return;
     }
     let key = lookup[name];
@@ -179,4 +187,27 @@ function setAttribute(node: Element, name: string, value: any) {
         key = name.substring('bind:'.length);
     }
     Reflect.set(node, key, value);
+}
+
+function updateChildNodesIncrementally(node: Element, newNode: Element) {
+    morphdom(node, newNode, {
+        getNodeKey(node) {
+            if (node.nodeType === 1) {
+                return (node as Element).id;
+            }
+            return '';
+        },
+        onBeforeElUpdated(fromEl, toEl) {
+            (fromEl as any).$props = (toEl as any).$props;
+            return true;
+        },
+        onBeforeElChildrenUpdated(fromEl, toEl) {
+            if (toEl.getAttribute('bind:innerhtml') || toEl.getAttribute('bind:childNodes') || toEl.getAttribute('bind:textcontent')) {
+                refreshNode(fromEl);
+                return false;
+            }
+            return true;
+        },
+        childrenOnly: true
+    })
 }

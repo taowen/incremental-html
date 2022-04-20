@@ -8,14 +8,15 @@
 </head>
 <body bind:store="$$.reactive({ items: ['fix bike', 'buy tomato'] })">
     <template id="tpl-todo-item">
-        <!-- $props provided by renderTemplate -->
+        <!-- this.$props provided by renderTemplate -->
         <li>
-            <span bind:textContent="$props.task" />
+            <span bind:textContent="this.$props.task"></span>
             <button on:click="
-                const items = document.store.items;
-                const index = items.indexOf($props.task);
+                const items = [...document.body.store.items];
+                const index = items.indexOf(this.$props.task);
                 if (index !== -1) {
                     items.splice(index, 1);
+                    document.body.store.items = items;
                 }
             ">x</button>
         </li>
@@ -24,15 +25,19 @@
         const [e] = arguments;
         e.preventDefault();
         const formData = new FormData(e.target);
-        document.store.items.push(formData.get('task'));
+        if(formData.get('task')) {
+            document.body.store.items.push(formData.get('task'));
+            e.target.reset();
+        }
     ">
         <input type="text" name="task" />
         <button>add</button>
     </form>
     <ul bind:childNodes="
-        document.body.store.items.map(
+        const nodes = document.body.store.items.map(
             item => $$.renderTemplate('#tpl-todo-item', { task: item })
-        );" />
+        );
+        nodes;" />
     <script type="module">
         import { startDomObserver, reactive, renderTemplate } from '@incremental-html/reactivity';
         window.$$ = { reactive, renderTemplate }
