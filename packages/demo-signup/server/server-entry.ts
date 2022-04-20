@@ -12,26 +12,23 @@ server.post('/newsletter', async (req, resp) => {
 });
 
 server.get('/newsletter', async (req, resp) => {
-    let result = await jsxToHtml(await newsletter.GET());
-    if (result) {
-        result = "<!DOCTYPE html>" + result;
-    }
-    if (result) {
-        result = result.replace('</body>', '<script type="module" src="./src/client/client-entry.js"></script></body>');
-    }
-    resp.status(200).set({ 'Content-Type': 'text/html' }).end(result);
+    await sendJsx(resp, await newsletter.GET());
 })
 
 server.get('/', async (req, resp) => {
-    let result = await jsxToHtml(await indexPage.GET(req, resp));
+    await sendJsx(resp, await indexPage.GET(req, resp));
+});
+
+async function sendJsx(resp: Response, jsx: any) {
+    let result = await jsxToHtml(jsx);
     if (result) {
         result = "<!DOCTYPE html>" + result;
     }
     if (result) {
-        result = result.replace('</body>', '<script type="module" src="./src/client/client-entry.js"></script></body>');
+        result = result.replace('</body>', '<script type="module" src="./client/client-entry.js"></script></body>');
     }
     resp.status(200).set({ 'Content-Type': 'text/html' }).end(result);
-});
+}
 
 export default async function (req: Request, resp: Response) {
     return await server(req, resp);

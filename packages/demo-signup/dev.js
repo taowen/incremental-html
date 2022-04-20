@@ -1,11 +1,9 @@
-const bodyParser = require('body-parser');
 const express = require('express');
 const { createServer: createViteServer } = require('vite');
 
 const root = process.cwd();
 async function main() {
     const server = express()
-    server.use(bodyParser.urlencoded({ extended: true }));
     const vite = await createViteServer({
         root,
         server: {
@@ -23,7 +21,7 @@ async function main() {
         try {
             req.url = req.originalUrl;
             console.log(req.method, req.url);
-            const { default: handle } = await vite.ssrLoadModule('./src/server/server-entry.ts');
+            const { default: handle } = await vite.ssrLoadModule('./server/server-entry.ts');
             await handle(req, resp);
         } catch (e) {
             vite && vite.ssrFixStacktrace(e)

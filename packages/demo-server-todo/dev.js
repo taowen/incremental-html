@@ -1,11 +1,9 @@
-const bodyParser = require('body-parser');
 const express = require('express');
 const { createServer: createViteServer } = require('vite');
 
 const root = process.cwd();
 async function main() {
     const server = express()
-    server.use(bodyParser.urlencoded({ extended: false }));
     const vite = await createViteServer({
         root,
         server: {
@@ -19,21 +17,15 @@ async function main() {
         }
     })
     server.use(vite.middlewares);
-    server.use('/favicon.ico', async (req, res) => {
-        res.status(404).end();
-    });
     server.use('*', async (req, resp) => {
         try {
-            console.log(req.method, req.originalUrl);
-            const { default: handle } = await vite.ssrLoadModule('./src/server/server-entry.ts');
-            let result = await handle(req, resp);
-            if (result) {
-                result = result.replace('</body>', '<script type="module" src="./src/client/client-entry.js"></script></body>');
-                resp.status(200).set({ 'Content-Type': 'text/html' }).end(result);
-            }
+            req.url = req.originalUrl;
+            console.log(req.method, req.url);
+            const { default: handle } = await vite.ssrLoadModule('./server/server-entry.tsx');
+            await handle(req, resp);
         } catch (e) {
             vite && vite.ssrFixStacktrace(e)
-            console.log(e.stack)
+            console.error(e.stack)
             if (!resp.statusCode) {
                 resp.status(500).end(e.stack)
             }

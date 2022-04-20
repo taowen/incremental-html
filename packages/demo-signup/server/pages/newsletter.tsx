@@ -23,7 +23,7 @@ export function GET() {
             <meta http-equiv="content-type" content="text/html; charset=utf-8" />
             <title>Demo</title>
             <link rel="shortcut icon" href="#" />
-            <link href="./src/server/pages/newsletter.css" rel="stylesheet" type="text/css" />
+            <link href="./server/pages/newsletter.css" rel="stylesheet" type="text/css" />
         </head>
         <body>
             <main>
