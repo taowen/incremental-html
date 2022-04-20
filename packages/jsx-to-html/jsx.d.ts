@@ -1234,6 +1234,7 @@ export interface Events {
   // mouse events
   onAuxclick: MouseEvent
   onClick: MouseEvent
+  ['on:click']: Event
   onContextmenu: MouseEvent
   onDblclick: MouseEvent
   onMousedown: MouseEvent

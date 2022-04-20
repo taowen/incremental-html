@@ -14,6 +14,12 @@ const lookup: Record<string, string> = {
 const mutationObserver = new MutationObserver((mutationList) => {
     for (const mutation of mutationList) {
         notifyNodeSubscribers((mutation.target as Element).getAttribute('xid') as string)
+        for (let i = 0; i < mutation.addedNodes.length; i++) {
+            const addedNode = mutation.addedNodes.item(i)!;
+            if (addedNode.nodeType === 1) {
+                registerNode(addedNode as Element);
+            }
+        }
     }
 });
 
@@ -88,6 +94,7 @@ function registerNode(node: Element) {
     mutationObserver.observe(node, {
         attributes: true,
         attributeOldValue: false,
+        childList: true
     });
 }
 
@@ -112,7 +119,7 @@ function elementProxy(target: Element): any {
             const v = (target as any)[p];
             if (typeof v === 'function') {
                 return (...args: any[]) => {
-                    const ret =  v.apply(target, args);
+                    const ret = v.apply(target, args);
                     if (ret.nodeType === 1) {
                         subscribeNode(ret);
                     }
@@ -146,7 +153,7 @@ function setAttribute(node: Element, name: string, value: any) {
     if (name === 'bind:innerhtml') {
         const newNode = document.createElement('div');
         newNode.innerHTML = value;
-        morphdom(node, newNode,  {
+        morphdom(node, newNode, {
             getNodeKey(node) {
                 if (node.nodeType === 1) {
                     return (node as Element).id;

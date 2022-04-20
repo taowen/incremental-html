@@ -12,14 +12,14 @@ server.post('/newsletter', async (req, resp) => {
 });
 
 server.get('/newsletter', async (req, resp) => {
-    await sendJsx(resp, await newsletter.GET());
+    await sendHtml(resp, await newsletter.GET());
 })
 
 server.get('/', async (req, resp) => {
-    await sendJsx(resp, await indexPage.GET(req, resp));
+    await sendHtml(resp, await indexPage.GET(req, resp));
 });
 
-async function sendJsx(resp: Response, jsx: any) {
+async function sendHtml(resp: Response, jsx: any) {
     let result = await jsxToHtml(jsx);
     if (result) {
         result = "<!DOCTYPE html>" + result;
