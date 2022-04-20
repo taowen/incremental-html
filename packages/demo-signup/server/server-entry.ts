@@ -20,7 +20,7 @@ server.get('/', async (req, resp) => {
 });
 
 async function sendHtml(resp: Response, jsx: any) {
-    let result = await jsxToHtml(jsx);
+    let result = await jsx;
     if (result) {
         result = "<!DOCTYPE html>" + result;
     }
