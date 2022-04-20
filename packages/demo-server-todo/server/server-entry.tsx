@@ -73,14 +73,20 @@ server.get('/', async (req, resp) => {
             <ul>
                 {
                     todoItems.map(todoItem => <li>
-                        <a href={`/item?task=${encodeURIComponent(todoItem)}`}>{todoItem}</a>
+                        <a href={`/item?task=${encodeURIComponent(todoItem)}`}
+                        on:click="
+                            const [e] = arguments;
+                            e.preventDefault();
+                            $$.navigator.href = this.href;
+                        "
+                        >{todoItem}</a>
                         <button on:click={`
-                    await fetch('/delete', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ task: '${todoItem}' })
-                    });
-                    await $$.navigator.reload();
+                            await fetch('/delete', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ task: '${todoItem}' })
+                            });
+                            await $$.navigator.reload();
                     `}>x</button></li>)
                 }
             </ul>
