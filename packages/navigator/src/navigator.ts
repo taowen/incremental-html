@@ -6,7 +6,14 @@ export const navigator = {
         const respText = await resp.text();
         const node = document.createElement('html');
         node.innerHTML = respText;
-        morphdom(document.body, node.querySelector('body')!);
+        morphdom(document.body, node.querySelector('body')!, {
+            onBeforeElUpdated(fromEl, toEl) {
+                if (toEl.tagName === 'INPUT' || toEl.tagName === 'TEXTAREA' || toEl.tagName === 'SELECT') {
+                    return false;
+                }
+                return true;
+            }
+        });
     },
     replace(url: string) {
 

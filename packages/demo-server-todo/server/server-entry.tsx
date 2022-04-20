@@ -46,9 +46,9 @@ server.get('/', async (req, resp) => {
         </head>
         <body>
             <form id="newTodo" method="post" action="/add" on:submit="
-            const [e] = arguments;
-            await $$.submitForm(e.target);
+            await $$.submitForm(this);
             await $$.navigator.reload();
+            this.reset();
         ">
                 <input type="text" name={form.nameOf('task')} />
                 <button>add todo</button>
