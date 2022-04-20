@@ -42,7 +42,7 @@ server.get('/item', async(req, resp) => {
     const jsx = <html>
         <head>
             <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-            <title>Demo</title>
+            <title>{req.query.task}</title>
             <link rel="shortcut icon" href="#" />
         </head>
         <body>
@@ -58,7 +58,7 @@ server.get('/', async (req, resp) => {
     const jsx = <html>
         <head>
             <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-            <title>Demo</title>
+            <title>Manage Todos</title>
             <link rel="shortcut icon" href="#" />
         </head>
         <body>

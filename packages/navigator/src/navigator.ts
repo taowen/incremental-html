@@ -29,9 +29,9 @@ export const navigator = {
 }
 
 function applyHtml(html: string) {
-    const node = document.createElement('html');
-    node.innerHTML = html;
-    morphdom(document.body, node.querySelector('body')!, {
+    const fakeDom = document.createElement('html');
+    fakeDom.innerHTML = html;
+    morphdom(document.body, fakeDom.querySelector('body')!, {
         onBeforeElUpdated(fromEl, toEl) {
             if (toEl.tagName === 'INPUT' || toEl.tagName === 'TEXTAREA' || toEl.tagName === 'SELECT') {
                 return false;
@@ -39,7 +39,7 @@ function applyHtml(html: string) {
             return true;
         }
     });
-    node.innerHTML = '';
+    document.title = fakeDom.querySelector('title')?.innerText || '';
 }
 
 async function onPopState(e: PopStateEvent) {
