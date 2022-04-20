@@ -36,6 +36,23 @@ server.post('/delete', async(req, resp) => {
     return resp.json({ data: 'ok' });
 })
 
+server.get('/item', async(req, resp) => {
+    resp.write('<html>');
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    const jsx = <html>
+        <head>
+            <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+            <title>Demo</title>
+            <link rel="shortcut icon" href="#" />
+        </head>
+        <body>
+            <h2>Todo</h2>
+            <p>{req.query.task}</p>
+        </body>
+    </html>;
+    await sendHtml(resp, jsx);
+})
+
 server.get('/', async (req, resp) => {
     const form = createForm({} as NewTodoForm);
     const jsx = <html>
@@ -55,7 +72,9 @@ server.get('/', async (req, resp) => {
             </form>
             <ul>
                 {
-                    todoItems.map(todoItem => <li>{todoItem}<button on:click={`
+                    todoItems.map(todoItem => <li>
+                        <a href={`/item?task=${encodeURIComponent(todoItem)}`}>{todoItem}</a>
+                        <button on:click={`
                     await fetch('/delete', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -78,7 +97,10 @@ async function sendHtml(resp: Response, jsx: any) {
     if (result) {
         result = result.replace('</body>', '<script type="module" src="./client/client-entry.js"></script></body>');
     }
-    resp.status(200).set({ 'Content-Type': 'text/html' }).end(result);
+    if (!resp.statusCode) {
+        resp.status(200).set({ 'Content-Type': 'text/html' })
+    }
+    resp.end(result);
 }
 
 export default async function (req: Request, resp: Response) {
