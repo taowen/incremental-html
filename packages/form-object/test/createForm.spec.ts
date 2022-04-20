@@ -5,16 +5,19 @@ test('nameOf one level', () => {
     const formObject = createForm({ email: 'taowen@gmail.com' });
     expect(formObject.email).toBe('taowen@gmail.com');
     expect(formObject.nameOf('email')).toBe('email');
+    expect(formObject.idOf('email')).toBe('email');
 })
 
 test('nameOf indexed by number', () => {
     const formObject = createForm({ emails: ['taowen@gmail.com'] });
     expect(formObject.emails[0]).toBe('taowen@gmail.com');
     expect(formObject.emails.nameOf(0)).toBe('emails[0]');
+    expect(formObject.emails.idOf(0)).toBe('emails-0');
 })
 
 test('nameOf indexed by string', () => {
-    const formObject = createForm({} as any);
+    const formObject = createForm({} as any, 'form1');
     expect(formObject.country.province).toBe(undefined);
     expect(formObject.country.nameOf('province')).toBe('country.province');
+    expect(formObject.country.idOf('province')).toBe('form1-country-province');
 })

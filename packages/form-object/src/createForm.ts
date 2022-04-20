@@ -2,10 +2,12 @@ import { sendFormErrors } from "./sendFormErrors";
 
 export type NewForm<T> = { [P in keyof T]: NewForm<T[P]> } & {
     nameOf(field: keyof T): string;
+    idOf(field: keyof T): string;
+    idAndNameOf(field: keyof T): { id: string, name: string }
 }
 
-export function createForm<T extends Object>(fields: T): NewForm<T> {
-    return new Proxy(new FormObjectImpl(fields, []) as any, {
+export function createForm<T extends Object>(fields: T, idPrefix?: string): NewForm<T> {
+    return new Proxy(new FormObjectImpl(fields, [idPrefix || '']) as any, {
         get(target, p, receiver) {
             const field = target[p];
             if (p === '_prefix') {
@@ -30,14 +32,14 @@ export function createForm<T extends Object>(fields: T): NewForm<T> {
 }
 
 class FormObjectImpl {
-    constructor(fields: Record<string, any>, private _prefix: string | number[]) {
+    constructor(fields: Record<string, any>, private _prefix: (string | number)[]) {
         Object.assign(this, fields);
     }
 
     public nameOf(field: string) {
         const path = [...this._prefix, field];
-        let parts: string[] = [path[0] as string];
-        for (let i = 1; i < path.length; i++) {
+        let parts: string[] = [path[1] as string];
+        for (let i = 2; i < path.length; i++) {
             const part = path[i];
             if (typeof part === 'number') {
                 parts.push('[');
@@ -49,6 +51,15 @@ class FormObjectImpl {
             }
         }
         return parts.join('');
+    }
+
+    public idOf(field: string) {
+        const path = [...this._prefix.map(p => typeof p === 'number' ? p.toString() : p), field];
+        return path[0] ? path.join('-') : path.slice(1).join('-');
+    }
+
+    public idAndNameOf(field: string) {
+        return { id: this.idOf(field), name: this.nameOf(field) }
     }
 
     public setError(field: string, errorMessage: string) {

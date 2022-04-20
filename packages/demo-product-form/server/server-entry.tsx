@@ -8,11 +8,6 @@ interface ProductForm {
     description: string;
 }
 
-const todoItems = [
-    'fix bike',
-    'buy tomato'
-]
-
 const server = express();
 server.use(bodyParser.urlencoded({ extended: true }));
 server.use(bodyParser.json());
@@ -26,7 +21,7 @@ server.post('/add', async (req, resp) => {
 })
 
 server.get('/', async (req, resp) => {
-    const form = createForm({} as ProductForm);
+    const form = createForm({} as ProductForm, 'pf');
     const jsx = <html>
         <head>
             <meta http-equiv="content-type" content="text/html; charset=utf-8" />
@@ -39,11 +34,13 @@ server.get('/', async (req, resp) => {
             await $$.navigator.reload();
             this.reset();
         ">
-                <label for="name">name</label>
-                <input type="text" name={form.nameOf('name')} />
-                <div>
-                <button>save</button>
-                </div>
+                <fieldset>
+                    <label for={form.idOf('name')}>name</label>
+                    <input {...form.idAndNameOf('name')} type="text" />
+                    <label for={form.idOf('description')}>description</label>
+                    <input {...form.idAndNameOf('description')} type="text" />
+                </fieldset>
+                <div><button>save</button></div>
             </form>
         </body>
     </html>;

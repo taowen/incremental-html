@@ -17,6 +17,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build:docs": "typedoc src/index.ts --out ../../docs/form-object"
+    "build:docs": "typedoc src/index.ts --out ../../docs/form-object",
+    "test": "pnpm tsc -p cjs.tsconfig.json  && pnpm jest"
   }
 }
