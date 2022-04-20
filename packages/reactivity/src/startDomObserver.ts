@@ -165,21 +165,17 @@ function setAttribute(node: Element, name: string, value: any) {
         return;
     }
     if (name === 'bind:innerhtml') {
-        const newNode = document.createElement('div');
-        newNode.innerHTML = value;
-        updateChildNodesIncrementally(node, newNode);
+        if (typeof value === 'string') {
+            const newNode = document.createElement('div');
+            newNode.innerHTML = value;
+            updateChildNodesIncrementally(node, newNode);
+        } else {
+            setChildNodes(node, value);
+        }
         return;
     }
     if (name === 'bind:childnodes') {
-        const newNode = document.createElement('div');
-        if (Array.isArray(value)) {
-            for (const child of value) {
-                newNode.appendChild(child);
-            }
-        } else {
-            newNode.appendChild(value);
-        }
-        updateChildNodesIncrementally(node, newNode);
+        setChildNodes(node, value);
         return;
     }
     let key = lookup[name];
@@ -187,6 +183,18 @@ function setAttribute(node: Element, name: string, value: any) {
         key = name.substring('bind:'.length);
     }
     Reflect.set(node, key, value);
+}
+
+function setChildNodes(node: Element, value: any) {
+    const newNode = document.createElement('div');
+    if (Array.isArray(value)) {
+        for (const child of value) {
+            newNode.appendChild(child);
+        }
+    } else {
+        newNode.appendChild(value);
+    }
+    updateChildNodesIncrementally(node, newNode);
 }
 
 function updateChildNodesIncrementally(node: Element, newNode: Element) {

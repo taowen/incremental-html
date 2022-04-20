@@ -3,8 +3,9 @@ import { jsxToHtml } from '@incremental-html/jsx-to-html';
 import bodyParser from 'body-parser';
 import express, { Request, Response } from 'express';
 
-interface NewTodoForm {
-    task: string;
+interface ProductForm {
+    name: string;
+    description: string;
 }
 
 const todoItems = [
@@ -17,48 +18,19 @@ server.use(bodyParser.urlencoded({ extended: true }));
 server.use(bodyParser.json());
 
 server.post('/add', async (req, resp) => {
-    const form = decodeForm<NewTodoForm>(req.body);
-    if (!form.task) {
-        form.setError('task', 'task is required');
-    }
+    const form = decodeForm<ProductForm>(req.body);
     if (form.sendErrors(resp, 'validation failed')) {
         return;
     }
-    todoItems.push(form.task);
     return resp.json({ data: 'ok' });
-})
-
-server.post('/delete', async(req, resp) => {
-    const index = todoItems.indexOf(req.body.task);
-    if (index !== -1) {
-        todoItems.splice(index, 1);
-    }
-    return resp.json({ data: 'ok' });
-})
-
-server.get('/item', async(req, resp) => {
-    resp.write('<html>');
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    const jsx = <html>
-        <head>
-            <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-            <title>{req.query.task}</title>
-            <link rel="shortcut icon" href="#" />
-        </head>
-        <body>
-            <h2>Todo</h2>
-            <p>{req.query.task}</p>
-        </body>
-    </html>;
-    await sendHtml(resp, jsx);
 })
 
 server.get('/', async (req, resp) => {
-    const form = createForm({} as NewTodoForm);
+    const form = createForm({} as ProductForm);
     const jsx = <html>
         <head>
             <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-            <title>Manage Todos</title>
+            <title>Product Form</title>
             <link rel="shortcut icon" href="#" />
         </head>
         <body>
@@ -67,36 +39,19 @@ server.get('/', async (req, resp) => {
             await $$.navigator.reload();
             this.reset();
         ">
-                <input type="text" name={form.nameOf('task')} />
-                <button>add todo</button>
+                <label for="name">name</label>
+                <input type="text" name={form.nameOf('name')} />
+                <div>
+                <button>save</button>
+                </div>
             </form>
-            <ul>
-                {
-                    todoItems.map(todoItem => <li>
-                        <a href={`/item?task=${encodeURIComponent(todoItem)}`}
-                        on:click="
-                            const [e] = arguments;
-                            e.preventDefault();
-                            $$.navigator.href = this.href;
-                        "
-                        >{todoItem}</a>
-                        <button on:click={`
-                            await fetch('/delete', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ task: '${todoItem}' })
-                            });
-                            await $$.navigator.reload();
-                    `}>x</button></li>)
-                }
-            </ul>
         </body>
     </html>;
     await sendHtml(resp, jsx);
 });
 
 async function sendHtml(resp: Response, jsx: any) {
-    let result = await jsxToHtml(jsx);
+    let result = await jsx;
     if (result) {
         result = "<!DOCTYPE html>" + result;
     }

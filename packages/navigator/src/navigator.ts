@@ -1,6 +1,11 @@
 import morphdom from 'morphdom';
 
 export const navigator = {
+    /**
+     * if pageState has values, reload() will switch from GET to PUT
+     * so pageState can be sent to server as PUT body
+     */
+    pageState: {},
     async reload() {
         const resp = await fetch(window.location.href);
         const respText = await resp.text();
@@ -9,6 +14,7 @@ export const navigator = {
     async replace(url: string) {
         const resp = await fetch(url);
         const respText = await resp.text();
+        navigator.pageState = {};
         applyHtml(respText);
         window.history.replaceState(respText, document.getElementsByTagName('title')[0].innerText, url);
     },
@@ -17,6 +23,7 @@ export const navigator = {
         const respText = await resp.text();
         history.replaceState(document.documentElement.innerHTML, '', window.location.href);
         window.addEventListener('popstate', onPopState);
+        navigator.pageState = {};
         applyHtml(respText);
         window.history.pushState(respText, document.getElementsByTagName('title')[0].innerText, url);
     },
@@ -44,5 +51,8 @@ function applyHtml(html: string) {
 
 async function onPopState(e: PopStateEvent) {
     applyHtml(e.state);
-    navigator.replace(window.location.href);
+    const resp = await fetch(window.location.href);
+    const respText = await resp.text();
+    navigator.pageState = {};
+    applyHtml(respText);
 }

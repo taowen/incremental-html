@@ -33,7 +33,7 @@
         <input type="text" name="task" />
         <button>add</button>
     </form>
-    <ul bind:childNodes="
+    <ul bind:innerHTML="
         document.body.store.items.map(
             item => $$.renderTemplate('#tpl-todo-item', { task: item })
         );" />
