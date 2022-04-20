@@ -13,7 +13,7 @@ export async function POST(req: Request, resp: Response) {
     if (form.sendErrors(resp, 'validation failed')) {
         return;
     }
-    return;
+    resp.status(200).set({ 'Content-Type': 'application/json' }).end('');
 }
 
 export function GET() {

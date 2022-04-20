@@ -2,10 +2,10 @@ import morphdom from 'morphdom';
 
 export const navigator = {
     async reload() {
-        const resp = await fetch('/');
-        const html = await resp.text();
+        const resp = await fetch(window.location.href);
+        const respText = await resp.text();
         const node = document.createElement('html');
-        node.innerHTML = html;
+        node.innerHTML = respText;
         morphdom(document.body, node.querySelector('body')!);
     },
     replace(url: string) {

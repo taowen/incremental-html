@@ -1,23 +1,38 @@
-import { Request, Response } from 'express';
 import { jsxToHtml } from '@incremental-html/jsx-to-html';
-import * as indexPage from './pages/[...all]'
-import * as newsletter from './pages/newsletter'
+import bodyParser from 'body-parser';
+import express, { Request, Response } from 'express';
+import * as newsletter from './pages/newsletter';
+import * as indexPage from './pages/[...all]';
+
+const server = express();
+server.use(bodyParser.urlencoded({ extended: true }))
+
+server.post('/newsletter', async (req, resp) => {
+    await newsletter.POST(req, resp);
+});
+
+server.get('/newsletter', async (req, resp) => {
+    let result = await jsxToHtml(await newsletter.GET());
+    if (result) {
+        result = "<!DOCTYPE html>" + result;
+    }
+    if (result) {
+        result = result.replace('</body>', '<script type="module" src="./src/client/client-entry.js"></script></body>');
+    }
+    resp.status(200).set({ 'Content-Type': 'text/html' }).end(result);
+})
+
+server.get('/', async (req, resp) => {
+    let result = await jsxToHtml(await indexPage.GET(req, resp));
+    if (result) {
+        result = "<!DOCTYPE html>" + result;
+    }
+    if (result) {
+        result = result.replace('</body>', '<script type="module" src="./src/client/client-entry.js"></script></body>');
+    }
+    resp.status(200).set({ 'Content-Type': 'text/html' }).end(result);
+});
 
 export default async function (req: Request, resp: Response) {
-    let matched = undefined as any;
-    if (req.originalUrl.startsWith('/newsletter')) {
-        matched = newsletter;
-    } else {
-        matched = indexPage;
-    }
-    const methodHandler = matched[req.method];
-    if (!methodHandler) {
-        resp.status(404).end('missing handler for method: ' + req.method);
-        return '';
-    }
-    const result = await jsxToHtml(await methodHandler(req, resp));
-    if (result) {
-        return "<!DOCTYPE html>" + result;
-    }
-    return result;
+    return await server(req, resp);
 }
