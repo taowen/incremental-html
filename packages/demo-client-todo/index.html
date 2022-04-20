@@ -34,10 +34,9 @@
         <button>add</button>
     </form>
     <ul bind:childNodes="
-        const nodes = document.body.store.items.map(
+        document.body.store.items.map(
             item => $$.renderTemplate('#tpl-todo-item', { task: item })
-        );
-        nodes;" />
+        );" />
     <script type="module">
         import { startDomObserver, reactive, renderTemplate } from '@incremental-html/reactivity';
         window.$$ = { reactive, renderTemplate }
