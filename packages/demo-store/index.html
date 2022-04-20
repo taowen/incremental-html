@@ -6,7 +6,6 @@
     <link rel="shortcut icon" href="#" />
 </head>
 
-<!-- oninit is executed when startObserver -->
 <body bind:store="$$.reactive({ counter: 99 })">
     <button on:click="document.body.store.counter -= 1">-</button>
     <input bind:value="document.body.store.counter" 
@@ -17,7 +16,7 @@
     <script type="module">
         import { startDomObserver, reactive } from '@incremental-html/reactivity';
         window.$$ = { reactive };
-        // for properties like _style.color or _innerHTML
+        // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>
 </body>

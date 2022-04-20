@@ -1,0 +1,44 @@
+<!-- index.html -->
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Demo</title>
+    <link rel="shortcut icon" href="#" />
+</head>
+<body bind:store="$$.reactive({ items: ['fix bike', 'buy tomato'] })">
+    <template id="tpl-todo-item">
+        <!-- $props provided by renderTemplate -->
+        <li>
+            <span bind:textContent="$props.task" />
+            <button on:click="
+                const items = document.store.items;
+                const index = items.indexOf($props.task);
+                if (index !== -1) {
+                    items.splice(index, 1);
+                }
+            ">x</button>
+        </li>
+    </template>
+    <form on:submit="
+        const [e] = arguments;
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        document.store.items.push(formData.get('task'));
+    ">
+        <input type="text" name="task" />
+        <button>add</button>
+    </form>
+    <ul bind:childNodes="
+        document.body.store.items.map(
+            item => $$.renderTemplate('#tpl-todo-item', { task: item })
+        );" />
+    <script type="module">
+        import { startDomObserver, reactive, renderTemplate } from '@incremental-html/reactivity';
+        window.$$ = { reactive, renderTemplate }
+        // for properties like bind:xxx or on:xxx
+        startDomObserver();
+    </script>
+</body>
+
+</html>

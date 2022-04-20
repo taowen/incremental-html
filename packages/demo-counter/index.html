@@ -18,7 +18,7 @@
         bind:innerHTML="`value is: ${$('#counter').value}`" />
     <script type="module">
         import { startDomObserver } from '@incremental-html/reactivity';
-        // for properties like _style.color or _innerHTML
+        // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>
 </body>

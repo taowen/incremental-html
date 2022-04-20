@@ -79,12 +79,17 @@ function registerNode(node: Element) {
     }
     for (let i = 0; i < node.attributes.length; i++) {
         const attr = node.attributes[i];
-        if (attr.name === 'oninit' || attr.name === 'on:init') {
-            evalSync(attr.value);
-        } else if (attr.name.startsWith('on:')) {
-            node.addEventListener(attr.name.substring('on:'.length), (...args) => {
+        if (attr.name.startsWith('on:')) {
+            const eventName = attr.name.substring('on:'.length);
+            node.addEventListener(eventName, (...args) => {
                 args[0].preventDefault();
-                evalAsync(attr.value, node, ...args);
+                (async() => {
+                    try {
+                        await evalAsync(attr.value, node, ...args);
+                    } catch(e) {
+                        console.error('failed to handle ' + eventName, { e });
+                    }
+                })();
             })
         }
     }
@@ -136,7 +141,12 @@ function refreshNode(node: Element) {
         for (let i = 0; i < node.attributes.length; i++) {
             const attr = node.attributes[i];
             if (attr.name.startsWith('bind:')) {
-                setAttribute(node, attr.name, evalSync(attr.value, elementProxy(node)));
+                try {
+                    const newValue = evalSync(attr.value, elementProxy(node));
+                    setAttribute(node, attr.name, newValue);
+                } catch(e) {
+                    console.error(`failed to eval ${attr.name}`, { node, e });
+                }
             }
         }
     })
