@@ -44,22 +44,28 @@ server.post('/save', async (req, resp) => {
 })
 
 server.put('/', async (req, resp) => {
-    await sendHtml(resp, <ProductFormPage pageState={req.body} form={createForm(req.body as ProductForm)} />);
+    // as form editing state is held in client side
+    // we do not need load "theProduct" here
+    // the form generated will be blank without values
+    // it will be merged into client editing state by $$.navigator.reload
+    const form = createForm(req.body as ProductForm);
+    const pageState = req.body;
+    await sendHtml(resp, <ProductFormPage form={form} />, pageState);
 })
 
 server.get('/', async (req, resp) => {
-    await sendHtml(resp, <ProductFormPage pageState={asPageState(theProduct)} form={createForm(theProduct)} />);
+    // fill form with "theProduct"
+    // so the client can edit with existing values
+    const form = createForm(theProduct);
+    // to make the size smaller
+    const pageState = {
+        hasVariants: !!theProduct.hasVariants,
+        variants: (theProduct.variants || []).map(v => { return { id: v.id } })
+    }
+    await sendHtml(resp, <ProductFormPage form={form} />, pageState);
 });
 
-// to make the size smaller
-function asPageState(form: ProductForm): PageState {
-    return {
-        hasVariants: !!form.hasVariants,
-        variants: (form.variants || []).map(v => { return { id: v.id } })
-    }
-}
-
-async function ProductFormPage({ pageState, form }: { pageState: PageState, form: NewForm<ProductForm> }) {
+async function ProductFormPage({ form }: { form: NewForm<ProductForm> }) {
     const jsx = <html>
         <head>
             <meta http-equiv="content-type" content="text/html; charset=utf-8" />
@@ -67,10 +73,6 @@ async function ProductFormPage({ pageState, form }: { pageState: PageState, form
             <link rel="shortcut icon" href="#" />
         </head>
         <body>
-            {/* opt-in page state feature of navigator.reload() */}
-            <template class="page-state">
-                {JSON.stringify(pageState)}
-            </template>
             <form method="post" action="/save" on:submit="
                 await $$.submitForm(this);
             ">
@@ -81,7 +83,7 @@ async function ProductFormPage({ pageState, form }: { pageState: PageState, form
                     </div>
                     <div>
                         <label for={form.idOf('description')}>description</label>
-                        <input {...form.idAndNameOf('description')} type="text" value={form.description || ''}/>
+                        <input {...form.idAndNameOf('description')} type="text" value={form.description || ''} />
                     </div>
                     <div>
                         <label for={form.idOf('hasVariants')}>hasVariant</label>
@@ -151,18 +153,18 @@ async function NoVariantForm({ form }: { form: NewForm<ProductForm> }) {
     </>
 }
 
-async function sendHtml(resp: Response, jsx: any) {
+async function sendHtml(resp: Response, jsx: any, pageState?: any) {
     let result = await jsx;
+    const toInject = [];
+    if (pageState) {
+        toInject.push(`<template class="page-state">${JSON.stringify(pageState)}</template>`);
+    }
+    toInject.push('<script type="module" src="./client/client-entry.js"></script>');
     if (result) {
         result = "<!DOCTYPE html>" + result;
+        result = result.replace('</body>', toInject.join('\n') + '</body>');
     }
-    if (result) {
-        result = result.replace('</body>', '<script type="module" src="./client/client-entry.js"></script></body>');
-    }
-    if (!resp.statusCode) {
-        resp.status(200).set({ 'Content-Type': 'text/html' })
-    }
-    resp.end(result);
+    resp.status(200).set({ 'Content-Type': 'text/html' }).end(result);
 }
 
 export default server;
