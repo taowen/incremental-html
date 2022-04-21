@@ -17,19 +17,19 @@ async function main() {
         }
     })
     server.use(vite.middlewares);
-    server.use('*', async (req, resp) => {
-        try {
-            req.url = req.originalUrl;
-            console.log(req.method, req.url);
-            const { default: handle } = await vite.ssrLoadModule('./server/server-entry.tsx');
-            await handle(req, resp);
-        } catch (e) {
-            vite && vite.ssrFixStacktrace(e)
-            console.error(e.stack)
-            if (!resp.statusCode) {
-                resp.status(500).end(e.stack)
+    server.all('/(.*)', async (req, resp) => {
+        req.url = req.originalUrl;
+        console.log(req.method, req.url);
+        const { default: handle } = await vite.ssrLoadModule('./server/server-entry.tsx');
+        handle(req, resp, (e) => {
+            if (e) {
+                vite.ssrFixStacktrace(e)
+                console.error(e.stack)
+                resp.status(500).end(e.stack);
+            } else {
+                resp.status(404).end();
             }
-        }
+        });
     })
     server.listen(3000, () => {
         console.log('http://localhost:3000')

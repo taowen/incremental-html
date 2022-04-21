@@ -92,4 +92,8 @@ class FormObject {
         }
         return !!formErrors;
     }
+
+    public toJSON() {
+        return {...this, _prefix: undefined}
+    }
 }
