@@ -103,7 +103,8 @@ function registerNode(node: Element) {
     mutationObserver.observe(node, {
         attributes: true,
         attributeOldValue: false,
-        childList: true
+        childList: true,
+        subtree: false
     });
     return xid;
 }

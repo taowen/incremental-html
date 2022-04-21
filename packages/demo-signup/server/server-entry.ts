@@ -5,7 +5,7 @@ import * as newsletter from './pages/newsletter';
 import * as indexPage from './pages/[...all]';
 
 const server = express();
-server.use(bodyParser.urlencoded({ extended: true }))
+server.use(bodyParser.urlencoded({ extended: false }))
 
 server.post('/newsletter', async (req, resp) => {
     await newsletter.POST(req, resp);

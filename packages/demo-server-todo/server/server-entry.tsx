@@ -13,7 +13,7 @@ const todoItems = [
 ]
 
 const server = express();
-server.use(bodyParser.urlencoded({ extended: true }));
+server.use(bodyParser.urlencoded({ extended: false }));
 server.use(bodyParser.json());
 
 server.post('/add', async (req, resp) => {

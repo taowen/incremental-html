@@ -7,33 +7,28 @@ export type NewForm<T> = { [P in keyof T]: NewForm<T[P]> } & {
 }
 
 export function createForm<T extends Object>(fields: T, idPrefix?: string): NewForm<T> {
-    return new Proxy(new FormObjectImpl(fields, [idPrefix || '']) as any, {
-        get(target, p, receiver) {
-            const field = target[p];
-            if (p === '_prefix') {
-                return field;
-            }
-            if (field instanceof FormObjectImpl) {
-                return field;
-            }
-            if (field === undefined) {
-                const subForm = new FormObjectImpl({}, [...target._prefix, p]);
-                target[p] = subForm;
-                return subForm;
-            }
-            if (typeof field === 'object') {
-                const subForm = new FormObjectImpl(field, [...target._prefix, p]);
-                target[p] = subForm;
-                return subForm;
-            }
-            return field;
-        }
-    });
+    return createFormObject(fields, [idPrefix || '']);
 }
 
-class FormObjectImpl {
-    constructor(fields: Record<string, any>, private _prefix: (string | number)[]) {
-        Object.assign(this, fields);
+function createFormObject(fields: any, prefix: (string | number)[]): any {
+    if (typeof fields !== 'object') {
+        return fields;
+    }
+    if (fields === null) {
+        return null;
+    }
+    if (Array.isArray(fields)) {
+        return fields.map((field, index) => createFormObject(field, [...prefix, index]))
+    }
+    const formObject: any = new FormObject(prefix);
+    for (const [k, v] of Object.entries(fields)) {
+        formObject[k] = createFormObject(v, [...prefix, k]);
+    }
+    return formObject;
+}
+
+class FormObject {
+    constructor(private _prefix: (string | number)[]) {
     }
 
     public nameOf(field: string) {
@@ -54,6 +49,9 @@ class FormObjectImpl {
     }
 
     public idOf(field: string) {
+        if ((this as any).id) {
+            return `${(this as any).id}-${field}`;
+        }
         const path = [...this._prefix.map(p => typeof p === 'number' ? p.toString() : p), field];
         return path[0] ? path.join('-') : path.slice(1).join('-');
     }
@@ -72,12 +70,12 @@ class FormObjectImpl {
 
     public dumpErrors(): Record<string, string> | undefined {
         const errors: Record<string, string> = {};
-        for (const [k, v] of Object.entries(this)) {
+        for (const [k, v] of Object.entries((this as any))) {
             if (k.endsWith('_ERROR')) {
-                errors[this.nameOf(k.substring(0, k.length - '_ERROR'.length))] = v;
+                errors[this.nameOf(k.substring(0, k.length - '_ERROR'.length))] = v as any;
                 continue;
             } 
-            if (v instanceof FormObjectImpl) {
+            if (v instanceof FormObject) {
                 Object.assign(errors, v.dumpErrors());
             }
         }

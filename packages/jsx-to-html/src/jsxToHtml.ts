@@ -8,11 +8,18 @@ export async function createElement(tag: string, props: Record<string, any>, ...
         const parts = ['<', tag];
         if (props) {
             for (const [k, v] of Object.entries(props)) {
-                parts.push(' ');
-                parts.push(k);
-                parts.push('="');
-                parts.push(`${v}`);
-                parts.push('"');
+                if (typeof v === 'boolean') {
+                    if (v) {
+                        parts.push(' ');
+                        parts.push(k);
+                    }
+                } else {
+                    parts.push(' ');
+                    parts.push(k);
+                    parts.push('="');
+                    parts.push(`${v}`);
+                    parts.push('"');
+                }
             }
         }
         parts.push('>\n');

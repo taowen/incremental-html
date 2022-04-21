@@ -39,7 +39,7 @@ test('setError one level', () => {
 })
 
 test('setError in nested form', () => {
-    const formObject = decodeForm({} as any);
+    const formObject = decodeForm({ emails: {} } as any);
     formObject.emails.setError('primary', 'required');
     expect(formObject.dumpErrors()).toEqual({
         ['emails.primary']: 'required'
