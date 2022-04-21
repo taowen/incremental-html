@@ -51,6 +51,7 @@ server.get('/', async (req, resp) => {
     await sendHtml(resp, <ProductFormPage pageState={asPageState(theProduct)} form={createForm(theProduct)} />);
 });
 
+// to make the size smaller
 function asPageState(form: ProductForm): PageState {
     return {
         hasVariants: !!form.hasVariants,
@@ -117,10 +118,10 @@ async function VariantsForm({ form }: { form: NewForm<ProductForm> }) {
                 <input {...variant.idAndNameOf('price')} type="text" value={variant.price || ''} />
 
                 <button on:click="
-                const thisId = this.closest('div').id;
+                const thisVariantId = this.closest('div').id;
                 const variants = $$.navigator.pageState.variants;
                 for (let i = 0; i < variants.length; i++) {
-                    if (variants[i].id === thisId) {
+                    if (variants[i].id === thisVariantId) {
                         variants.splice(i, 1);
                         break;
                     }
