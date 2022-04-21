@@ -4,6 +4,7 @@ export type NewForm<T> = { [P in keyof T]: NewForm<T[P]> } & {
     nameOf(field: keyof T): string;
     idOf(field: keyof T): string;
     idAndNameOf(field: keyof T): { id: string, name: string }
+    fill(fields: Record<string, any>): void
 }
 
 export function createForm<T extends Object>(fields: T, idPrefix?: string): NewForm<T> {

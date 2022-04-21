@@ -17,9 +17,15 @@ interface ProductForm {
     }[]
 }
 
+/**
+ * PageState should be minimal to only include client input
+ * so we do not include the whole ProductForm here
+ */
 interface PageState {
     hasVariants: boolean,
-    variantIds: string[]
+    variants: {
+        id: string
+    }[]
 }
 
 const server = express.Router();
@@ -38,26 +44,21 @@ server.post('/save', async (req, resp) => {
 })
 
 server.put('/', async (req, resp) => {
-    await sendHtml(resp, <ProductFormPage {...req.body} />);
+    await sendHtml(resp, <ProductFormPage pageState={req.body} form={createForm(req.body as ProductForm)} />);
 })
 
 server.get('/', async (req, resp) => {
-    await sendHtml(resp, <ProductFormPage hasVariants={theProduct.hasVariants} 
-        variantIds={(theProduct.variants || []).map(v => v.id)} />);
+    await sendHtml(resp, <ProductFormPage pageState={asPageState(theProduct)} form={createForm(theProduct)} />);
 });
 
-function getOrCreateVariant(product: ProductForm, variantId: string) {
-    for (const variant of product.variants || []) {
-        if (variant.id === variantId) {
-            return variant;
-        }
+function asPageState(form: ProductForm): PageState {
+    return {
+        hasVariants: !!form.hasVariants,
+        variants: (form.variants || []).map(v => { return { id: v.id } })
     }
-    return { id: variantId }
 }
 
-async function ProductFormPage(pageState: PageState) {
-    const variants = pageState.variantIds.map(id => getOrCreateVariant(theProduct, id));
-    const form = createForm({ ...theProduct, hasVariants: pageState.hasVariants, variants } as ProductForm);
+async function ProductFormPage({ pageState, form }: { pageState: PageState, form: NewForm<ProductForm> }) {
     const jsx = <html>
         <head>
             <meta http-equiv="content-type" content="text/html; charset=utf-8" />
@@ -102,7 +103,7 @@ async function ProductFormPage(pageState: PageState) {
 async function VariantsForm({ form }: { form: NewForm<ProductForm> }) {
     return <>
         {
-            form.variants.map(variant => <div id={variant.id}>
+            (form.variants || []).map(variant => <div id={variant.id}>
 
                 <input {...variant.idAndNameOf('id')} type="hidden" value={variant.id} />
 
@@ -116,10 +117,13 @@ async function VariantsForm({ form }: { form: NewForm<ProductForm> }) {
                 <input {...variant.idAndNameOf('price')} type="text" value={variant.price || ''} />
 
                 <button on:click="
-                const variantIds = $$.navigator.pageState.variantIds;
-                const index = variantIds.indexOf(this.closest('div').id);
-                if (index !== -1) {
-                    variantIds.splice(index, 1);
+                const thisId = this.closest('div').id;
+                const variants = $$.navigator.pageState.variants;
+                for (let i = 0; i < variants.length; i++) {
+                    if (variants[i].id === thisId) {
+                        variants.splice(i, 1);
+                        break;
+                    }
                 }
                 $$.navigator.reload();
                 ">x</button>
@@ -127,7 +131,7 @@ async function VariantsForm({ form }: { form: NewForm<ProductForm> }) {
         }
         <div><button on:click="
         const pageState = $$.navigator.pageState;
-        pageState.variantIds.push(`variant-${new Date().getTime()}`);
+        pageState.variants.push({ id: `variant-${new Date().getTime()}` });
         $$.navigator.reload();
         ">+</button></div>
     </>
@@ -137,11 +141,11 @@ async function NoVariantForm({ form }: { form: NewForm<ProductForm> }) {
     return <>
         <div>
             <label for={form.idOf('price')}>price</label>
-            <input {...form.idAndNameOf('price')} type="text" />
+            <input {...form.idAndNameOf('price')} type="text" value={form.price || ''} />
         </div>
         <div>
             <label for={form.idOf('inventory')}>inventory</label>
-            <input {...form.idAndNameOf('inventory')} type="text" />
+            <input {...form.idAndNameOf('inventory')} type="text" value={form.inventory || ''} />
         </div>
     </>
 }
