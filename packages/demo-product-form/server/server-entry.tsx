@@ -43,6 +43,20 @@ server.post('/save', async (req, resp) => {
     return resp.json({ data: 'ok' });
 })
 
+// load the initial form
+server.get('/', async (req, resp) => {
+    // fill form with persisted "theProduct"
+    // so the client can begin editing with what has been saved last time
+    const form = createForm(theProduct);
+    // to make the size smaller
+    const pageState = {
+        hasVariants: !!theProduct.hasVariants,
+        variants: (theProduct.variants || []).map(v => { return { id: v.id } })
+    }
+    await sendHtml(resp, <ProductFormPage form={form} />, pageState);
+});
+
+// grow form dynamically with user input
 server.put('/', async (req, resp) => {
     // as form editing state is held in client side
     // we do not need load "theProduct" here
@@ -52,18 +66,6 @@ server.put('/', async (req, resp) => {
     const pageState = req.body;
     await sendHtml(resp, <ProductFormPage form={form} />, pageState);
 })
-
-server.get('/', async (req, resp) => {
-    // fill form with "theProduct"
-    // so the client can edit with existing values
-    const form = createForm(theProduct);
-    // to make the size smaller
-    const pageState = {
-        hasVariants: !!theProduct.hasVariants,
-        variants: (theProduct.variants || []).map(v => { return { id: v.id } })
-    }
-    await sendHtml(resp, <ProductFormPage form={form} />, pageState);
-});
 
 async function ProductFormPage({ form }: { form: NewForm<ProductForm> }) {
     const jsx = <html>
@@ -153,18 +155,22 @@ async function NoVariantForm({ form }: { form: NewForm<ProductForm> }) {
     </>
 }
 
-async function sendHtml(resp: Response, jsx: any, pageState?: any) {
-    let result = await jsx;
+/**
+ * send html response to client with optional page state
+ * @param resp express response object
+ * @param html string or Promise<string>
+ * @param pageState if provided, HTTP PUT of the same url need to handled to accept client updated pageState
+ */
+async function sendHtml(resp: Response, html: any, pageState?: any) {
+    html = await html;
     const toInject = [];
     if (pageState) {
         toInject.push(`<template class="page-state">${JSON.stringify(pageState)}</template>`);
     }
     toInject.push('<script type="module" src="./client/client-entry.js"></script>');
-    if (result) {
-        result = "<!DOCTYPE html>" + result;
-        result = result.replace('</body>', toInject.join('\n') + '</body>');
-    }
-    resp.status(200).set({ 'Content-Type': 'text/html' }).end(result);
+    html = "<!DOCTYPE html>" + html;
+    html = html.replace('</body>', toInject.join('\n') + '</body>');
+    resp.status(200).set({ 'Content-Type': 'text/html' }).end(html);
 }
 
 export default server;
