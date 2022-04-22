@@ -49,7 +49,7 @@ server.get('/', async (req, resp) => {
     // so the client can begin editing with what has been saved last time
     const form = createForm(theProduct);
     // to make the size smaller
-    const pageState = {
+    const pageState: PageState = {
         hasVariants: !!theProduct.hasVariants,
         variants: (theProduct.variants || []).map(v => { return { id: v.id } })
     }

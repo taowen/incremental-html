@@ -1,0 +1,28 @@
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Demo</title>
+    <link rel="shortcut icon" href="#" />
+</head>
+
+<body bind:counter="$$.ref('99')">
+    <button on:click="
+    const counter = document.body.counter;
+    counter.value = Number(counter.value) - 1">-</button>
+    <!-- because counter is a ref, so bind:value is bi-directional -->
+    <input bind:value="document.body.counter"/>
+    <button on:click="
+    const counter = document.body.counter;
+    counter.value = Number(counter.value) + 1">+</button>
+    <p bind:style.color="Number(document.body.counter.value) > 100 ? 'red' : 'black'" 
+        bind:innerHTML="`value is: ${document.body.counter.value}`" />
+    <script type="module">
+        import { startDomObserver, ref } from '@incremental-html/reactivity';
+        window.$$ = { ref };
+        // for properties like bind:xxx or on:xxx
+        startDomObserver();
+    </script>
+</body>
+
+</html>

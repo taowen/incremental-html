@@ -1,4 +1,4 @@
-import { effect, reactive } from '@vue/reactivity';
+import { effect, isRef, reactive } from '@vue/reactivity';
 import morphdom from 'morphdom';
 
 const nodeVersions = reactive<Record<string, number>>({});
@@ -61,11 +61,12 @@ function registerNode(node: Element) {
     }
     const xid = `n${nextId++}`;
     (node as any).$xid = xid;
-    effect(() => {
-        refreshNode(node);
-    })
     if (node.tagName === 'INPUT') {
         node.addEventListener('input', () => {
+            const ref = (node as any).$valueRef;
+            if (ref) {
+                ref.value = (node as HTMLInputElement).value;
+            }
             notifyNodeSubscribers(xid);
         });
         const superProps = Object.getPrototypeOf(node);
@@ -76,11 +77,20 @@ function registerNode(node: Element) {
                 return superGet.apply(this[rawNode] || this);
             },
             set: function (t) {
+                if (isRef(t)) {
+                    this.$valueRef = t;
+                    t = t.value;
+                } else {
+                    delete this.$valueRef;
+                }
                 superSet.call(this[rawNode] || this, t);
                 notifyNodeSubscribers(xid);
             }
         });
     }
+    effect(() => {
+        refreshNode(node);
+    })
     for (let i = 0; i < node.attributes.length; i++) {
         const attr = node.attributes[i];
         if (attr.name.startsWith('on:')) {
