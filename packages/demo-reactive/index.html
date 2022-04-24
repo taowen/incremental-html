@@ -6,7 +6,7 @@
     <link rel="shortcut icon" href="#" />
 </head>
 
-<body bind:store="$$.reactive({ counter: 99 })">
+<body prop:store="$reactive({ counter: 99 })">
     <button on:click="document.body.store.counter -= 1">-</button>
     <input bind:value="document.body.store.counter" 
     on:input="document.body.store.counter = parseInt(arguments[0].target.value)"/>
@@ -15,7 +15,7 @@
         bind:innerHTML="`value is: ${document.body.store.counter}`" />
     <script type="module">
         import { startDomObserver, reactive } from '@incremental-html/reactivity';
-        window.$$ = { reactive };
+        window.$reactive = reactive;
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>

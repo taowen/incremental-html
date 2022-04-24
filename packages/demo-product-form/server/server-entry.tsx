@@ -61,7 +61,7 @@ server.put('/', async (req, resp) => {
     // as form editing state is held in client side
     // we do not need load "theProduct" here
     // the form generated will be blank without values
-    // it will be merged into client editing state by $$.navigator.reload
+    // it will be merged into client editing state by $navigator.reload
     const form = createForm(req.body as ProductForm);
     const pageState = req.body;
     await sendHtml(resp, <ProductFormPage form={form} />, pageState);
@@ -76,7 +76,7 @@ async function ProductFormPage({ form }: { form: NewForm<ProductForm> }) {
         </head>
         <body>
             <form method="post" action="/save" on:submit="
-                await $$.submitForm(this);
+                await $submitForm(this);
             ">
                 <fieldset style="display: flex; flex-direction: column;">
                     <div>
@@ -90,8 +90,8 @@ async function ProductFormPage({ form }: { form: NewForm<ProductForm> }) {
                     <div>
                         <label for={form.idOf('hasVariants')}>hasVariant</label>
                         <input {...form.idAndNameOf('hasVariants')} type="checkbox" checked={!!form.hasVariants} on:input="
-                        $$.navigator.pageState.hasVariants = this.checked;
-                        $$.navigator.reload();
+                        $navigator.pageState.hasVariants = this.checked;
+                        $navigator.reload();
                         "/>
                     </div>
                     {
@@ -123,21 +123,21 @@ async function VariantsForm({ form }: { form: NewForm<ProductForm> }) {
 
                 <button on:click="
                 const thisVariantId = this.closest('div').id;
-                const variants = $$.navigator.pageState.variants;
+                const variants = $navigator.pageState.variants;
                 for (let i = 0; i < variants.length; i++) {
                     if (variants[i].id === thisVariantId) {
                         variants.splice(i, 1);
                         break;
                     }
                 }
-                $$.navigator.reload();
+                $navigator.reload();
                 ">x</button>
             </div>)
         }
         <div><button on:click="
-        const pageState = $$.navigator.pageState;
+        const pageState = $navigator.pageState;
         pageState.variants.push({ id: `variant-${new Date().getTime()}` });
-        $$.navigator.reload();
+        $navigator.reload();
         ">+</button></div>
     </>
 }

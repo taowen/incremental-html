@@ -6,7 +6,7 @@
     <link rel="shortcut icon" href="#" />
 </head>
 
-<body bind:counter="$$.ref('99')">
+<body prop:counter="$ref('99')">
     <button on:click="
     const counter = document.body.counter;
     counter.value = Number(counter.value) - 1">-</button>
@@ -19,7 +19,7 @@
         bind:innerHTML="`value is: ${document.body.counter.value}`" />
     <script type="module">
         import { startDomObserver, ref } from '@incremental-html/reactivity';
-        window.$$ = { ref };
+        window.$ref = ref;
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>

@@ -22,6 +22,12 @@ const mutationObserver = new MutationObserver((mutationList) => {
                 registerNode(addedNode as Element);
             }
         }
+        for (let i = 0; i < mutation.removedNodes.length; i++) {
+            const removedNode = mutation.removedNodes.item(i) as Element;
+            if (removedNode.nodeType === 1 && removedNode.getAttribute('on:unmount')) {
+                callEventHandler('unmount', removedNode, removedNode.getAttribute('on:unmount')!);
+            }
+        }
     }
 });
 
@@ -93,18 +99,19 @@ function registerNode(node: Element) {
     })
     for (let i = 0; i < node.attributes.length; i++) {
         const attr = node.attributes[i];
-        if (attr.name.startsWith('on:')) {
+        if (attr.name === 'on:mount') {
+            callEventHandler('mount', node, attr.value);
+        } else if (attr.name === 'on:unmount') {
+            // ignore
+        } else if (attr.name.startsWith('on:')) {
             const eventName = attr.name.substring('on:'.length);
             node.addEventListener(eventName, (...args) => {
                 args[0].preventDefault();
-                (async () => {
-                    try {
-                        await evalAsync(attr.value, args[0].target, ...args);
-                    } catch (e) {
-                        console.error('failed to handle ' + eventName, { e });
-                    }
-                })();
+                callEventHandler(eventName, args[0].target!, attr.value, ...args);
             })
+        } else if (attr.name.startsWith('prop:')) {
+            const propName = attr.name.substring('prop:'.length);
+            (node as any)[propName] = evalSync(attr.value, elementProxy(node));
         }
     }
     for (let i = 0; i < node.children.length; i++) {
@@ -117,6 +124,19 @@ function registerNode(node: Element) {
         subtree: false
     });
     return xid;
+}
+
+async function callEventHandler(eventName: string, node: EventTarget, eventHandler: string | Function, ...args: any[]) {
+    try {
+        if (typeof eventHandler === 'string') {
+            return await evalAsync(eventHandler, node, ...args);
+        } else {
+            return await eventHandler.apply(node, args);
+        }
+    } catch (e) {
+        console.error('failed to handle ' + eventName, { e });
+        return undefined;
+    }
 }
 
 function $(selector: any) {
@@ -176,17 +196,11 @@ function setAttribute(node: Element, name: string, value: any) {
         return;
     }
     if (name === 'bind:innerhtml') {
-        if (typeof value === 'string') {
-            const newNode = document.createElement('div');
-            newNode.innerHTML = value;
-            updateChildNodesIncrementally(node, newNode);
-        } else {
-            setChildNodes(node, value);
-        }
+        updateInnerHTML(node, value);
         return;
     }
     if (name === 'bind:childnodes') {
-        setChildNodes(node, value);
+        updateInnerHTMLByNodes(node, value);
         return;
     }
     let key = lookup[name];
@@ -196,7 +210,18 @@ function setAttribute(node: Element, name: string, value: any) {
     Reflect.set(node, key, value);
 }
 
-function setChildNodes(node: Element, value: any) {
+export function updateInnerHTML(node: Element, value: string) {
+    if (typeof value === 'string') {
+        const newNode = document.createElement('div');
+        newNode.innerHTML = value;
+        updateChildNodesIncrementally(node, newNode);
+    } else {
+        updateInnerHTMLByNodes(node, value);
+    }
+}
+
+
+export function updateInnerHTMLByNodes(node: Element, value: any) {
     const newNode = document.createElement('div');
     if (Array.isArray(value)) {
         for (const child of value) {
@@ -218,12 +243,18 @@ function updateChildNodesIncrementally(node: Element, newNode: Element) {
         },
         onBeforeElUpdated(fromEl, toEl) {
             (fromEl as any).$props = (toEl as any).$props;
+            if ((fromEl as any).onBeforeElUpdated) {
+                return (fromEl as any).onBeforeElUpdated(fromEl, toEl);
+            }
             return true;
         },
         onBeforeElChildrenUpdated(fromEl, toEl) {
             if (toEl.getAttribute('bind:innerhtml') || toEl.getAttribute('bind:childNodes') || toEl.getAttribute('bind:textcontent')) {
                 refreshNode(fromEl);
                 return false;
+            }
+            if ((fromEl as any).onBeforeElChildrenUpdated) {
+                return (fromEl as any).onBeforeElChildrenUpdated(fromEl, toEl);
             }
             return true;
         },

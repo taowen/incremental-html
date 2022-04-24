@@ -2,7 +2,5 @@
 import { startDomObserver } from '@incremental-html/reactivity';
 import { submitForm } from '@incremental-html/submit-form';
 
-window.$$ = {
-    submitForm
-};
+window.$submitForm = submitForm;
 startDomObserver();

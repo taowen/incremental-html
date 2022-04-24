@@ -1,0 +1,37 @@
+<!-- index.html -->
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Demo</title>
+    <link rel="shortcut icon" href="#" />
+</head>
+
+<body>
+    <main>
+        <div on:mount="
+            this.onBeforeElUpdated = () => {
+                console.log('node1 prevent update');
+                return false;
+            }
+        ">node 1</div>
+        <div on:unmount="
+            console.log('node2 umounted');
+        ">node 2</div>
+    </main>
+    <button on:click="
+        const parent = document.querySelector('main');
+        $updateInnerHTML(parent, `
+            <div>node !!!!</div>
+            <span>node 3</span>
+        `)
+    ">change</button>
+    <script type="module">
+        import { startDomObserver, updateInnerHTML } from '@incremental-html/reactivity';
+        window.$updateInnerHTML = updateInnerHTML;
+        // for properties like bind:xxx or on:xxx
+        startDomObserver();
+    </script>
+</body>
+
+</html>

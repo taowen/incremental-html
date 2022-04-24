@@ -6,7 +6,7 @@
     <title>Demo</title>
     <link rel="shortcut icon" href="#" />
 </head>
-<body bind:store="$$.reactive({ items: ['fix bike', 'buy tomato'] })">
+<body prop:store="$reactive({ items: ['fix bike', 'buy tomato'] })">
     <template id="tpl-todo-item">
         <!-- this.$props provided by renderTemplate -->
         <li>
@@ -35,11 +35,12 @@
     </form>
     <ul bind:innerHTML="
         document.body.store.items.map(
-            item => $$.renderTemplate('#tpl-todo-item', { task: item })
+            item => $renderTemplate('#tpl-todo-item', { task: item })
         );" />
     <script type="module">
         import { startDomObserver, reactive, renderTemplate } from '@incremental-html/reactivity';
-        window.$$ = { reactive, renderTemplate }
+        window.$reactive = reactive;
+        window.$renderTemplate = renderTemplate;
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>

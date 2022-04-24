@@ -32,7 +32,7 @@ export function GET() {
                 const form = e.target;
                 form.setAttribute('submitting', 'true');
                 try {
-                    await $$.submitForm(form)
+                    await $submitForm(form)
                 } finally {
                     form.setAttribute('submitting', '');
                 }

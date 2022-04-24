@@ -63,8 +63,8 @@ server.get('/', async (req, resp) => {
         </head>
         <body>
             <form id="newTodo" method="post" action="/add" on:submit="
-            await $$.submitForm(this);
-            await $$.navigator.reload();
+            await $submitForm(this);
+            await $navigator.reload();
             this.reset();
         ">
                 <input type="text" name={form.nameOf('task')} />
@@ -77,7 +77,7 @@ server.get('/', async (req, resp) => {
                         on:click="
                             const [e] = arguments;
                             e.preventDefault();
-                            $$.navigator.href = this.href;
+                            $navigator.href = this.href;
                         "
                         >{todoItem}</a>
                         <button on:click={`
@@ -86,7 +86,7 @@ server.get('/', async (req, resp) => {
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ task: '${todoItem}' })
                             });
-                            await $$.navigator.reload();
+                            await $navigator.reload();
                     `}>x</button></li>)
                 }
             </ul>
