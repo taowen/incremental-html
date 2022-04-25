@@ -1,5 +1,5 @@
 import { effect, isRef, reactive } from '@vue/reactivity';
-import { morphChildNodes } from './morphChildNodes';
+import { morphChildNodes, morphInnerHTML } from '@incremental-html/morph';
 
 const nodeVersions = reactive<Record<string, number>>({});
 const rawNode = Symbol();
@@ -212,14 +212,4 @@ function setNodeProperty(node: Element, name: string, value: any) {
         key = name;
     }
     Reflect.set(node, key, value);
-}
-
-export function morphInnerHTML(node: Element, value: string) {
-    if (typeof value === 'string') {
-        const newNode = document.createElement('div');
-        newNode.innerHTML = value;
-        morphChildNodes(node, newNode);
-    } else {
-        morphChildNodes(node, value);
-    }
 }

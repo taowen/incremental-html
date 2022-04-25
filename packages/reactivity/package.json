@@ -6,6 +6,7 @@
   "module": "dist/esm/src/index.js",
   "types": "dist/esm/src/index.d.ts",
   "dependencies": {
+    "@incremental-html/morph": "workspace: *",
     "@vue/reactivity": "^3.2.32"
   },
   "devDependencies": {

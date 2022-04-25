@@ -1,4 +1,4 @@
-import morphdom from 'morphdom';
+import { morphChildNodes } from '@incremental-html/morph';
 
 /**
  * mimic window.location behavior
@@ -78,20 +78,7 @@ function initPageState() {
 function applyHtml(html: string) {
     const fakeDom = document.createElement('html');
     fakeDom.innerHTML = html;
-    morphdom(document.body, fakeDom.querySelector('body')!, {
-        getNodeKey(node) {
-            if (node.nodeType === 1) {
-                return (node as Element).id;
-            }
-            return '';
-        },
-        onBeforeElUpdated(fromEl, toEl) {
-            if (toEl.tagName === 'INPUT' || toEl.tagName === 'TEXTAREA' || toEl.tagName === 'SELECT') {
-                return false;
-            }
-            return true;
-        }
-    });
+    morphChildNodes(document.body, fakeDom.querySelector('body')!);
     document.title = fakeDom.querySelector('title')?.innerText || '';
 }
 

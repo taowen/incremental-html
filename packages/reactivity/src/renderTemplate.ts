@@ -1,4 +1,4 @@
-import { morphChildNodes } from './morphChildNodes';
+import { morphChildNodes } from '@incremental-html/morph';
 
 morphChildNodes.morphProperties = (oldEl, newEl) => {
     // renderTemplate set $props to new element
