@@ -8,7 +8,7 @@ let nextVer = 1;
 
 // html will lowercase attribute name
 const lookup: Record<string, string> = {
-    'bind:textcontent': 'textContent'
+    'textcontent': 'textContent'
 }
 
 const mutationObserver = new MutationObserver((mutationList) => {
@@ -32,8 +32,12 @@ const mutationObserver = new MutationObserver((mutationList) => {
 });
 
 export function startDomObserver() {
-    (window as any).$ = $;
-    mountNode(document.documentElement || document.body);
+    mountNode(document.body);
+}
+
+export function stopDomObserver() {
+    mutationObserver.disconnect();
+    delete (document.body as any).$xid;
 }
 
 const syncEvaluator = Function.apply(null, ['expr', 'arguments', "return eval('expr = undefined;' + expr)"]);
@@ -111,7 +115,7 @@ function mountNode(node: Element) {
             })
         } else if (attr.name.startsWith('prop:')) {
             const propName = attr.name.substring('prop:'.length);
-            (node as any)[propName] = evalSync(attr.value, elementProxy(node));
+            setNodeProperty(node, propName, evalSync(attr.value, elementProxy(node)));
         }
     }
     for (let i = 0; i < node.children.length; i++) {
@@ -139,7 +143,7 @@ async function callEventHandler(eventName: string, node: EventTarget, eventHandl
     }
 }
 
-function $(selector: any) {
+export function $(selector: any) {
     if (selector[0] !== '#') {
         throw new Error('not implemented');
     }
@@ -178,7 +182,7 @@ function refreshNode(node: Element) {
         if (attr.name.startsWith('bind:')) {
             try {
                 const newValue = evalSync(attr.value, elementProxy(node));
-                setAttribute(node, attr.name, newValue);
+                setNodeProperty(node, attr.name.substring('bind:'.length), newValue);
             } catch (e) {
                 console.error(`failed to eval ${attr.name}`, { node, e });
             }
@@ -186,26 +190,26 @@ function refreshNode(node: Element) {
     }
 }
 
-function setAttribute(node: Element, name: string, value: any) {
-    if (name.startsWith('bind:style.')) {
-        let key = lookup[name.substring('bind:style.'.length)];
+function setNodeProperty(node: Element, name: string, value: any) {
+    if (name.startsWith('style.')) {
+        let key = lookup[name.substring('style.'.length)];
         if (!key) {
-            key = name.substring('bind:style.'.length);
+            key = name.substring('style.'.length);
         }
         Reflect.set((node as HTMLElement).style, key, value)
         return;
     }
-    if (name === 'bind:innerhtml') {
+    if (name === 'innerhtml') {
         morphInnerHTML(node, value);
         return;
     }
-    if (name === 'bind:childnodes') {
+    if (name === 'childnodes') {
         morphChildNodes(node, Array.isArray(value) ? value : [value]);
         return;
     }
     let key = lookup[name];
     if (!key) {
-        key = name.substring('bind:'.length);
+        key = name;
     }
     Reflect.set(node, key, value);
 }

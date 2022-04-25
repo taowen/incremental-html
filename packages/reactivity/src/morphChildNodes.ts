@@ -44,6 +44,8 @@ export function morphChildNodes(oldEl: Element, newEl: Element | Node[]) {
     }
 }
 
+morphChildNodes.morphProperties = (oldEl: Element, newEl: Element) => {};
+
 function tryReuse(oldNode: Node | undefined, newNode: Node) {
     if (newNode.nodeType !== 1) {
         return newNode;
@@ -56,6 +58,7 @@ function tryReuse(oldNode: Node | undefined, newNode: Node) {
     }
     morphAttributes(oldNode as Element, newNode as Element);
     morphChildNodes(oldNode as Element, newNode as Element);
+    morphChildNodes.morphProperties(oldNode as Element, newNode as Element);
     return oldNode;
 }
 

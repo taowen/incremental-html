@@ -1,3 +1,11 @@
+import { morphChildNodes } from './morphChildNodes';
+
+morphChildNodes.morphProperties = (oldEl, newEl) => {
+    // renderTemplate set $props to new element
+    // if old element reused, we need to propagate $props to old element
+    (oldEl as any).$props = (newEl as any).$props;
+}
+
 export function renderTemplate(selector: string, props?: Record<string, any>) {
     const templateNode: HTMLTemplateElement = document.querySelector(selector)!;
     if (!templateNode) {
@@ -23,7 +31,7 @@ export function renderTemplate(selector: string, props?: Record<string, any>) {
     return div;
 }
 
-function setProps(node: Node, props : Record<string, any>) {
+function setProps(node: Node, props: Record<string, any>) {
     if (node.nodeType !== 1) {
         return;
     }
