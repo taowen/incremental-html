@@ -4,23 +4,30 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Demo</title>
-    <link rel="stylesheet" href="./index.css" />
+    <style>
+        @tailwind base;
+        @tailwind components;
+        @tailwind utilities;
+    </style>
 </head>
 
 <body>
-    <div class="flex flex-col items-center justify-center w-full bg-gradient-to-r from-sky-400 to-blue-600">
+    <div class="flex flex-col items-center justify-center w-full h-screen bg-gradient-to-r from-sky-400 to-blue-600">
         <div class="w-full max-w-md px-2 py-16 sm:px-0">
             <div class="flex p-1 space-x-1 bg-blue-900/20 rounded-xl" role="tablist" aria-orientation="horizontal">
                 <button
                     class="w-full py-2.5 text-sm leading-5 font-medium text-blue-700 rounded-lg focus:outline-none focus:ring-2 ring-offset-2 ring-offset-blue-400 ring-white ring-opacity-60 bg-white shadow"
                     id="headlessui-tabs-tab-1" role="tab" type="button" aria-selected="true" tabindex="0"
-                    aria-controls="headlessui-tabs-panel-4">Recent</button><button
+                    aria-controls="headlessui-tabs-panel-4">Recent</button>
+                <button
                     class="w-full py-2.5 text-sm leading-5 font-medium text-blue-700 rounded-lg focus:outline-none focus:ring-2 ring-offset-2 ring-offset-blue-400 ring-white ring-opacity-60 text-blue-100 hover:bg-white/[0.12] hover:text-white"
                     id="headlessui-tabs-tab-2" role="tab" type="button" aria-selected="false"
-                    tabindex="-1">Popular</button><button
+                    tabindex="-1">Popular</button>
+                <button
                     class="w-full py-2.5 text-sm leading-5 font-medium text-blue-700 rounded-lg focus:outline-none focus:ring-2 ring-offset-2 ring-offset-blue-400 ring-white ring-opacity-60 text-blue-100 hover:bg-white/[0.12] hover:text-white"
                     id="headlessui-tabs-tab-3" role="tab" type="button" aria-selected="false"
-                    tabindex="-1">Trending</button></div>
+                    tabindex="-1">Trending</button>
+            </div>
             <div class="mt-2">
                 <div class="bg-white rounded-xl p-3 focus:outline-none focus:ring-2 ring-offset-2 ring-offset-blue-400 ring-white ring-opacity-60"
                     id="headlessui-tabs-panel-4" role="tabpanel" aria-labelledby="headlessui-tabs-tab-1" tabindex="0">
@@ -52,6 +59,10 @@
             </div>
         </div>
     </div>
+    <script type="module">
+        import { startDomObserver } from '@incremental-html/reactivity';
+        startDomObserver();
+    </script>
 </body>
 
 </html>

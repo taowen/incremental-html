@@ -2,6 +2,9 @@
     "name": "demo-tabs",
     "private": true,
     "version": "1.0.0",
+    "dependencies": {
+        "@incremental-html/reactivity": "workspace:*"
+    },
     "devDependencies": {
         "autoprefixer": "^10.4.5",
         "postcss": "^8.4.12",
