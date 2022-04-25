@@ -9,10 +9,10 @@
 
 <body>
     <main>
-        <div on:mount="
+        <div style="color:red;" on:mount="
             this.onBeforeElUpdated = () => {
-                console.log('node1 prevent update');
-                return false;
+                this.style.fontSize = 'larger';
+                return true;
             }
         ">node 1</div>
         <div on:unmount="
@@ -22,7 +22,7 @@
     <button on:click="
         const parent = document.querySelector('main');
         $updateInnerHTML(parent, `
-            <div>node !!!!</div>
+            <div style='color:red;'>node !!!!</div>
             <span>node 3</span>
         `)
     ">change</button>

@@ -19,7 +19,7 @@ const mutationObserver = new MutationObserver((mutationList) => {
         for (let i = 0; i < mutation.addedNodes.length; i++) {
             const addedNode = mutation.addedNodes.item(i)!;
             if (addedNode.nodeType === 1) {
-                registerNode(addedNode as Element);
+                mountNode(addedNode as Element);
             }
         }
         for (let i = 0; i < mutation.removedNodes.length; i++) {
@@ -33,7 +33,7 @@ const mutationObserver = new MutationObserver((mutationList) => {
 
 export function startDomObserver() {
     (window as any).$ = $;
-    registerNode(document.documentElement || document.body);
+    mountNode(document.documentElement || document.body);
 }
 
 const syncEvaluator = Function.apply(null, ['expr', 'arguments', "return eval('expr = undefined;' + expr)"]);
@@ -61,7 +61,7 @@ function notifyNodeSubscribers(xid: string) {
     nodeVersions[xid] = nextVer++;
 }
 
-function registerNode(node: Element) {
+function mountNode(node: Element) {
     if ((node as any).$xid) {
         return (node as any).$xid;
     }
@@ -115,7 +115,7 @@ function registerNode(node: Element) {
         }
     }
     for (let i = 0; i < node.children.length; i++) {
-        registerNode(node.children[i])
+        mountNode(node.children[i])
     }
     mutationObserver.observe(node, {
         attributes: true,
