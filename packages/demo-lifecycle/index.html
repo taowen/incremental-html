@@ -10,10 +10,7 @@
 <body>
     <main>
         <div style="color:red;" on:mount="
-            this.onBeforeElUpdated = () => {
-                this.style.fontSize = 'larger';
-                return true;
-            }
+            this.style.fontSize = 'larger';
         ">node 1</div>
         <div on:unmount="
             console.log('node2 umounted');
@@ -21,14 +18,14 @@
     </main>
     <button on:click="
         const parent = document.querySelector('main');
-        $updateInnerHTML(parent, `
+        $morphInnerHTML(parent, `
             <div style='color:red;'>node !!!!</div>
             <span>node 3</span>
         `)
     ">change</button>
     <script type="module">
-        import { startDomObserver, updateInnerHTML } from '@incremental-html/reactivity';
-        window.$updateInnerHTML = updateInnerHTML;
+        import { startDomObserver, morphInnerHTML } from '@incremental-html/reactivity';
+        window.$morphInnerHTML = morphInnerHTML;
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>

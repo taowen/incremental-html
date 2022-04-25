@@ -1,5 +1,5 @@
 import { effect, isRef, reactive } from '@vue/reactivity';
-import morphdom from 'morphdom';
+import { morphChildNodes } from './morphChildNodes';
 
 const nodeVersions = reactive<Record<string, number>>({});
 const rawNode = Symbol();
@@ -196,11 +196,11 @@ function setAttribute(node: Element, name: string, value: any) {
         return;
     }
     if (name === 'bind:innerhtml') {
-        updateInnerHTML(node, value);
+        morphInnerHTML(node, value);
         return;
     }
     if (name === 'bind:childnodes') {
-        updateInnerHTMLByNodes(node, value);
+        morphChildNodes(node, Array.isArray(value) ? value : [value]);
         return;
     }
     let key = lookup[name];
@@ -210,54 +210,12 @@ function setAttribute(node: Element, name: string, value: any) {
     Reflect.set(node, key, value);
 }
 
-export function updateInnerHTML(node: Element, value: string) {
+export function morphInnerHTML(node: Element, value: string) {
     if (typeof value === 'string') {
         const newNode = document.createElement('div');
         newNode.innerHTML = value;
-        updateChildNodesIncrementally(node, newNode);
+        morphChildNodes(node, newNode);
     } else {
-        updateInnerHTMLByNodes(node, value);
+        morphChildNodes(node, value);
     }
-}
-
-
-export function updateInnerHTMLByNodes(node: Element, value: any) {
-    const newNode = document.createElement('div');
-    if (Array.isArray(value)) {
-        for (const child of value) {
-            newNode.appendChild(child);
-        }
-    } else {
-        newNode.appendChild(value);
-    }
-    updateChildNodesIncrementally(node, newNode);
-}
-
-function updateChildNodesIncrementally(node: Element, newNode: Element) {
-    morphdom(node, newNode, {
-        getNodeKey(node) {
-            if (node.nodeType === 1) {
-                return (node as Element).id;
-            }
-            return '';
-        },
-        onBeforeElUpdated(fromEl, toEl) {
-            (fromEl as any).$props = (toEl as any).$props;
-            if ((fromEl as any).onBeforeElUpdated) {
-                return (fromEl as any).onBeforeElUpdated(fromEl, toEl);
-            }
-            return true;
-        },
-        onBeforeElChildrenUpdated(fromEl, toEl) {
-            if (toEl.getAttribute('bind:innerhtml') || toEl.getAttribute('bind:childNodes') || toEl.getAttribute('bind:textcontent')) {
-                refreshNode(fromEl);
-                return false;
-            }
-            if ((fromEl as any).onBeforeElChildrenUpdated) {
-                return (fromEl as any).onBeforeElChildrenUpdated(fromEl, toEl);
-            }
-            return true;
-        },
-        childrenOnly: true
-    })
 }

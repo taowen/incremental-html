@@ -1,9 +1,10 @@
-export function morphAttributes(oldEl: HTMLElement, newEl: HTMLElement) {
+export function morphAttributes(oldEl: Element, newEl: Element) {
     const oldAttrs = oldEl.getAttributeNames();
     for (let i = 0; i < newEl.attributes.length; i++) {
         const attr = newEl.attributes.item(i)!;
         if (attr.name === 'style') {
-            oldEl.setAttribute(attr.name, `${oldEl.getAttribute('style')||''} ${attr.value}`);
+            const oldStyle = oldEl.getAttribute('style')||'';
+            oldEl.setAttribute(attr.name, oldStyle.replace(attr.value, '') + ' ' + attr.value);
         } else {
             oldEl.setAttribute(attr.name, attr.value);
         }
