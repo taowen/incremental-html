@@ -110,8 +110,8 @@ function mountNode(node: Element) {
             setNodeProperty(node, propName, evalSync(attr.value, elementProxy(node)));
         } else if (attr.name.startsWith('use:')) {
             const featureClass = evalSync(attr.value, elementProxy(node));
-            const featureName = camelize(attr.name.substring('use:'.length));
-            setNodeProperty(node, featureName, new featureClass({ element: node }));
+            const featureName = attr.name.substring('use:'.length);
+            setNodeProperty(node, camelize(featureName), new featureClass(extractFeatureProps(node, featureName)));
         }
     }
     effect(() => {
@@ -127,6 +127,19 @@ function mountNode(node: Element) {
         subtree: false
     });
     return xid;
+}
+
+function extractFeatureProps(element: Element, featureName: string) {
+    const prefix = `${featureName}:`
+    const props: Record<string, any> = { element };
+    for (let i = 0; i < element.attributes.length; i++) {
+        const attr = element.attributes[i];
+        if (attr.name.startsWith(prefix)) {
+            const propName = camelize(attr.name.substring(prefix.length));
+            props[propName] = evalSync(attr.value, elementProxy(element));
+        }
+    }
+    return props;
 }
 
 async function callEventHandler(eventName: string, node: EventTarget, eventHandler: string | Function, ...args: any[]) {
