@@ -42,7 +42,7 @@ this.tabGroup = new $Tab.Group({ element: this, selectedIndex: 1 })
 The html above will execute
 
 ```ts
-// this refers to the <div> element
+// this refers to the <button> element
 this.tab = new $Tab({ element: this })
 ```
 
