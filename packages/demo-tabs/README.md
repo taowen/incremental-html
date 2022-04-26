@@ -3,7 +3,7 @@
 https://headlessui.dev/ demonstrated how to reuse component behavior without reusing its style.
 What if we can borrow the same idea to make server generated html "reactive"?
 
-## Step1: import feature
+## Step1: import headless component
 
 let's import reusable headless component first
 
