@@ -5,7 +5,7 @@ What if we can borrow the same idea to make server generated html "reactive"?
 
 ## Step1: import feature
 
-We need import reusable headless component first
+let's import reusable headless component first
 
 ```ts
 import { startDomObserver } from '@incremental-html/reactivity';
