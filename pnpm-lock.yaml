@@ -10,6 +10,19 @@ importers:
       npm-run-all: 4.1.5
       typescript: 4.6.3
 
+  packages/demo-animation:
+    specifiers:
+      '@incremental-html/motion': workspace:*
+      '@incremental-html/reactivity': workspace:*
+      typescript: ^4.5.5
+      vite: ^2.9.1
+    dependencies:
+      '@incremental-html/motion': link:../motion
+      '@incremental-html/reactivity': link:../reactivity
+    devDependencies:
+      typescript: 4.6.3
+      vite: 2.9.1
+
   packages/demo-client-todo:
     specifiers:
       '@incremental-html/reactivity': workspace:*
@@ -207,6 +220,21 @@ importers:
       '@types/jest': 27.4.1
       jest: 27.5.1
       jsdom: 19.0.0
+      typescript: 4.6.3
+
+  packages/motion:
+    specifiers:
+      '@incremental-html/reactivity': workspace:*
+      '@types/jest': 27.4.1
+      jest: 27.5.1
+      typedoc: ^0.22.15
+      typescript: ^4.5.5
+    dependencies:
+      '@incremental-html/reactivity': link:../reactivity
+    devDependencies:
+      '@types/jest': 27.4.1
+      jest: 27.5.1
+      typedoc: 0.22.15_typescript@4.6.3
       typescript: 4.6.3
 
   packages/navigator:

@@ -19,5 +19,8 @@
     },
     {
       "path": "./packages/headlessui/cjs.tsconfig.json"
+    },
+    {
+      "path": "./packages/motion/cjs.tsconfig.json"
     }]
   }

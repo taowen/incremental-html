@@ -19,5 +19,8 @@
   },
   {
     "path": "./packages/headlessui/esm.tsconfig.json"
+  },
+  {
+    "path": "./packages/motion/esm.tsconfig.json"
   }]
 }

@@ -1,0 +1,43 @@
+<!-- index.html -->
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Demo</title>
+    <link rel="shortcut icon" href="#" />
+    <style>
+        body {
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(180deg, #d309e1 0%, rgb(156, 26, 255) 100%);
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .example-container div {
+            background: white;
+            border-radius: 30px;
+            width: 150px;
+            height: 150px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="example-container">
+        <div use:motion="$Motion"></div>
+    </div>
+    <script type="module">
+        import { startDomObserver } from '@incremental-html/reactivity';
+        import { Motion } from '@incremental-html/motion';
+        window.$Motion = Motion;
+        // for properties like bind:xxx or on:xxx
+        startDomObserver();
+    </script>
+</body>
+
+</html>

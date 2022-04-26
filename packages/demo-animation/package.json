@@ -1,0 +1,13 @@
+{
+    "name": "demo-animation",
+    "private": true,
+    "version": "1.0.0",
+    "dependencies": {
+        "@incremental-html/reactivity": "workspace:*",
+        "@incremental-html/motion": "workspace:*"
+    },
+    "devDependencies": {
+        "typescript": "^4.5.5",
+        "vite": "^2.9.1"
+    }
+}
