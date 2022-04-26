@@ -1,0 +1,3 @@
+[submodule "framer-motion"]
+	path = framer-motion
+	url = https://github.com/taowen/framer-motion.git
