@@ -1,7 +1,7 @@
 {
     "name": "@incremental-html/motion",
     "version": "1.0.0",
-    "description": "wrap framer-motion",
+    "description": "animation and guesture",
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
     "types": "dist/esm/index.d.ts",

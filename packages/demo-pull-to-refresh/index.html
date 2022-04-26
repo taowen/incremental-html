@@ -29,12 +29,12 @@
 
 <body>
     <div class="example-container">
-        <div use:motion="$Motion"></div>
+        <div use:drag="$Drag" bind:style.transform.translate-x="'10px'"></div>
     </div>
     <script type="module">
         import { startDomObserver } from '@incremental-html/reactivity';
-        import { Motion } from '@incremental-html/motion';
-        window.$Motion = Motion;
+        import { Drag } from '@incremental-html/motion';
+        window.$Drag = Drag;
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>

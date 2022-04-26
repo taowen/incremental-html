@@ -208,11 +208,25 @@ function refreshNode(node: Element) {
                 console.error(`failed to eval ${attr.name}`, { node, e });
             }
         }
+        const styleTransform = (node as any).styleTransform;
+        if (styleTransform) {
+            (node as HTMLElement).style.transform = Object.entries(styleTransform).map(
+                ([k, v]) => typeof v === 'number' ? `${k}(${v}px)` : `${k}(${v})`).join(' ');
+        }
     }
 }
 
 function setNodeProperty(node: Element, name: string, value: any) {
+    if (name.startsWith('style.transform.')) {
+        let styleTransform = (node as any).styleTransform;
+        if (!styleTransform) {
+            (node as any).styleTransform = styleTransform = {};
+        }
+        styleTransform[name.substring('style.transform.'.length)] = value;
+        return;
+    }
     if (name.startsWith('style.')) {
+        console.log(name);
         Reflect.set((node as HTMLElement).style, name.substring('style.'.length), value)
         return;
     }

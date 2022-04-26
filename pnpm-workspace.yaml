@@ -1,3 +1,2 @@
 packages:
   - 'packages/*'
-  - 'framer-motion/packages/framer-motion'

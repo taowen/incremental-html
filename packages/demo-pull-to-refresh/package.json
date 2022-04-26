@@ -1,5 +1,5 @@
 {
-    "name": "demo-animation",
+    "name": "demo-pull-to-refresh",
     "private": true,
     "version": "1.0.0",
     "dependencies": {
