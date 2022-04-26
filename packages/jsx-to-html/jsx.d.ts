@@ -242,8 +242,8 @@ export interface HTMLAttributes extends AriaAttributes, EventHandlers<Events> {
   class?: any
   style?: StyleValue
   ['bind:style']?: string
-  ['bind:innerHTML']?: string
-  ['bind:textContent']?: string
+  ['bind:inner-html']?: string
+  ['bind:text-content']?: string
 
   // Standard HTML Attributes
   accesskey?: string

@@ -10,7 +10,7 @@
     <template id="tpl-todo-item">
         <!-- this.$props provided by renderTemplate -->
         <li>
-            <span bind:textContent="this.$props.task"></span>
+            <span bind:text-content="this.$props.task"></span>
             <button on:click="
                 const items = [...document.body.store.items];
                 const index = items.indexOf(this.$props.task);
@@ -33,7 +33,7 @@
         <input type="text" name="task" />
         <button>add</button>
     </form>
-    <ul bind:innerHTML="
+    <ul bind:inner-html="
         document.body.store.items.map(
             item => $renderTemplate('#tpl-todo-item', { task: item })
         );" />

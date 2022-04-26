@@ -49,12 +49,12 @@ export function GET() {
                             on:input="this.closest('form').setAttribute('error', '')"
                         />
                         <button type="submit" 
-                            bind:textContent="this.closest('form').getAttribute('submitting') ? 'Subscribing...' : 'Subscribe'">
+                            bind:text-content="this.closest('form').getAttribute('submitting') ? 'Subscribing...' : 'Subscribe'">
                         </button>
                     </fieldset>
 
                     <p id="error-message" 
-                        bind:textContent="this.closest('form').getAttribute('error') || '\xa0'">
+                        bind:text-ontent="this.closest('form').getAttribute('error') || '\xa0'">
                     </p>
                 </form>
             </main>

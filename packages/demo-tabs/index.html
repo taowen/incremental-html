@@ -13,19 +13,19 @@
 
 <body>
     <div class="flex flex-col items-center justify-center w-full h-screen bg-gradient-to-r from-sky-400 to-blue-600">
-        <div class="w-full max-w-md px-2 py-16 sm:px-0">
-            <div class="flex p-1 space-x-1 bg-blue-900/20 rounded-xl" role="tablist" aria-orientation="horizontal">
-                <button
-                    class="w-full py-2.5 text-sm leading-5 font-medium text-blue-700 rounded-lg focus:outline-none focus:ring-2 ring-offset-2 ring-offset-blue-400 ring-white ring-opacity-60 bg-white shadow"
-                    id="headlessui-tabs-tab-1" role="tab" type="button" aria-selected="true" tabindex="0"
+        <div use:tab-group="$TabGroup" class="w-full max-w-md px-2 py-16 sm:px-0">
+            <div use:tab-list="$TabList" class="flex p-1 space-x-1 bg-blue-900/20 rounded-xl">
+                <button use:tab="$Tab" bind:class.selection = "this.tab.selected ? 'bg-white shadow' : 'text-blue-100 hover:bg-white/[0.12] hover:text-white'"
+                    class="w-full py-2.5 text-sm leading-5 font-medium text-blue-700 rounded-lg focus:outline-none focus:ring-2 ring-offset-2 ring-offset-blue-400 ring-white ring-opacity-60"
+                    id="headlessui-tabs-tab-1" type="button" aria-selected="true" tabindex="0"
                     aria-controls="headlessui-tabs-panel-4">Recent</button>
-                <button
-                    class="w-full py-2.5 text-sm leading-5 font-medium text-blue-700 rounded-lg focus:outline-none focus:ring-2 ring-offset-2 ring-offset-blue-400 ring-white ring-opacity-60 text-blue-100 hover:bg-white/[0.12] hover:text-white"
-                    id="headlessui-tabs-tab-2" role="tab" type="button" aria-selected="false"
+                <button use:tab="$Tab" bind:class.selection = "this.tab.selected ? 'bg-white shadow' : 'text-blue-100 hover:bg-white/[0.12] hover:text-white'"
+                    class="w-full py-2.5 text-sm leading-5 font-medium text-blue-700 rounded-lg focus:outline-none focus:ring-2 ring-offset-2 ring-offset-blue-400 ring-white ring-opacity-60"
+                    id="headlessui-tabs-tab-2" type="button" aria-selected="false"
                     tabindex="-1">Popular</button>
-                <button
-                    class="w-full py-2.5 text-sm leading-5 font-medium text-blue-700 rounded-lg focus:outline-none focus:ring-2 ring-offset-2 ring-offset-blue-400 ring-white ring-opacity-60 text-blue-100 hover:bg-white/[0.12] hover:text-white"
-                    id="headlessui-tabs-tab-3" role="tab" type="button" aria-selected="false"
+                <button use:tab="$Tab" bind:class.selection = "this.tab.selected ? 'bg-white shadow' : 'text-blue-100 hover:bg-white/[0.12] hover:text-white'"
+                    class="w-full py-2.5 text-sm leading-5 font-medium text-blue-700 rounded-lg focus:outline-none focus:ring-2 ring-offset-2 ring-offset-blue-400 ring-white ring-opacity-60"
+                    id="headlessui-tabs-tab-3" type="button" aria-selected="false"
                     tabindex="-1">Trending</button>
             </div>
             <div class="mt-2">
@@ -61,6 +61,10 @@
     </div>
     <script type="module">
         import { startDomObserver } from '@incremental-html/reactivity';
+        import { Tab, TabGroup, TabList } from '@incremental-html/headlessui';
+        window.$Tab = Tab;
+        window.$TabGroup = TabGroup;
+        window.$TabList = TabList;
         startDomObserver();
     </script>
 </body>

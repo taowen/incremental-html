@@ -2,27 +2,22 @@
     "compilerOptions": {
         "target": "esnext",
         "useDefineForClassFields": true,
-        "module": "commonjs",
+        "declaration": true,
         "moduleResolution": "node",
         "incremental": true,
         "strict": true,
         "noImplicitThis": true,
-        "jsx": "react",
-        "jsxFactory": "jsxToHtml.createElement",
-        "jsxFragmentFactory": "jsxToHtml.Fragment",
+        "jsx": "preserve",
         "sourceMap": true,
         "resolveJsonModule": true,
         "esModuleInterop": true,
-        "outDir": "dist/cjs",
-        "types": [],
         "lib": [
             "esnext",
             "dom"
         ]
     },
     "include": [
-        "server/**/*.ts",
-        "server/**/*.tsx",
-        "server/**/*.d.ts"
+        "src/**/*.ts",
+        "test/**/*.ts"
     ]
 }

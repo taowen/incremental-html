@@ -1,15 +1,10 @@
-import { effect, isRef, reactive } from '@vue/reactivity';
 import { morphChildNodes, morphInnerHTML } from '@incremental-html/morph';
+import { effect, isRef, reactive } from '@vue/reactivity';
 
 const nodeVersions = reactive<Record<string, number>>({});
 const rawNode = Symbol();
 let nextId = 1;
 let nextVer = 1;
-
-// html will lowercase attribute name
-const lookup: Record<string, string> = {
-    'textcontent': 'textContent'
-}
 
 const mutationObserver = new MutationObserver((mutationList) => {
     for (const mutation of mutationList) {
@@ -98,9 +93,6 @@ function mountNode(node: Element) {
             }
         });
     }
-    effect(() => {
-        refreshNode(node);
-    })
     for (let i = 0; i < node.attributes.length; i++) {
         const attr = node.attributes[i];
         if (attr.name === 'on:mount') {
@@ -114,10 +106,17 @@ function mountNode(node: Element) {
                 callEventHandler(eventName, args[0].target!, attr.value, ...args);
             })
         } else if (attr.name.startsWith('prop:')) {
-            const propName = attr.name.substring('prop:'.length);
+            const propName = camelize(attr.name.substring('prop:'.length));
             setNodeProperty(node, propName, evalSync(attr.value, elementProxy(node)));
+        } else if (attr.name.startsWith('use:')) {
+            const featureClass = evalSync(attr.value, elementProxy(node));
+            const featureName = camelize(attr.name.substring('use:'.length));
+            setNodeProperty(node, featureName, new featureClass({ element: node }));
         }
     }
+    effect(() => {
+        refreshNode(node);
+    })
     for (let i = 0; i < node.children.length; i++) {
         mountNode(node.children[i])
     }
@@ -141,6 +140,15 @@ async function callEventHandler(eventName: string, node: EventTarget, eventHandl
         console.error('failed to handle ' + eventName, { e });
         return undefined;
     }
+}
+
+export function featureOf<T>(element: Element, featureClass: { new(props: any): T }): T | undefined {
+    const featureElement = element.closest(`[use\\:${hyphenate(featureClass.name)}]`);
+    if (featureElement) {
+        const featureName = featureClass.name.charAt(0).toLowerCase() + featureClass.name.slice(1);
+        return (featureElement as any)[featureName]
+    }
+    return undefined;
 }
 
 export function $(selector: any) {
@@ -182,7 +190,7 @@ function refreshNode(node: Element) {
         if (attr.name.startsWith('bind:')) {
             try {
                 const newValue = evalSync(attr.value, elementProxy(node));
-                setNodeProperty(node, attr.name.substring('bind:'.length), newValue);
+                setNodeProperty(node, camelize(attr.name.substring('bind:'.length)), newValue);
             } catch (e) {
                 console.error(`failed to eval ${attr.name}`, { node, e });
             }
@@ -192,24 +200,45 @@ function refreshNode(node: Element) {
 
 function setNodeProperty(node: Element, name: string, value: any) {
     if (name.startsWith('style.')) {
-        let key = lookup[name.substring('style.'.length)];
-        if (!key) {
-            key = name.substring('style.'.length);
-        }
-        Reflect.set((node as HTMLElement).style, key, value)
+        Reflect.set((node as HTMLElement).style, name.substring('style.'.length), value)
         return;
     }
-    if (name === 'innerhtml') {
+    if (name.startsWith('class.')) {
+        value = ' ' + value;
+        const oldClass = Reflect.get(node, name);
+        Reflect.set(node, name, value);
+        if (oldClass) {
+            node.className = node.className.replace(oldClass, '') + value;
+        } else {
+            node.className = node.className + value;
+        }
+        return;
+    }
+    if (name === 'innerHtml') {
         morphInnerHTML(node, value);
         return;
     }
-    if (name === 'childnodes') {
+    if (name === 'childNodes') {
         morphChildNodes(node, Array.isArray(value) ? value : [value]);
         return;
     }
-    let key = lookup[name];
-    if (!key) {
-        key = name;
-    }
-    Reflect.set(node, key, value);
+    Reflect.set(node, name, value);
 }
+
+const cacheStringFunction = <T extends (str: string) => string>(fn: T): T => {
+    const cache: Record<string, string> = Object.create(null)
+    return ((str: string) => {
+        const hit = cache[str]
+        return hit || (cache[str] = fn(str))
+    }) as any
+}
+
+const camelizeRE = /-(\w)/g
+const camelize = cacheStringFunction((str: string): string => {
+    return str.replace(camelizeRE, (_, c) => (c ? c.toUpperCase() : ''))
+})
+
+const hyphenateRE = /\B([A-Z])/g
+const hyphenate = cacheStringFunction((str: string) =>
+    str.replace(hyphenateRE, '-$1').toLowerCase()
+)
