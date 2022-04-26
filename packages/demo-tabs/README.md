@@ -123,6 +123,20 @@ import { effect } from '@vue/reactivity';
 effect(() => {
     refreshNode(node);
 })
+
+function refreshNode(node: Element) {
+    for (let i = 0; i < node.attributes.length; i++) {
+        const attr = node.attributes[i];
+        if (attr.name.startsWith('bind:')) {
+            try {
+                const newValue = evalSync(attr.value, elementProxy(node));
+                setNodeProperty(node, camelize(attr.name.substring('bind:'.length)), newValue);
+            } catch (e) {
+                console.error(`failed to eval ${attr.name}`, { node, e });
+            }
+        }
+    }
+}
 ```
 
 `@vue/reactivity` will trigger effect, if `this.tab.selected` changed.
