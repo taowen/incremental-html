@@ -11,6 +11,8 @@
         "sourceMap": true,
         "resolveJsonModule": true,
         "esModuleInterop": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "strictPropertyInitialization": false,
         "lib": [
             "esnext",
             "dom"

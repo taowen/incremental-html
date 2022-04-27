@@ -1,21 +1,24 @@
-import { ref, Ref } from '@incremental-html/reactivity';
+import styler, { Styler } from 'stylefire';
+import { addPointerEvent } from './events';
+import { PanSession } from './PanSession';
 
 export class Drag {
-    public x: Ref<number> = ref(0);
-    public y: Ref<number> = ref(0);
+    public style: Styler;
     constructor(props: { element: Element, direction?: 'x' | 'y' }) {
-        if (props.direction) {
-            props.element.setAttribute(`bind:style.transform.translate-${props.direction}`, `this.drag.${props.direction}.value`);
-        } else {
-            props.element.setAttribute('bind:style.transform.translate-x', 'this.drag.x.value');
-            props.element.setAttribute('bind:style.transform.translate-y', 'this.drag.y.value');
-        }
-        // demo change x
-        (async () => {
-            for (let i = 0; i < 100; i++) {
-                await new Promise(resolve => setTimeout(resolve, 100));
-                this.x.value = 10 * i;
+        this.style = styler(props.element);
+        addPointerEvent(
+            props.element,
+            "pointerdown",
+            (event) => {
+                new PanSession(event, {
+                    onMove: (e, panInfo) => {
+                        this.style.set({ x: panInfo.offset.x, y: panInfo.offset.y })
+                    },
+                    onEnd: () => {
+                        this.style.set({ x: 0, y: 0 })
+                    }
+                })
             }
-        })();
+        )
     }
 }
