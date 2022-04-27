@@ -1,5 +1,5 @@
 * [x] drag to scroll
-* [ ] resume dragging
+* [x] resume dragging
 * [ ] constraint
 * [ ] spring animation to go back into constraint box
 * [ ] pull down to show circle

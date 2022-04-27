@@ -1,30 +1,41 @@
 import styler, { Styler } from 'stylefire';
 import { addPointerEvent } from './events';
-import { PanSession } from './PanSession';
+import { Point } from './geometry';
+import { PanInfo, PanSession } from './PanSession';
 
 export class Drag {
     public style: Styler;
-    constructor(props: { element: Element, direction?: 'x' | 'y' }) {
+    private originPoint: Point = { x: 0, y: 0 }
+    constructor(private props: { element: Element, direction?: 'x' | 'y' }) {
         this.style = styler(props.element);
         addPointerEvent(
             props.element,
             "pointerdown",
             (event) => {
                 new PanSession(event, {
-                    onMove: (e, panInfo) => {
-                        if (props.direction === 'y') {
-                            this.style.set({ y: panInfo.offset.y })
-                        } else if (props.direction === 'x') {
-                            this.style.set({ x: panInfo.offset.x })
-                        } else {
-                            this.style.set({ x: panInfo.offset.x, y: panInfo.offset.y })
-                        }
+                    onStart: (e, panInfo) => {
+                        this.originPoint.x = this.style.get('x');
+                        this.originPoint.y = this.style.get('y');
+                        this.updatePosition(panInfo);
                     },
-                    onEnd: () => {
-                        this.style.set({ x: 0, y: 0 })
+                    onMove: (e, panInfo) => {
+                        this.updatePosition(panInfo);
+                    },
+                    onEnd: (e, panInfo) => {
+                        this.updatePosition(panInfo);
                     }
                 })
             }
         )
+    }
+
+    private updatePosition = (panInfo: PanInfo) => {
+        if (this.props.direction === 'y') {
+            this.style.set({ y: this.originPoint.y + panInfo.offset.y })
+        } else if (this.props.direction === 'x') {
+            this.style.set({ x: this.originPoint.x + panInfo.offset.x })
+        } else {
+            this.style.set({ x: this.originPoint.x + panInfo.offset.x, y: this.originPoint.y + panInfo.offset.y })
+        }
     }
 }
