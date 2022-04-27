@@ -12,7 +12,13 @@ export class Drag {
             (event) => {
                 new PanSession(event, {
                     onMove: (e, panInfo) => {
-                        this.style.set({ x: panInfo.offset.x, y: panInfo.offset.y })
+                        if (props.direction === 'y') {
+                            this.style.set({ y: panInfo.offset.y })
+                        } else if (props.direction === 'x') {
+                            this.style.set({ x: panInfo.offset.x })
+                        } else {
+                            this.style.set({ x: panInfo.offset.x, y: panInfo.offset.y })
+                        }
                     },
                     onEnd: () => {
                         this.style.set({ x: 0, y: 0 })
