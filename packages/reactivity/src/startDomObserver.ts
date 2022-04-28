@@ -1,11 +1,10 @@
 import { morphChildNodes, morphInnerHTML } from '@incremental-html/morph';
 import { effect, isRef } from '@vue/reactivity';
-import { evalGlobals, evalSync } from './eval';
+import { evalEventHandler, evalSync } from './eval';
 import { Feature } from './Feature';
 import { camelize, hyphenate } from './naming';
 import { notifyNodeSubscribers, subscribeNode } from './subscribeNode';
 
-export { evalGlobals }
 const rawElement = Symbol();
 let nextId = 1;
 
@@ -164,17 +163,6 @@ async function callEventHandler(eventName: string, node: EventTarget, eventHandl
         console.error('failed to handle ' + eventName, { e });
         return undefined;
     }
-}
-
-function evalEventHandler(expr: string, theThis?: any, ...args: any[]) {
-    const keys = ['expr', 'event', 'arguments'];
-    const values = [expr, args[0], args];
-    for (const [k, v] of Object.entries(evalGlobals)) {
-        keys.push(`$${k}`);
-        values.push(v);
-    }
-    const asyncEvaluator = Function.apply(null, [...keys, "return eval('expr = undefined; (async() => {' + expr + '})();')"]);
-    return asyncEvaluator.apply(theThis, values);
 }
 
 export function queryFeature<T>(element: Element, featureClass: { new (element: Element): T; featureName: string }): T | undefined {
