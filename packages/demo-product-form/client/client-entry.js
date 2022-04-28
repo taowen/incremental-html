@@ -1,10 +1,12 @@
 // client side entry
-import { startDomObserver } from '@incremental-html/reactivity';
+import { startDomObserver, evalGlobals } from '@incremental-html/reactivity';
 import { submitForm } from '@incremental-html/submit-form';
 import { navigator } from '@incremental-html/navigator';
 
-window.$submitForm = submitForm;
-window.$navigator = navigator;
-// demo js bundle chunking
-window.$MyFeature = () => import('./MyFeature')
+Object.assign(evalGlobals, {
+    submitForm,
+    navigator,
+    // demo js bundle chunking
+    MyFeature: () => import('./MyFeature')
+})
 startDomObserver();
