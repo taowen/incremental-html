@@ -121,9 +121,11 @@
         </div>
     </div>
     <script type="module">
-        import { startDomObserver } from '@incremental-html/reactivity';
+        import { startDomObserver, setEvalGlobals } from '@incremental-html/reactivity';
         import { Tab } from '@incremental-html/headlessui';
-        window.$Tab = Tab;
+        setEvalGlobals({
+            Tab
+        })
         startDomObserver();
     </script>
 </body>

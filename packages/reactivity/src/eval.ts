@@ -15,7 +15,11 @@ export function setEvalGlobals(evalGlobals: Record<string, any>) {
     globalKeys = [];
     globalValues = [];
     for (const [k, v] of Object.entries(evalGlobals)) {
-        globalKeys.push(`$${k}`);
+        if (k.startsWith('$')) {
+            globalKeys.push(k);
+        } else {
+            globalKeys.push(`$${k}`);
+        }
         globalValues.push(v);
     }
 }

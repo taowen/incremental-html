@@ -15,6 +15,7 @@
         "resolveJsonModule": true,
         "esModuleInterop": true,
         "outDir": "dist/cjs",
+        "types": [],
         "lib": [
             "esnext",
             "dom"

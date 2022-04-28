@@ -18,8 +18,10 @@
     <p bind:style.color="Number(document.body.counter.value) > 100 ? 'red' : 'black'" 
         bind:inner-html="`value is: ${document.body.counter.value}`" />
     <script type="module">
-        import { startDomObserver, ref } from '@incremental-html/reactivity';
-        window.$ref = ref;
+        import { startDomObserver, ref, setEvalGlobals } from '@incremental-html/reactivity';
+        setEvalGlobals({ 
+            ref
+        })
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>

@@ -1,11 +1,10 @@
-import { morphChildNodes, morphInnerHTML } from '@incremental-html/morph';
 import { effect, isRef } from '@vue/reactivity';
 import { evalEventHandler, evalSync } from './eval';
 import { Feature } from './Feature';
 import { camelize, hyphenate } from './naming';
-import { notifyNodeSubscribers, subscribeNode } from './subscribeNode';
+import { refreshNode, setNodeProperty } from './renderTemplate';
+import { elementProxy, notifyNodeSubscribers, toRawElement } from './subscribeNode';
 
-const rawElement = Symbol();
 let nextId = 1;
 
 const mutationObserver = new MutationObserver((mutationList) => {
@@ -68,7 +67,7 @@ async function mountNode(node: Element) {
         const superGet = Object.getOwnPropertyDescriptor(superProps, "value")!.get!;
         Object.defineProperty(node, "value", {
             get: function () {
-                return superGet.apply(this[rawElement] || this);
+                return superGet.apply(toRawElement(this));
             },
             set: function (t) {
                 if (isRef(t)) {
@@ -77,7 +76,7 @@ async function mountNode(node: Element) {
                 } else {
                     delete this.$valueRef;
                 }
-                superSet.call(this[rawElement] || this, t);
+                superSet.call(toRawElement(this), t);
                 notifyNodeSubscribers(xid);
             }
         });
@@ -88,8 +87,10 @@ async function mountNode(node: Element) {
         if (attr.name.startsWith('on:')) {
             const eventName = attr.name.substring('on:'.length);
             node.addEventListener(eventName, (...args) => {
-                args[0].preventDefault();
-                callEventHandler(eventName, args[0].target!, attr.value, ...args);
+                const [event] = args;
+                event.preventDefault();
+                event.stopPropagation();
+                callEventHandler(eventName, event.target!, attr.value, ...args);
             })
         } else if (attr.name.startsWith('prop:')) {
             const propName = camelize(attr.name.substring('prop:'.length));
@@ -172,79 +173,4 @@ export function queryFeature<T>(element: Element, featureClass: { new (element: 
         return (featureElement as any)[propName]
     }
     return undefined;
-}
-
-export function $(selector: any) {
-    if (selector[0] !== '#') {
-        throw new Error('not implemented');
-    }
-    const elem = document.getElementById(selector.substring(1));
-    if (!elem) {
-        return undefined;
-    }
-    subscribeNode(elem);
-    return elementProxy(elem);
-}
-
-function elementProxy(target: Element): any {
-    return new Proxy(target, {
-        get(target, p, receiver) {
-            if (p === rawElement) {
-                return target;
-            }
-            const v = (target as any)[p];
-            if (typeof v === 'function') {
-                return (...args: any[]) => {
-                    const ret = v.apply(target, args);
-                    if (ret?.nodeType === 1) {
-                        subscribeNode(ret);
-                    }
-                    return ret;
-                }
-            }
-            return v;
-        }
-    })
-}
-
-function refreshNode(node: Element) {
-    subscribeNode(node);
-    for (let i = 0; i < node.attributes.length; i++) {
-        const attr = node.attributes[i];
-        if (attr.name.startsWith('bind:')) {
-            try {
-                const newValue = evalSync(attr.value, elementProxy(node));
-                setNodeProperty(node, camelize(attr.name.substring('bind:'.length)), newValue);
-            } catch (e) {
-                console.error(`failed to eval ${attr.name}`, { node, e });
-            }
-        }
-    }
-}
-
-function setNodeProperty(node: Element, name: string, value: any) {
-    if (name.startsWith('style.')) {
-        Reflect.set((node as HTMLElement).style, name.substring('style.'.length), value)
-        return;
-    }
-    if (name.startsWith('class.')) {
-        value = ' ' + value;
-        const oldClass = Reflect.get(node, name);
-        Reflect.set(node, name, value);
-        if (oldClass) {
-            node.className = node.className.replace(oldClass, '') + value;
-        } else {
-            node.className = node.className + value;
-        }
-        return;
-    }
-    if (name === 'innerHtml') {
-        morphInnerHTML(node, value);
-        return;
-    }
-    if (name === 'childNodes') {
-        morphChildNodes(node, Array.isArray(value) ? value : [value]);
-        return;
-    }
-    Reflect.set(node, name, value);
 }

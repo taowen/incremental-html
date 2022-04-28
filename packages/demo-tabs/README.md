@@ -8,9 +8,11 @@ What if we can borrow the same idea to make server generated html "reactive"?
 let's import reusable headless component first
 
 ```ts
-import { startDomObserver } from '@incremental-html/reactivity';
+import { startDomObserver, setEvalGlobals } from '@incremental-html/reactivity';
 import { Tab } from '@incremental-html/headlessui';
-window.$Tab = Tab;
+setEvalGlobals({
+    Tab
+})
 startDomObserver();
 ```
 

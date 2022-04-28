@@ -1,6 +1,8 @@
 // client side entry
-import { startDomObserver } from '@incremental-html/reactivity';
+import { startDomObserver, setEvalGlobals } from '@incremental-html/reactivity';
 import { submitForm } from '@incremental-html/submit-form';
 
-window.$submitForm = submitForm;
+setEvalGlobals({
+    submitForm
+})
 startDomObserver();

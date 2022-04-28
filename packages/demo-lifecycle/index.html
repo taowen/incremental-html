@@ -20,21 +20,25 @@
         `)
     ">change</button>
     <script type="module">
-        import { startDomObserver, Feature } from '@incremental-html/reactivity';
+        import { startDomObserver, Feature, setEvalGlobals } from '@incremental-html/reactivity';
         import { morphInnerHTML } from '@incremental-html/morph';
-        window.$Node1 = class extends Feature {
+        class Node1 extends Feature {
             _ = this.effect(() => {
                 this.element.style.fontSize = 'larger';
             })
         };
-        window.$Node2 = class extends Feature {
+        class Node2 extends Feature {
             _ = this.effect(() => {
                 return () => {
                     console.log('node2 umounted');
                 }
             })
         }
-        window.$morphInnerHTML = morphInnerHTML;
+        setEvalGlobals({
+            Node1,
+            Node2,
+            morphInnerHTML
+        })
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>

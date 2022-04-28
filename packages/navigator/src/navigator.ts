@@ -65,6 +65,7 @@ export const navigator = {
 function initPageState() {
     const pageStateElement = (document.querySelector('template.page-state') as HTMLTemplateElement);
     if (!pageStateElement) {
+        window.history.replaceState({}, '', window.location.href);
         return;
     }
     if ((pageStateElement as any).$parsed) {

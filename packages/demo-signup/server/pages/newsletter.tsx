@@ -54,7 +54,7 @@ export function GET() {
                     </fieldset>
 
                     <p id="error-message" 
-                        bind:text-ontent="this.closest('form').getAttribute('error') || '\xa0'">
+                        bind:text-content="this.closest('form').getAttribute('error') || '\xa0'">
                     </p>
                 </form>
             </main>
