@@ -224,6 +224,17 @@ importers:
       jsdom: 19.0.0
       typescript: 4.6.3
 
+  packages/morph.js:
+    specifiers:
+      '@incremental-html/morph': 'workspace: *'
+      typescript: ^4.5.5
+      vite: ^2.9.1
+    dependencies:
+      '@incremental-html/morph': link:../morph
+    devDependencies:
+      typescript: 4.6.3
+      vite: 2.9.1
+
   packages/motion:
     specifiers:
       '@incremental-html/reactivity': workspace:*
@@ -276,6 +287,17 @@ importers:
       jsdom: 19.0.0
       typedoc: 0.22.15_typescript@4.6.3
       typescript: 4.6.3
+
+  packages/reactivity.js:
+    specifiers:
+      '@incremental-html/reactivity': 'workspace: *'
+      typescript: ^4.5.5
+      vite: ^2.9.1
+    dependencies:
+      '@incremental-html/reactivity': link:../reactivity
+    devDependencies:
+      typescript: 4.6.3
+      vite: 2.9.1
 
   packages/submit-form:
     specifiers:

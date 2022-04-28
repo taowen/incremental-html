@@ -1,0 +1,18 @@
+{
+    "name": "@incremental-html/reactivity.js",
+    "version": "1.0.0",
+    "description": "make DOM interactive via computed property",
+    "main": "dist/index.js",
+    "dependencies": {
+        "@incremental-html/reactivity": "workspace: *"
+    },
+    "devDependencies": {
+        "typescript": "^4.5.5",
+        "vite": "^2.9.1"
+    },
+    "files": [
+        "dist/*",
+        "README.md",
+        "LICENSE"
+    ]
+}
