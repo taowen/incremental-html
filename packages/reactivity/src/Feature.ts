@@ -17,10 +17,26 @@ export class Feature<Props extends Record<string, any>> {
             }
             return props;
         })
+        this.makeGettersCached();
     }
+    
+    private makeGettersCached() {
+        const proto = Object.getPrototypeOf(this);
+        for (const propName of Object.getOwnPropertyNames(proto)) {
+            const descriptor = Object.getOwnPropertyDescriptor(proto, propName);
+            if (descriptor?.get) {
+                const computedProp = computed(descriptor.get.bind(this));
+                descriptor.get = () => {
+                    return computedProp.value;
+                }
+            }
+        }
+    }
+    
     public static get featureName() {
         return this.name;
     }
+
     public get props(): Props {
         return this.computedProps.value as Props;
     }

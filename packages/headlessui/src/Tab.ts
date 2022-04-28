@@ -49,7 +49,6 @@ export class Tab extends Feature<{}> {
     public static Panel = TabPanel;
 
     private _ = this.effect(() => {
-        console.log('executed');
         this.element.setAttribute('role', 'tab');
     });
     private index = this.tabGroup.registerTab(this);
