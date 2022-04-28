@@ -29,7 +29,7 @@ export function morphChildNodes(oldEl: Element, newEl: Element | Node[]) {
     // move new nodes to its place
     for (let i = newChildren.length - 1; i >= 0; i--) {
         const next = newChildren[i+1];
-        oldEl.insertBefore(newChildren[i]!, next ? next : null);
+        oldEl.insertBefore(newChildren[i]!, next as Node);
     }
     // remove old extra nodes not in new nodes
     if (newChildren.length === 0) {
@@ -54,6 +54,9 @@ function tryReuse(oldNode: Node | undefined, newNode: Node) {
         return newNode;
     }
     if (oldNode.nodeType !== newNode.nodeType) {
+        return newNode;
+    }
+    if ((oldNode as HTMLElement).tagName !== (newNode as HTMLElement).tagName) {
         return newNode;
     }
     morphAttributes(oldNode as Element, newNode as Element);

@@ -18,6 +18,9 @@
       "path": "./packages/form-object/cjs.tsconfig.json"
     },
     {
+      "path": "./packages/morph/cjs.tsconfig.json"
+    },
+    {
       "path": "./packages/headlessui/cjs.tsconfig.json"
     },
     {

@@ -1,0 +1,48 @@
+import { computed, effect } from "@vue/reactivity";
+import { evalSync } from "./eval";
+import { camelize } from "./naming";
+
+export class Feature<Props extends Record<string, any>> {
+    private computedProps: { value: Record<string, any> }
+    constructor(public element: Element) {
+        this.computedProps = computed(() => {
+            const prefix = `${(this.constructor as typeof Feature).featureName}:`
+            const props: Record<string, any> = { element };
+            for (let i = 0; i < element.attributes.length; i++) {
+                const attr = element.attributes[i];
+                if (attr.name.startsWith(prefix)) {
+                    const propName = camelize(attr.name.substring(prefix.length));
+                    props[propName] = evalSync(attr.value, element);
+                }
+            }
+            return props;
+        })
+    }
+    public static get featureName() {
+        return this.name;
+    }
+    public get props(): Props {
+        return this.computedProps.value as Props;
+    }
+
+    protected on(event: string, listener: (this: Element, ev: Event) => any, options?: boolean | AddEventListenerOptions) {
+        this.element.addEventListener(event, listener, options);
+        return listener;
+    }
+
+    protected effect(fn: () => void | (() => void)) {
+        let onStop: any;
+        return effect(() => {
+            if (onStop) {
+                onStop();
+            }
+            onStop = fn();
+        }, {
+            onStop: () => {
+                if (onStop) {
+                    onStop();
+                }
+            }
+        }).effect;
+    }
+}

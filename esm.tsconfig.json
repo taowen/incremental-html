@@ -18,6 +18,9 @@
     "path": "./packages/form-object/esm.tsconfig.json"
   },
   {
+    "path": "./packages/morph/esm.tsconfig.json"
+  },
+  {
     "path": "./packages/headlessui/esm.tsconfig.json"
   },
   {

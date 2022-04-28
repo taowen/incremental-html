@@ -9,22 +9,31 @@
 
 <body>
     <main>
-        <div style="color:red;" on:mount="
-            this.style.fontSize = 'larger';
-        ">node 1</div>
-        <div on:unmount="
-            console.log('node2 umounted');
-        ">node 2</div>
+        <div style="color:red;" use:node1="$Node1">node 1</div>
+        <div use:node2="$Node2">node 2</div>
     </main>
     <button on:click="
         const parent = document.querySelector('main');
         $morphInnerHTML(parent, `
-            <div style='color:red;'>node !!!!</div>
+            <div style='color:black;'>node !!!!</div>
             <span>node 3</span>
         `)
     ">change</button>
     <script type="module">
-        import { startDomObserver, morphInnerHTML } from '@incremental-html/reactivity';
+        import { startDomObserver, Feature } from '@incremental-html/reactivity';
+        import { morphInnerHTML } from '@incremental-html/morph';
+        window.$Node1 = class extends Feature {
+            _ = this.effect(() => {
+                this.element.style.fontSize = 'larger';
+            })
+        };
+        window.$Node2 = class extends Feature {
+            _ = this.effect(() => {
+                return () => {
+                    console.log('node2 umounted');
+                }
+            })
+        }
         window.$morphInnerHTML = morphInnerHTML;
         // for properties like bind:xxx or on:xxx
         startDomObserver();

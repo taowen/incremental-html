@@ -1,5 +1,8 @@
 import { morphChildNodes, morphInnerHTML } from '@incremental-html/morph';
 import { effect, isRef, reactive } from '@vue/reactivity';
+import { evalSync } from './eval';
+import { Feature } from './Feature';
+import { camelize, hyphenate } from './naming';
 
 const nodeVersions = reactive<Record<string, number>>({});
 const rawNode = Symbol();
@@ -19,12 +22,24 @@ const mutationObserver = new MutationObserver((mutationList) => {
         }
         for (let i = 0; i < mutation.removedNodes.length; i++) {
             const removedNode = mutation.removedNodes.item(i) as Element;
-            if (removedNode.nodeType === 1 && removedNode.getAttribute('on:unmount')) {
-                callEventHandler('unmount', removedNode, removedNode.getAttribute('on:unmount')!);
+            if (!removedNode.parentNode && removedNode.nodeType === 1) {
+                onUnmount(removedNode);
             }
         }
     }
 });
+
+function onUnmount(element: Element) {
+    for (const feature of Object.values(element)) {
+        if (feature instanceof Feature) {
+            for (const v of Object.values(feature)) {
+                if (v?.onStop) {
+                    v.onStop();
+                }
+            }
+        }
+    }
+}
 
 export function startDomObserver() {
     mountNode(document.body);
@@ -33,17 +48,6 @@ export function startDomObserver() {
 export function stopDomObserver() {
     mutationObserver.disconnect();
     delete (document.body as any).$xid;
-}
-
-const syncEvaluator = Function.apply(null, ['expr', 'arguments', "return eval('expr = undefined;' + expr)"]);
-function evalSync(expr: string, theThis?: any, ...args: any[]) {
-    return syncEvaluator.apply(theThis, [expr.includes(';') ? expr : `(${expr})`, args]);
-}
-
-
-const asyncEvaluator = Function.apply(null, ['expr', 'arguments', "return eval('expr = undefined; (async() => {' + expr + '})();')"]);
-function evalAsync(expr: string, theThis?: any, ...args: any[]) {
-    return asyncEvaluator.apply(theThis, [expr, args]);
 }
 
 function subscribeNode(node?: Element | null) {
@@ -93,13 +97,10 @@ function mountNode(node: Element) {
             }
         });
     }
+    const proxiedNode = elementProxy(node);
     for (let i = 0; i < node.attributes.length; i++) {
         const attr = node.attributes[i];
-        if (attr.name === 'on:mount') {
-            callEventHandler('mount', node, attr.value);
-        } else if (attr.name === 'on:unmount') {
-            // ignore
-        } else if (attr.name.startsWith('on:')) {
+        if (attr.name.startsWith('on:')) {
             const eventName = attr.name.substring('on:'.length);
             node.addEventListener(eventName, (...args) => {
                 args[0].preventDefault();
@@ -107,11 +108,11 @@ function mountNode(node: Element) {
             })
         } else if (attr.name.startsWith('prop:')) {
             const propName = camelize(attr.name.substring('prop:'.length));
-            setNodeProperty(node, propName, evalSync(attr.value, elementProxy(node)));
+            setNodeProperty(node, propName, evalSync(attr.value, proxiedNode));
         } else if (attr.name.startsWith('use:')) {
-            const featureClass = evalSync(attr.value, elementProxy(node));
+            const featureClass = evalSync(attr.value, proxiedNode);
             const featureName = attr.name.substring('use:'.length);
-            setNodeProperty(node, camelize(featureName), new featureClass(extractFeatureProps(node, featureName)));
+            setNodeProperty(node, camelize(featureName), new featureClass(proxiedNode));
         }
     }
     effect(() => {
@@ -129,23 +130,10 @@ function mountNode(node: Element) {
     return xid;
 }
 
-function extractFeatureProps(element: Element, featureName: string) {
-    const prefix = `${featureName}:`
-    const props: Record<string, any> = { element };
-    for (let i = 0; i < element.attributes.length; i++) {
-        const attr = element.attributes[i];
-        if (attr.name.startsWith(prefix)) {
-            const propName = camelize(attr.name.substring(prefix.length));
-            props[propName] = evalSync(attr.value, elementProxy(element));
-        }
-    }
-    return props;
-}
-
 async function callEventHandler(eventName: string, node: EventTarget, eventHandler: string | Function, ...args: any[]) {
     try {
         if (typeof eventHandler === 'string') {
-            return await evalAsync(eventHandler, node, ...args);
+            return await evalEventHandler(eventHandler, node, ...args);
         } else {
             return await eventHandler.apply(node, args);
         }
@@ -155,11 +143,16 @@ async function callEventHandler(eventName: string, node: EventTarget, eventHandl
     }
 }
 
-export function featureOf<T>(element: Element, featureClass: { new(props: any): T }): T | undefined {
-    const featureElement = element.closest(`[use\\:${hyphenate(featureClass.name)}]`);
+const asyncEvaluator = Function.apply(null, ['expr', 'event', 'arguments', "return eval('expr = undefined; (async() => {' + expr + '})();')"]);
+function evalEventHandler(expr: string, theThis?: any, ...args: any[]) {
+    return asyncEvaluator.apply(theThis, [expr, args[0], args]);
+}
+
+export function queryFeature<T>(element: Element, featureClass: { new (element: Element): T; featureName: string }): T | undefined {
+    const featureElement = element.closest(`[use\\:${hyphenate(featureClass.featureName)}]`);
     if (featureElement) {
-        const featureName = featureClass.name.charAt(0).toLowerCase() + featureClass.name.slice(1);
-        return (featureElement as any)[featureName]
+        const propName = featureClass.featureName.charAt(0).toLowerCase() + featureClass.featureName.slice(1);
+        return (featureElement as any)[propName]
     }
     return undefined;
 }
@@ -186,7 +179,7 @@ function elementProxy(target: Element): any {
             if (typeof v === 'function') {
                 return (...args: any[]) => {
                     const ret = v.apply(target, args);
-                    if (ret.nodeType === 1) {
+                    if (ret?.nodeType === 1) {
                         subscribeNode(ret);
                     }
                     return ret;
@@ -237,21 +230,3 @@ function setNodeProperty(node: Element, name: string, value: any) {
     }
     Reflect.set(node, name, value);
 }
-
-const cacheStringFunction = <T extends (str: string) => string>(fn: T): T => {
-    const cache: Record<string, string> = Object.create(null)
-    return ((str: string) => {
-        const hit = cache[str]
-        return hit || (cache[str] = fn(str))
-    }) as any
-}
-
-const camelizeRE = /-(\w)/g
-const camelize = cacheStringFunction((str: string): string => {
-    return str.replace(camelizeRE, (_, c) => (c ? c.toUpperCase() : ''))
-})
-
-const hyphenateRE = /\B([A-Z])/g
-const hyphenate = cacheStringFunction((str: string) =>
-    str.replace(hyphenateRE, '-$1').toLowerCase()
-)
