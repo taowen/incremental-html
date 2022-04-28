@@ -6,7 +6,6 @@
         "moduleResolution": "node",
         "incremental": true,
         "strict": true,
-        "allowJs": true,
         "noImplicitThis": true,
         "jsx": "react",
         "jsxFactory": "jsxToHtml.createElement",
@@ -24,6 +23,6 @@
     "include": [
         "server/**/*.ts",
         "server/**/*.tsx",
-        "server/**/*.d.ts"
+        "server/**/*.d.ts",
     ]
 }

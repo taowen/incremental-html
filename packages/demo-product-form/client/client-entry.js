@@ -5,4 +5,6 @@ import { navigator } from '@incremental-html/navigator';
 
 window.$submitForm = submitForm;
 window.$navigator = navigator;
+// demo js bundle chunking
+window.$MyFeature = () => import('./MyFeature')
 startDomObserver();

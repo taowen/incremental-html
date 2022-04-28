@@ -49,10 +49,3 @@ some optional libraries to make client side interaction code mordern and declara
 * [client] submit-form: the client part of validate-form, submit form-object to server and render validation errors back.
 * [server] form-object: read the form-object submitted from client, and send back validation errors. unlike page-state, form-object only exists in one http roundtrip.
 * libraries written in language other than javascript will be provided after `@incremental-html/navigator` library ported to more platform (Android, iOS)
-
-```html
-<div behavior:="$Menu">
-  <a behavior:item="$MenuItem" bind:class="this.item.active && 'bg-blue-500'" href="/account-settings" />
-  <span behavior:item="$MenuItem(this, {disabled:true})" class="opacity-75">Invite a friend (coming soon!)</span>
-</div>
-```

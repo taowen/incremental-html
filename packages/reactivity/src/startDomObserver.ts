@@ -41,7 +41,7 @@ function onUnmount(element: Element) {
 }
 
 export function startDomObserver() {
-    mountNode(document.body);
+    return mountNode(document.body);
 }
 
 export function stopDomObserver() {
@@ -49,7 +49,7 @@ export function stopDomObserver() {
     delete (document.body as any).$xid;
 }
 
-function mountNode(node: Element) {
+async function mountNode(node: Element) {
     if ((node as any).$xid) {
         return (node as any).$xid;
     }
@@ -95,16 +95,16 @@ function mountNode(node: Element) {
             const propName = camelize(attr.name.substring('prop:'.length));
             setNodeProperty(node, propName, evalSync(attr.value, proxiedNode));
         } else if (attr.name.startsWith('use:')) {
-            const featureClass = evalSync(attr.value, proxiedNode);
+            let featureClass = evalSync(attr.value, proxiedNode);
             const featureName = attr.name.substring('use:'.length);
-            setNodeProperty(node, camelize(featureName), new featureClass(proxiedNode));
+            setNodeProperty(node, camelize(featureName), await createFeature(featureClass, proxiedNode));
         }
     }
     effect(() => {
         refreshNode(node);
     })
     for (let i = 0; i < node.children.length; i++) {
-        mountNode(node.children[i])
+        await mountNode(node.children[i])
     }
     mutationObserver.observe(node, {
         attributes: true,
@@ -114,6 +114,43 @@ function mountNode(node: Element) {
     });
     return xid;
 }
+
+async function createFeature(featureClass: any, element: Element) {
+    if (typeof featureClass !== 'function') {
+        throw new Error(`invalid feature class: ${featureClass}`);
+    }
+    if (isAssignableFrom(featureClass, Feature)) {
+        return new featureClass(element);
+    }
+    const { default: lazyLoadedFeatureClass } = await(featureClass());
+    return new lazyLoadedFeatureClass(element);
+}
+
+function findInPrototype(clazz: any, matcher: (prototype: any) => boolean) {
+    if (!(typeof clazz === 'function')) {
+        return false;
+    }
+    let p = clazz.prototype;
+    while (p) {
+        if (matcher(p)) {
+            return true;
+        }
+        // eslint-disable-next-line no-proto
+        p = p.__proto__;
+    }
+    return false;
+}
+
+function isAssignableFrom(subClass: any, superClass: any): boolean {
+    if (!(typeof superClass === 'function')) {
+        return false;
+    }
+    if (subClass === superClass) {
+        return true;
+    }
+    return findInPrototype(subClass, p => p === superClass.prototype);
+}
+
 
 async function callEventHandler(eventName: string, node: EventTarget, eventHandler: string | Function, ...args: any[]) {
     try {
