@@ -68,7 +68,7 @@ server.put('/', async (req, resp) => {
 })
 
 async function ProductFormPage({ form }: { form: NewForm<ProductForm> }) {
-    const jsx = <html>
+    return <html>
         <head>
             <meta http-equiv="content-type" content="text/html; charset=utf-8" />
             <title>Product Form</title>
@@ -102,7 +102,6 @@ async function ProductFormPage({ form }: { form: NewForm<ProductForm> }) {
             </form>
         </body>
     </html>;
-    return jsx;
 }
 
 async function VariantsForm({ form }: { form: NewForm<ProductForm> }) {

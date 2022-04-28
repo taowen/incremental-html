@@ -5,7 +5,11 @@ export function morphAttributes(oldEl: Element, newEl: Element) {
         if (attr.name === 'style') {
             const oldStyle = oldEl.getAttribute('style')||'';
             oldEl.setAttribute(attr.name, oldStyle.replace(attr.value, '') + ' ' + attr.value);
-        } else {
+        } else if ((oldEl as HTMLElement).tagName === 'INPUT' && attr.name === 'value') {
+            // ignore
+        }  else if ((oldEl as HTMLElement).tagName === 'INPUT' && attr.name === 'checked') {
+            // ignore
+        } else if (oldEl.getAttribute(attr.name) !== attr.value) {
             oldEl.setAttribute(attr.name, attr.value);
         }
         const index = oldAttrs.indexOf(attr.name);
