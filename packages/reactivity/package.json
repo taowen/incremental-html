@@ -10,6 +10,7 @@
     "@vue/reactivity": "^3.2.32"
   },
   "devDependencies": {
+    "typedoc": "^0.22.15",
     "@types/jest": "27.4.1",
     "jest": "27.5.1",
     "jsdom": "^19.0.0",
@@ -21,6 +22,7 @@
     "LICENSE"
   ],
   "scripts": {
+    "build:docs": "typedoc src/index.ts --out ../../docs/reactivity",
     "test": "pnpm tsc -p cjs.tsconfig.json && pnpm jest"
   }
 }

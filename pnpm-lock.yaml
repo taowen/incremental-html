@@ -265,6 +265,7 @@ importers:
       '@vue/reactivity': ^3.2.32
       jest: 27.5.1
       jsdom: ^19.0.0
+      typedoc: ^0.22.15
       typescript: ^4.5.5
     dependencies:
       '@incremental-html/morph': link:../morph
@@ -273,6 +274,7 @@ importers:
       '@types/jest': 27.4.1
       jest: 27.5.1
       jsdom: 19.0.0
+      typedoc: 0.22.15_typescript@4.6.3
       typescript: 4.6.3
 
   packages/submit-form:
