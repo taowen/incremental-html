@@ -38,9 +38,11 @@
             item => $renderTemplate('#tpl-todo-item', { task: item })
         );" />
     <script type="module">
-        import { startDomObserver, reactive, renderTemplate } from '@incremental-html/reactivity';
-        window.$reactive = reactive;
-        window.$renderTemplate = renderTemplate;
+        import { startDomObserver, reactive, renderTemplate, setEvalGlobals } from '@incremental-html/reactivity';
+        setEvalGlobals({
+            reactive,
+            renderTemplate
+        })
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>

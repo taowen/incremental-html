@@ -1,9 +1,11 @@
 import { morphChildNodes } from '@incremental-html/morph';
+import { notifyNodeSubscribers } from './subscribeNode';
 
 morphChildNodes.morphProperties = (oldEl, newEl) => {
     // renderTemplate set $props to new element
     // if old element reused, we need to propagate $props to old element
     (oldEl as any).$props = (newEl as any).$props;
+    notifyNodeSubscribers((oldEl as any).$xid);
 }
 
 export function renderTemplate(selector: string, props?: Record<string, any>) {

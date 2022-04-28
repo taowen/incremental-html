@@ -208,6 +208,7 @@ function elementProxy(target: Element): any {
 }
 
 function refreshNode(node: Element) {
+    subscribeNode(node);
     for (let i = 0; i < node.attributes.length; i++) {
         const attr = node.attributes[i];
         if (attr.name.startsWith('bind:')) {
