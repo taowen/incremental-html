@@ -60,7 +60,9 @@ function tryReuse(oldNode: Node | undefined, newNode: Node) {
         return newNode;
     }
     morphAttributes(oldNode as Element, newNode as Element);
-    morphChildNodes(oldNode as Element, newNode as Element);
+    if ((oldNode as HTMLElement).tagName !== 'TEXTAREA') {
+        morphChildNodes(oldNode as Element, newNode as Element);
+    }
     morphChildNodes.morphProperties(oldNode as Element, newNode as Element);
     return oldNode;
 }

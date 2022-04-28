@@ -3,11 +3,9 @@ export function morphAttributes(oldEl: Element, newEl: Element) {
     for (let i = 0; i < newEl.attributes.length; i++) {
         const attr = newEl.attributes.item(i)!;
         if (attr.name === 'style') {
-            const oldStyle = oldEl.getAttribute('style')||'';
+            const oldStyle = oldEl.getAttribute('style') || '';
             oldEl.setAttribute(attr.name, oldStyle.replace(attr.value, '') + ' ' + attr.value);
-        } else if ((oldEl as HTMLElement).tagName === 'INPUT' && attr.name === 'value') {
-            // ignore
-        }  else if ((oldEl as HTMLElement).tagName === 'INPUT' && attr.name === 'checked') {
+        } else if (isInputValue((oldEl as HTMLElement).tagName, attr.name)) {
             // ignore
         } else if (oldEl.getAttribute(attr.name) !== attr.value) {
             oldEl.setAttribute(attr.name, attr.value);
@@ -21,5 +19,16 @@ export function morphAttributes(oldEl: Element, newEl: Element) {
         if (attr !== 'style') {
             oldEl.removeAttribute(attr);
         }
-    }   
+    }
+}
+
+function isInputValue(tagName: string, attrName: string) {
+    if (tagName === 'INPUT' && attrName === 'value') {
+        return true;
+    } else if (tagName === 'INPUT' && attrName === 'checked') {
+        return true;
+    } else if (tagName === 'OPTION' && attrName === 'selected') {
+        return true;
+    }
+    return false;
 }

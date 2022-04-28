@@ -85,7 +85,7 @@ async function ProductFormPage({ form }: { form: NewForm<ProductForm> }) {
                     </div>
                     <div>
                         <label for={form.idOf('description')}>description</label>
-                        <input {...form.idAndNameOf('description')} type="text" value={form.description || ''} />
+                        <textarea {...form.idAndNameOf('description')}>{form.description || ''}</textarea>
                     </div>
                     <div>
                         <label for={form.idOf('hasVariants')}>hasVariant</label>
