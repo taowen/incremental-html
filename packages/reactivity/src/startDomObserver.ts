@@ -1,13 +1,12 @@
 import { morphChildNodes, morphInnerHTML } from '@incremental-html/morph';
-import { effect, isRef, reactive } from '@vue/reactivity';
+import { effect, isRef } from '@vue/reactivity';
 import { evalSync } from './eval';
 import { Feature } from './Feature';
 import { camelize, hyphenate } from './naming';
+import { notifyNodeSubscribers, subscribeNode } from './subscribeNode';
 
-const nodeVersions = reactive<Record<string, number>>({});
-const rawNode = Symbol();
+const rawElement = Symbol();
 let nextId = 1;
-let nextVer = 1;
 
 const mutationObserver = new MutationObserver((mutationList) => {
     for (const mutation of mutationList) {
@@ -50,20 +49,6 @@ export function stopDomObserver() {
     delete (document.body as any).$xid;
 }
 
-function subscribeNode(node?: Element | null) {
-    if (!node) {
-        return;
-    }
-    const xid = (node as any).$xid;
-    if (xid) {
-        nodeVersions[xid]; // read from reactive object to subscribe
-    }
-}
-
-function notifyNodeSubscribers(xid: string) {
-    nodeVersions[xid] = nextVer++;
-}
-
 function mountNode(node: Element) {
     if ((node as any).$xid) {
         return (node as any).$xid;
@@ -83,7 +68,7 @@ function mountNode(node: Element) {
         const superGet = Object.getOwnPropertyDescriptor(superProps, "value")!.get!;
         Object.defineProperty(node, "value", {
             get: function () {
-                return superGet.apply(this[rawNode] || this);
+                return superGet.apply(this[rawElement] || this);
             },
             set: function (t) {
                 if (isRef(t)) {
@@ -92,7 +77,7 @@ function mountNode(node: Element) {
                 } else {
                     delete this.$valueRef;
                 }
-                superSet.call(this[rawNode] || this, t);
+                superSet.call(this[rawElement] || this, t);
                 notifyNodeSubscribers(xid);
             }
         });
@@ -172,7 +157,7 @@ export function $(selector: any) {
 function elementProxy(target: Element): any {
     return new Proxy(target, {
         get(target, p, receiver) {
-            if (p === rawNode) {
+            if (p === rawElement) {
                 return target;
             }
             const v = (target as any)[p];

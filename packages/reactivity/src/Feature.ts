@@ -1,11 +1,13 @@
 import { computed, effect } from "@vue/reactivity";
 import { evalSync } from "./eval";
 import { camelize } from "./naming";
+import { subscribeNode } from "./subscribeNode";
 
 export class Feature<Props extends Record<string, any>> {
     private computedProps: { value: Record<string, any> }
     constructor(public element: Element) {
         this.computedProps = computed(() => {
+            subscribeNode(this.element);
             const prefix = `${(this.constructor as typeof Feature).featureName}:`
             const props: Record<string, any> = { element };
             for (let i = 0; i < element.attributes.length; i++) {
@@ -19,7 +21,7 @@ export class Feature<Props extends Record<string, any>> {
         })
         this.makeGettersCached();
     }
-    
+
     private makeGettersCached() {
         const proto = Object.getPrototypeOf(this);
         for (const propName of Object.getOwnPropertyNames(proto)) {
