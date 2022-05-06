@@ -66,6 +66,11 @@ declare interface AnimationControls {
     mount(): () => void;
 }
 
+/**
+ * @public
+ */
+export declare function animationControls(): AnimationControls;
+
 declare type AnimationDefinition = VariantLabels | TargetAndTransition | TargetResolver;
 
 declare interface AnimationLifecycles {
@@ -298,6 +303,8 @@ declare interface Box {
  * @public
  */
 declare type ControlsAnimationDefinition = string | string[] | TargetAndTransition | TargetResolver;
+
+export declare function createAnimationState(visualElement: VisualElement): AnimationState;
 
 declare type CSSPropertiesWithoutTransitionOrSingleTransforms = Omit_2<CSSProperties, "transition" | "rotate" | "scale" | "perspective">;
 
@@ -1252,7 +1259,7 @@ declare type MotionCSS = MakeMotion<Omit_2<CSSProperties, "rotate" | "scale" | "
  *
  * @public
  */
-declare interface MotionProps extends AnimationProps, VisualElementLifecycles, PanHandlers, TapHandlers, HoverHandlers, FocusHandlers, ViewportProps, DraggableProps, LayoutProps, MotionAdvancedProps {
+export declare interface MotionProps extends AnimationProps, VisualElementLifecycles, PanHandlers, TapHandlers, HoverHandlers, FocusHandlers, ViewportProps, DraggableProps, LayoutProps, MotionAdvancedProps {
     /**
      * Properties, variant label or array of variant labels to start in.
      *

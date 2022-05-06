@@ -30,9 +30,9 @@ var __objRest = (source, exclude) => {
   return target;
 };
 import sync, { getFrameData, cancelSync } from "framesync";
-import { velocityPerSecond } from "popmotion";
-import { invariant } from "hey-listen";
-import { number, px, degrees, scale, alpha, progressPercentage, color, filter, complex, percent, vw, vh } from "style-value-types";
+import { velocityPerSecond, cubicBezier, linear, easeIn, easeInOut, easeOut, circIn, circInOut, circOut, backIn, backInOut, backOut, anticipate, bounceIn, bounceInOut, bounceOut, inertia, animate } from "popmotion";
+import { invariant, warning } from "hey-listen";
+import { complex, number, px, degrees, scale, alpha, progressPercentage, color, filter, percent, vw, vh } from "style-value-types";
 function addUniqueItem(arr, item) {
   arr.indexOf(item) === -1 && arr.push(item);
 }
@@ -174,6 +174,106 @@ function isAnimationControls(v) {
 const isKeyframesTarget = (v) => {
   return Array.isArray(v);
 };
+function shallowCompare(next, prev) {
+  if (!Array.isArray(prev))
+    return false;
+  const prevLength = prev.length;
+  if (prevLength !== next.length)
+    return false;
+  for (let i = 0; i < prevLength; i++) {
+    if (prev[i] !== next[i])
+      return false;
+  }
+  return true;
+}
+const secondsToMilliseconds = (seconds) => seconds * 1e3;
+const easingLookup = {
+  linear,
+  easeIn,
+  easeInOut,
+  easeOut,
+  circIn,
+  circInOut,
+  circOut,
+  backIn,
+  backInOut,
+  backOut,
+  anticipate,
+  bounceIn,
+  bounceInOut,
+  bounceOut
+};
+const easingDefinitionToFunction = (definition) => {
+  if (Array.isArray(definition)) {
+    invariant(definition.length === 4, `Cubic bezier arrays must contain four numerical values.`);
+    const [x1, y1, x2, y2] = definition;
+    return cubicBezier(x1, y1, x2, y2);
+  } else if (typeof definition === "string") {
+    invariant(easingLookup[definition] !== void 0, `Invalid easing type '${definition}'`);
+    return easingLookup[definition];
+  }
+  return definition;
+};
+const isEasingArray = (ease) => {
+  return Array.isArray(ease) && typeof ease[0] !== "number";
+};
+const isAnimatable = (key, value) => {
+  if (key === "zIndex")
+    return false;
+  if (typeof value === "number" || Array.isArray(value))
+    return true;
+  if (typeof value === "string" && complex.test(value) && !value.startsWith("url(")) {
+    return true;
+  }
+  return false;
+};
+const underDampedSpring = () => ({
+  type: "spring",
+  stiffness: 500,
+  damping: 25,
+  restSpeed: 10
+});
+const criticallyDampedSpring = (to) => ({
+  type: "spring",
+  stiffness: 550,
+  damping: to === 0 ? 2 * Math.sqrt(550) : 30,
+  restSpeed: 10
+});
+const linearTween = () => ({
+  type: "keyframes",
+  ease: "linear",
+  duration: 0.3
+});
+const keyframes = (values) => ({
+  type: "keyframes",
+  duration: 0.8,
+  values
+});
+const defaultTransitions = {
+  x: underDampedSpring,
+  y: underDampedSpring,
+  z: underDampedSpring,
+  rotate: underDampedSpring,
+  rotateX: underDampedSpring,
+  rotateY: underDampedSpring,
+  rotateZ: underDampedSpring,
+  scaleX: criticallyDampedSpring,
+  scaleY: criticallyDampedSpring,
+  scale: criticallyDampedSpring,
+  opacity: linearTween,
+  backgroundColor: linearTween,
+  color: linearTween,
+  default: criticallyDampedSpring
+};
+const getDefaultTransition = (valueKey, to) => {
+  let transitionFactory;
+  if (isKeyframesTarget(to)) {
+    transitionFactory = keyframes;
+  } else {
+    transitionFactory = defaultTransitions[valueKey] || defaultTransitions.default;
+  }
+  return __spreadValues({ to }, transitionFactory(to));
+};
 const int = __spreadProps(__spreadValues({}, number), {
   transform: Math.round
 });
@@ -262,6 +362,173 @@ function getAnimatableNone(key, value) {
 const isCustomValue = (v) => {
   return Boolean(v && typeof v === "object" && v.mix && v.toValue);
 };
+const resolveFinalValueInKeyframes = (v) => {
+  return isKeyframesTarget(v) ? v[v.length - 1] || 0 : v;
+};
+function isTransitionDefined(_a) {
+  var _b = _a, {
+    when,
+    delay,
+    delayChildren,
+    staggerChildren,
+    staggerDirection,
+    repeat,
+    repeatType,
+    repeatDelay,
+    from
+  } = _b, transition = __objRest(_b, [
+    "when",
+    "delay",
+    "delayChildren",
+    "staggerChildren",
+    "staggerDirection",
+    "repeat",
+    "repeatType",
+    "repeatDelay",
+    "from"
+  ]);
+  return !!Object.keys(transition).length;
+}
+let legacyRepeatWarning = false;
+function convertTransitionToAnimationOptions(_c) {
+  var _d = _c, {
+    ease,
+    times,
+    yoyo,
+    flip,
+    loop
+  } = _d, transition = __objRest(_d, [
+    "ease",
+    "times",
+    "yoyo",
+    "flip",
+    "loop"
+  ]);
+  const options = __spreadValues({}, transition);
+  if (times)
+    options["offset"] = times;
+  if (transition.duration)
+    options["duration"] = secondsToMilliseconds(transition.duration);
+  if (transition.repeatDelay)
+    options.repeatDelay = secondsToMilliseconds(transition.repeatDelay);
+  if (ease) {
+    options["ease"] = isEasingArray(ease) ? ease.map(easingDefinitionToFunction) : easingDefinitionToFunction(ease);
+  }
+  if (transition.type === "tween")
+    options.type = "keyframes";
+  if (yoyo || loop || flip) {
+    warning(!legacyRepeatWarning, "yoyo, loop and flip have been removed from the API. Replace with repeat and repeatType options.");
+    legacyRepeatWarning = true;
+    if (yoyo) {
+      options.repeatType = "reverse";
+    } else if (loop) {
+      options.repeatType = "loop";
+    } else if (flip) {
+      options.repeatType = "mirror";
+    }
+    options.repeat = loop || yoyo || flip || transition.repeat;
+  }
+  if (transition.type !== "spring")
+    options.type = "keyframes";
+  return options;
+}
+function getDelayFromTransition(transition, key) {
+  var _a, _b;
+  const valueTransition = getValueTransition(transition, key) || {};
+  return (_b = (_a = valueTransition.delay) != null ? _a : transition.delay) != null ? _b : 0;
+}
+function hydrateKeyframes(options) {
+  if (Array.isArray(options.to) && options.to[0] === null) {
+    options.to = [...options.to];
+    options.to[0] = options.from;
+  }
+  return options;
+}
+function getPopmotionAnimationOptions(transition, options, key) {
+  var _a;
+  if (Array.isArray(options.to)) {
+    (_a = transition.duration) != null ? _a : transition.duration = 0.8;
+  }
+  hydrateKeyframes(options);
+  if (!isTransitionDefined(transition)) {
+    transition = __spreadValues(__spreadValues({}, transition), getDefaultTransition(key, options.to));
+  }
+  return __spreadValues(__spreadValues({}, options), convertTransitionToAnimationOptions(transition));
+}
+function getAnimation(key, value, target, transition, onComplete) {
+  var _a;
+  const valueTransition = getValueTransition(transition, key);
+  let origin = (_a = valueTransition.from) != null ? _a : value.get();
+  const isTargetAnimatable = isAnimatable(key, target);
+  if (origin === "none" && isTargetAnimatable && typeof target === "string") {
+    origin = getAnimatableNone(key, target);
+  } else if (isZero(origin) && typeof target === "string") {
+    origin = getZeroUnit(target);
+  } else if (!Array.isArray(target) && isZero(target) && typeof origin === "string") {
+    target = getZeroUnit(origin);
+  }
+  const isOriginAnimatable = isAnimatable(key, origin);
+  warning(isOriginAnimatable === isTargetAnimatable, `You are trying to animate ${key} from "${origin}" to "${target}". ${origin} is not an animatable value - to enable this animation set ${origin} to a value animatable to ${target} via the \`style\` property.`);
+  function start() {
+    const options = {
+      from: origin,
+      to: target,
+      velocity: value.getVelocity(),
+      onComplete,
+      onUpdate: (v) => value.set(v)
+    };
+    return valueTransition.type === "inertia" || valueTransition.type === "decay" ? inertia(__spreadValues(__spreadValues({}, options), valueTransition)) : animate(__spreadProps(__spreadValues({}, getPopmotionAnimationOptions(valueTransition, options, key)), {
+      onUpdate: (v) => {
+        var _a2;
+        options.onUpdate(v);
+        (_a2 = valueTransition.onUpdate) == null ? void 0 : _a2.call(valueTransition, v);
+      },
+      onComplete: () => {
+        var _a2;
+        options.onComplete();
+        (_a2 = valueTransition.onComplete) == null ? void 0 : _a2.call(valueTransition);
+      }
+    }));
+  }
+  function set() {
+    var _a2, _b;
+    const finalTarget = resolveFinalValueInKeyframes(target);
+    value.set(finalTarget);
+    onComplete();
+    (_a2 = valueTransition == null ? void 0 : valueTransition.onUpdate) == null ? void 0 : _a2.call(valueTransition, finalTarget);
+    (_b = valueTransition == null ? void 0 : valueTransition.onComplete) == null ? void 0 : _b.call(valueTransition);
+    return { stop: () => {
+    } };
+  }
+  return !isOriginAnimatable || !isTargetAnimatable || valueTransition.type === false ? set : start;
+}
+function isZero(value) {
+  return value === 0 || typeof value === "string" && parseFloat(value) === 0 && value.indexOf(" ") === -1;
+}
+function getZeroUnit(potentialUnitType) {
+  return typeof potentialUnitType === "number" ? 0 : getAnimatableNone("", potentialUnitType);
+}
+function getValueTransition(transition, key) {
+  return transition[key] || transition["default"] || transition;
+}
+function startAnimation(key, value, target, transition = {}) {
+  return value.start((onComplete) => {
+    let delayTimer;
+    let controls;
+    const animation = getAnimation(key, value, target, transition, onComplete);
+    const delay = getDelayFromTransition(transition, key);
+    const start = () => controls = animation();
+    if (delay) {
+      delayTimer = window.setTimeout(start, secondsToMilliseconds(delay));
+    } else {
+      start();
+    }
+    return () => {
+      clearTimeout(delayTimer);
+      controls == null ? void 0 : controls.stop();
+    };
+  });
+}
 const isNumericalString = (v) => /^\-?\d*\.?\d+$/.test(v);
 const isZeroValueString = (v) => /^0[^.\s]+$/.test(v);
 const testValueType = (v) => (type) => type.test(v);
@@ -279,6 +546,16 @@ function isVariantLabels(v) {
 function isVariantLabel(v) {
   return typeof v === "string" || isVariantLabels(v);
 }
+function getCurrent(visualElement2) {
+  const current = {};
+  visualElement2.forEachValue((value, key) => current[key] = value.get());
+  return current;
+}
+function getVelocity(visualElement2) {
+  const velocity = {};
+  visualElement2.forEachValue((value, key) => velocity[key] = value.getVelocity());
+  return velocity;
+}
 function resolveVariantFromProps(props, definition, custom, currentValues = {}, currentVelocity = {}) {
   var _a;
   if (typeof definition === "function") {
@@ -292,12 +569,58 @@ function resolveVariantFromProps(props, definition, custom, currentValues = {}, 
   }
   return definition;
 }
+function resolveVariant(visualElement2, definition, custom) {
+  const props = visualElement2.getProps();
+  return resolveVariantFromProps(props, definition, custom != null ? custom : props.custom, getCurrent(visualElement2), getVelocity(visualElement2));
+}
 function checkIfControllingVariants(props) {
   var _a;
   return typeof ((_a = props.animate) == null ? void 0 : _a.start) === "function" || isVariantLabel(props.initial) || isVariantLabel(props.animate) || isVariantLabel(props.whileHover) || isVariantLabel(props.whileDrag) || isVariantLabel(props.whileTap) || isVariantLabel(props.whileFocus) || isVariantLabel(props.exit);
 }
 function checkIfVariantNode(props) {
   return Boolean(checkIfControllingVariants(props) || props.variants);
+}
+function setMotionValue(visualElement2, key, value) {
+  if (visualElement2.hasValue(key)) {
+    visualElement2.getValue(key).set(value);
+  } else {
+    visualElement2.addValue(key, motionValue(value));
+  }
+}
+function setTarget(visualElement2, definition) {
+  const resolved = resolveVariant(visualElement2, definition);
+  let _a = resolved ? visualElement2.makeTargetAnimatable(resolved, false) : {}, {
+    transitionEnd = {},
+    transition = {}
+  } = _a, target = __objRest(_a, [
+    "transitionEnd",
+    "transition"
+  ]);
+  target = __spreadValues(__spreadValues({}, target), transitionEnd);
+  for (const key in target) {
+    const value = resolveFinalValueInKeyframes(target[key]);
+    setMotionValue(visualElement2, key, value);
+  }
+}
+function setVariants(visualElement2, variantLabels) {
+  const reversedLabels = [...variantLabels].reverse();
+  reversedLabels.forEach((key) => {
+    var _a;
+    const variant = visualElement2.getVariant(key);
+    variant && setTarget(visualElement2, variant);
+    (_a = visualElement2.variantChildren) == null ? void 0 : _a.forEach((child) => {
+      setVariants(child, variantLabels);
+    });
+  });
+}
+function setValues(visualElement2, definition) {
+  if (Array.isArray(definition)) {
+    return setVariants(visualElement2, definition);
+  } else if (typeof definition === "string") {
+    return setVariants(visualElement2, [definition]);
+  } else {
+    setTarget(visualElement2, definition);
+  }
 }
 function checkTargetForNewValues(visualElement2, target, origin) {
   var _a, _b, _c;
@@ -356,6 +679,99 @@ const transformOriginProps = /* @__PURE__ */ new Set(["originX", "originY", "ori
 function isTransformOriginProp(key) {
   return transformOriginProps.has(key);
 }
+function animateVisualElement(visualElement2, definition, options = {}) {
+  visualElement2.notifyAnimationStart(definition);
+  let animation;
+  if (Array.isArray(definition)) {
+    const animations = definition.map((variant) => animateVariant(visualElement2, variant, options));
+    animation = Promise.all(animations);
+  } else if (typeof definition === "string") {
+    animation = animateVariant(visualElement2, definition, options);
+  } else {
+    const resolvedDefinition = typeof definition === "function" ? resolveVariant(visualElement2, definition, options.custom) : definition;
+    animation = animateTarget(visualElement2, resolvedDefinition, options);
+  }
+  return animation.then(() => visualElement2.notifyAnimationComplete(definition));
+}
+function animateVariant(visualElement2, variant, options = {}) {
+  var _a;
+  const resolved = resolveVariant(visualElement2, variant, options.custom);
+  let { transition = visualElement2.getDefaultTransition() || {} } = resolved || {};
+  if (options.transitionOverride) {
+    transition = options.transitionOverride;
+  }
+  const getAnimation2 = resolved ? () => animateTarget(visualElement2, resolved, options) : () => Promise.resolve();
+  const getChildAnimations = ((_a = visualElement2.variantChildren) == null ? void 0 : _a.size) ? (forwardDelay = 0) => {
+    const {
+      delayChildren = 0,
+      staggerChildren,
+      staggerDirection
+    } = transition;
+    return animateChildren(visualElement2, variant, delayChildren + forwardDelay, staggerChildren, staggerDirection, options);
+  } : () => Promise.resolve();
+  const { when } = transition;
+  if (when) {
+    const [first, last] = when === "beforeChildren" ? [getAnimation2, getChildAnimations] : [getChildAnimations, getAnimation2];
+    return first().then(last);
+  } else {
+    return Promise.all([getAnimation2(), getChildAnimations(options.delay)]);
+  }
+}
+function animateTarget(visualElement2, definition, { delay = 0, transitionOverride, type } = {}) {
+  var _b;
+  let _a = visualElement2.makeTargetAnimatable(definition), {
+    transition = visualElement2.getDefaultTransition(),
+    transitionEnd
+  } = _a, target = __objRest(_a, [
+    "transition",
+    "transitionEnd"
+  ]);
+  if (transitionOverride)
+    transition = transitionOverride;
+  const animations = [];
+  const animationTypeState = type && ((_b = visualElement2.animationState) == null ? void 0 : _b.getState()[type]);
+  for (const key in target) {
+    const value = visualElement2.getValue(key);
+    const valueTarget = target[key];
+    if (!value || valueTarget === void 0 || animationTypeState && shouldBlockAnimation(animationTypeState, key)) {
+      continue;
+    }
+    let valueTransition = __spreadValues({ delay }, transition);
+    if (visualElement2.shouldReduceMotion && isTransformProp(key)) {
+      valueTransition = __spreadProps(__spreadValues({}, valueTransition), {
+        type: false,
+        delay: 0
+      });
+    }
+    const animation = startAnimation(key, value, valueTarget, valueTransition);
+    animations.push(animation);
+  }
+  return Promise.all(animations).then(() => {
+    transitionEnd && setTarget(visualElement2, transitionEnd);
+  });
+}
+function animateChildren(visualElement2, variant, delayChildren = 0, staggerChildren = 0, staggerDirection = 1, options) {
+  const animations = [];
+  const maxStaggerDuration = (visualElement2.variantChildren.size - 1) * staggerChildren;
+  const generateStaggerDuration = staggerDirection === 1 ? (i = 0) => i * staggerChildren : (i = 0) => maxStaggerDuration - i * staggerChildren;
+  Array.from(visualElement2.variantChildren).sort(sortByTreeOrder).forEach((child, i) => {
+    animations.push(animateVariant(child, variant, __spreadProps(__spreadValues({}, options), {
+      delay: delayChildren + generateStaggerDuration(i)
+    })).then(() => child.notifyAnimationComplete(variant)));
+  });
+  return Promise.all(animations);
+}
+function stopAnimation(visualElement2) {
+  visualElement2.forEachValue((value) => value.stop());
+}
+function sortByTreeOrder(a, b) {
+  return a.sortNodePosition(b);
+}
+function shouldBlockAnimation({ protectedKeys, needsAnimating }, key) {
+  const shouldBlock = protectedKeys.hasOwnProperty(key) && needsAnimating[key] !== true;
+  needsAnimating[key] = false;
+  return shouldBlock;
+}
 var AnimationType = /* @__PURE__ */ ((AnimationType2) => {
   AnimationType2["Animate"] = "animate";
   AnimationType2["Hover"] = "whileHover";
@@ -375,6 +791,173 @@ const variantPriorityOrder = [
   AnimationType.Drag,
   AnimationType.Exit
 ];
+const reversePriorityOrder = [...variantPriorityOrder].reverse();
+const numAnimationTypes = variantPriorityOrder.length;
+function animateList(visualElement2) {
+  return (animations) => Promise.all(animations.map(({ animation, options }) => animateVisualElement(visualElement2, animation, options)));
+}
+function createAnimationState(visualElement2) {
+  let animate2 = animateList(visualElement2);
+  const state = createState();
+  let allAnimatedKeys = {};
+  let isInitialRender = true;
+  const buildResolvedTypeValues = (acc, definition) => {
+    const resolved = resolveVariant(visualElement2, definition);
+    if (resolved) {
+      const _a = resolved, { transition, transitionEnd } = _a, target = __objRest(_a, ["transition", "transitionEnd"]);
+      acc = __spreadValues(__spreadValues(__spreadValues({}, acc), target), transitionEnd);
+    }
+    return acc;
+  };
+  function isAnimated(key) {
+    return allAnimatedKeys[key] !== void 0;
+  }
+  function setAnimateFunction(makeAnimator) {
+    animate2 = makeAnimator(visualElement2);
+  }
+  function animateChanges(options, changedActiveType) {
+    var _a;
+    const props = visualElement2.getProps();
+    const context = visualElement2.getVariantContext(true) || {};
+    const animations = [];
+    const removedKeys = /* @__PURE__ */ new Set();
+    let encounteredKeys = {};
+    let removedVariantIndex = Infinity;
+    for (let i = 0; i < numAnimationTypes; i++) {
+      const type = reversePriorityOrder[i];
+      const typeState = state[type];
+      const prop = (_a = props[type]) != null ? _a : context[type];
+      const propIsVariant = isVariantLabel(prop);
+      const activeDelta = type === changedActiveType ? typeState.isActive : null;
+      if (activeDelta === false)
+        removedVariantIndex = i;
+      let isInherited = prop === context[type] && prop !== props[type] && propIsVariant;
+      if (isInherited && isInitialRender && visualElement2.manuallyAnimateOnMount) {
+        isInherited = false;
+      }
+      typeState.protectedKeys = __spreadValues({}, encounteredKeys);
+      if (!typeState.isActive && activeDelta === null || !prop && !typeState.prevProp || isAnimationControls(prop) || typeof prop === "boolean") {
+        continue;
+      }
+      const variantDidChange = checkVariantsDidChange(typeState.prevProp, prop);
+      let shouldAnimateType = variantDidChange || type === changedActiveType && typeState.isActive && !isInherited && propIsVariant || i > removedVariantIndex && propIsVariant;
+      const definitionList = Array.isArray(prop) ? prop : [prop];
+      let resolvedValues = definitionList.reduce(buildResolvedTypeValues, {});
+      if (activeDelta === false)
+        resolvedValues = {};
+      const { prevResolvedValues = {} } = typeState;
+      const allKeys = __spreadValues(__spreadValues({}, prevResolvedValues), resolvedValues);
+      const markToAnimate = (key) => {
+        shouldAnimateType = true;
+        removedKeys.delete(key);
+        typeState.needsAnimating[key] = true;
+      };
+      for (const key in allKeys) {
+        const next = resolvedValues[key];
+        const prev = prevResolvedValues[key];
+        if (encounteredKeys.hasOwnProperty(key))
+          continue;
+        if (next !== prev) {
+          if (isKeyframesTarget(next) && isKeyframesTarget(prev)) {
+            if (!shallowCompare(next, prev) || variantDidChange) {
+              markToAnimate(key);
+            } else {
+              typeState.protectedKeys[key] = true;
+            }
+          } else if (next !== void 0) {
+            markToAnimate(key);
+          } else {
+            removedKeys.add(key);
+          }
+        } else if (next !== void 0 && removedKeys.has(key)) {
+          markToAnimate(key);
+        } else {
+          typeState.protectedKeys[key] = true;
+        }
+      }
+      typeState.prevProp = prop;
+      typeState.prevResolvedValues = resolvedValues;
+      if (typeState.isActive) {
+        encounteredKeys = __spreadValues(__spreadValues({}, encounteredKeys), resolvedValues);
+      }
+      if (isInitialRender && visualElement2.blockInitialAnimation) {
+        shouldAnimateType = false;
+      }
+      if (shouldAnimateType && !isInherited) {
+        animations.push(...definitionList.map((animation) => ({
+          animation,
+          options: __spreadValues({ type }, options)
+        })));
+      }
+    }
+    allAnimatedKeys = __spreadValues({}, encounteredKeys);
+    if (removedKeys.size) {
+      const fallbackAnimation = {};
+      removedKeys.forEach((key) => {
+        const fallbackTarget = visualElement2.getBaseTarget(key);
+        if (fallbackTarget !== void 0) {
+          fallbackAnimation[key] = fallbackTarget;
+        }
+      });
+      animations.push({ animation: fallbackAnimation });
+    }
+    let shouldAnimate = Boolean(animations.length);
+    if (isInitialRender && props.initial === false && !visualElement2.manuallyAnimateOnMount) {
+      shouldAnimate = false;
+    }
+    isInitialRender = false;
+    return shouldAnimate ? animate2(animations) : Promise.resolve();
+  }
+  function setActive(type, isActive, options) {
+    var _a;
+    if (state[type].isActive === isActive)
+      return Promise.resolve();
+    (_a = visualElement2.variantChildren) == null ? void 0 : _a.forEach((child) => {
+      var _a2;
+      return (_a2 = child.animationState) == null ? void 0 : _a2.setActive(type, isActive);
+    });
+    state[type].isActive = isActive;
+    const animations = animateChanges(options, type);
+    for (const key in state) {
+      state[key].protectedKeys = {};
+    }
+    return animations;
+  }
+  return {
+    isAnimated,
+    animateChanges,
+    setActive,
+    setAnimateFunction,
+    getState: () => state
+  };
+}
+function checkVariantsDidChange(prev, next) {
+  if (typeof next === "string") {
+    return next !== prev;
+  } else if (isVariantLabels(next)) {
+    return !shallowCompare(next, prev);
+  }
+  return false;
+}
+function createTypeState(isActive = false) {
+  return {
+    isActive,
+    protectedKeys: {},
+    needsAnimating: {},
+    prevResolvedValues: {}
+  };
+}
+function createState() {
+  return {
+    [AnimationType.Animate]: createTypeState(true),
+    [AnimationType.InView]: createTypeState(),
+    [AnimationType.Hover]: createTypeState(),
+    [AnimationType.Tap]: createTypeState(),
+    [AnimationType.Drag]: createTypeState(),
+    [AnimationType.Focus]: createTypeState(),
+    [AnimationType.Exit]: createTypeState()
+  };
+}
 const names = [
   "LayoutMeasure",
   "BeforeLayoutMeasure",
@@ -768,9 +1351,9 @@ function getVariableValue(current, element, depth = 1) {
     return fallback;
   }
 }
-function resolveCSSVariables(visualElement2, _a, transitionEnd) {
-  var target = __objRest(_a, []);
-  var _a2;
+function resolveCSSVariables(visualElement2, _e, transitionEnd) {
+  var target = __objRest(_e, []);
+  var _a;
   const element = visualElement2.getInstance();
   if (!(element instanceof Element))
     return { target, transitionEnd };
@@ -794,7 +1377,7 @@ function resolveCSSVariables(visualElement2, _a, transitionEnd) {
       continue;
     target[key] = resolved;
     if (transitionEnd)
-      (_a2 = transitionEnd[key]) != null ? _a2 : transitionEnd[key] = current;
+      (_a = transitionEnd[key]) != null ? _a : transitionEnd[key] = current;
   }
   return { target, transitionEnd };
 }
@@ -1042,8 +1625,8 @@ const htmlConfig = {
     delete vars[key];
     delete style[key];
   },
-  makeTargetAnimatable(element, _b, { transformValues }, isMounted = true) {
-    var _c = _b, { transition, transitionEnd } = _c, target = __objRest(_c, ["transition", "transitionEnd"]);
+  makeTargetAnimatable(element, _f, { transformValues }, isMounted = true) {
+    var _g = _f, { transition, transitionEnd } = _g, target = __objRest(_g, ["transition", "transitionEnd"]);
     let origin = getOrigin(target, transition || {}, element);
     if (transformValues) {
       if (transitionEnd)
@@ -1074,6 +1657,57 @@ const htmlConfig = {
   render: renderHTML
 };
 const htmlVisualElement = visualElement(htmlConfig);
+function animationControls() {
+  let hasMounted = false;
+  const pendingAnimations = [];
+  const subscribers = /* @__PURE__ */ new Set();
+  const controls = {
+    subscribe(visualElement2) {
+      subscribers.add(visualElement2);
+      return () => void subscribers.delete(visualElement2);
+    },
+    start(definition, transitionOverride) {
+      if (hasMounted) {
+        const animations = [];
+        subscribers.forEach((visualElement2) => {
+          animations.push(animateVisualElement(visualElement2, definition, {
+            transitionOverride
+          }));
+        });
+        return Promise.all(animations);
+      } else {
+        return new Promise((resolve) => {
+          pendingAnimations.push({
+            animation: [definition, transitionOverride],
+            resolve
+          });
+        });
+      }
+    },
+    set(definition) {
+      invariant(hasMounted, "controls.set() should only be called after a component has mounted. Consider calling within a useEffect hook.");
+      return subscribers.forEach((visualElement2) => {
+        setValues(visualElement2, definition);
+      });
+    },
+    stop() {
+      subscribers.forEach((visualElement2) => {
+        stopAnimation(visualElement2);
+      });
+    },
+    mount() {
+      hasMounted = true;
+      pendingAnimations.forEach(({ animation, resolve }) => {
+        controls.start(...animation).then(resolve);
+      });
+      return () => {
+        hasMounted = false;
+        controls.stop();
+      };
+    }
+  };
+  return controls;
+}
 const createHtmlRenderState = () => ({
   style: {},
   transform: {},
@@ -1100,15 +1734,15 @@ function makeLatestValues(props, context, presenceContext) {
   for (const key in motionValues) {
     values[key] = resolveMotionValue(motionValues[key]);
   }
-  let { initial, animate } = props;
+  let { initial, animate: animate2 } = props;
   const isControllingVariants = checkIfControllingVariants(props);
   const isVariantNode = checkIfVariantNode(props);
   if (context && isVariantNode && !isControllingVariants && props.inherit !== false) {
     initial != null ? initial : initial = context.initial;
-    animate != null ? animate : animate = context.animate;
+    animate2 != null ? animate2 : animate2 = context.animate;
   }
   const initialAnimationIsBlocked = blockInitialAnimation || initial === false;
-  const variantToSet = initialAnimationIsBlocked ? animate : initial;
+  const variantToSet = initialAnimationIsBlocked ? animate2 : initial;
   if (variantToSet && typeof variantToSet !== "boolean" && !isAnimationControls(variantToSet)) {
     const list = Array.isArray(variantToSet) ? variantToSet : [variantToSet];
     list.forEach((definition) => {
@@ -1132,4 +1766,4 @@ function makeLatestValues(props, context, presenceContext) {
   }
   return values;
 }
-export { htmlVisualElement, makeVisualState };
+export { animationControls, createAnimationState, htmlVisualElement, makeVisualState };
