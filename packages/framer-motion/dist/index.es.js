@@ -168,6 +168,9 @@ function motionValue(init) {
 const isMotionValue = (value) => {
   return Boolean(value !== null && typeof value === "object" && value.getVelocity);
 };
+function isAnimationControls(v) {
+  return typeof v === "object" && typeof v.start === "function";
+}
 const isKeyframesTarget = (v) => {
   return Array.isArray(v);
 };
@@ -256,6 +259,9 @@ function getAnimatableNone(key, value) {
     defaultValueType = complex;
   return (_a = defaultValueType.getAnimatableNone) == null ? void 0 : _a.call(defaultValueType, value);
 }
+const isCustomValue = (v) => {
+  return Boolean(v && typeof v === "object" && v.mix && v.toValue);
+};
 const isNumericalString = (v) => /^\-?\d*\.?\d+$/.test(v);
 const isZeroValueString = (v) => /^0[^.\s]+$/.test(v);
 const testValueType = (v) => (type) => type.test(v);
@@ -272,6 +278,19 @@ function isVariantLabels(v) {
 }
 function isVariantLabel(v) {
   return typeof v === "string" || isVariantLabels(v);
+}
+function resolveVariantFromProps(props, definition, custom, currentValues = {}, currentVelocity = {}) {
+  var _a;
+  if (typeof definition === "function") {
+    definition = definition(custom != null ? custom : props.custom, currentValues, currentVelocity);
+  }
+  if (typeof definition === "string") {
+    definition = (_a = props.variants) == null ? void 0 : _a[definition];
+  }
+  if (typeof definition === "function") {
+    definition = definition(custom != null ? custom : props.custom, currentValues, currentVelocity);
+  }
+  return definition;
 }
 function checkIfControllingVariants(props) {
   var _a;
@@ -1055,4 +1074,62 @@ const htmlConfig = {
   render: renderHTML
 };
 const htmlVisualElement = visualElement(htmlConfig);
-export { htmlVisualElement };
+const createHtmlRenderState = () => ({
+  style: {},
+  transform: {},
+  transformKeys: [],
+  transformOrigin: {},
+  vars: {}
+});
+function resolveMotionValue(value) {
+  const unwrappedValue = isMotionValue(value) ? value.get() : value;
+  return isCustomValue(unwrappedValue) ? unwrappedValue.toValue() : unwrappedValue;
+}
+function makeVisualState(props, context, presenceContext) {
+  const renderState = createHtmlRenderState();
+  const state = {
+    latestValues: makeLatestValues(props, context, presenceContext),
+    renderState
+  };
+  return state;
+}
+function makeLatestValues(props, context, presenceContext) {
+  const values = {};
+  const blockInitialAnimation = (presenceContext == null ? void 0 : presenceContext.initial) === false;
+  const motionValues = scrapeMotionValuesFromProps(props);
+  for (const key in motionValues) {
+    values[key] = resolveMotionValue(motionValues[key]);
+  }
+  let { initial, animate } = props;
+  const isControllingVariants = checkIfControllingVariants(props);
+  const isVariantNode = checkIfVariantNode(props);
+  if (context && isVariantNode && !isControllingVariants && props.inherit !== false) {
+    initial != null ? initial : initial = context.initial;
+    animate != null ? animate : animate = context.animate;
+  }
+  const initialAnimationIsBlocked = blockInitialAnimation || initial === false;
+  const variantToSet = initialAnimationIsBlocked ? animate : initial;
+  if (variantToSet && typeof variantToSet !== "boolean" && !isAnimationControls(variantToSet)) {
+    const list = Array.isArray(variantToSet) ? variantToSet : [variantToSet];
+    list.forEach((definition) => {
+      const resolved = resolveVariantFromProps(props, definition);
+      if (!resolved)
+        return;
+      const _a = resolved, { transitionEnd, transition } = _a, target = __objRest(_a, ["transitionEnd", "transition"]);
+      for (const key in target) {
+        let valueTarget = target[key];
+        if (Array.isArray(valueTarget)) {
+          const index = initialAnimationIsBlocked ? valueTarget.length - 1 : 0;
+          valueTarget = valueTarget[index];
+        }
+        if (valueTarget !== null) {
+          values[key] = valueTarget;
+        }
+      }
+      for (const key in transitionEnd)
+        values[key] = transitionEnd[key];
+    });
+  }
+  return values;
+}
+export { htmlVisualElement, makeVisualState };

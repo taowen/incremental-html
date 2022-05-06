@@ -1204,6 +1204,11 @@ declare type MakeMotion<T> = MakeCustomValueType<{
     [K in keyof T]: T[K] | MotionValue<number> | MotionValue<string> | MotionValue<any>;
 }>;
 
+export declare function makeVisualState(
+props: MotionProps,
+context: MotionContextProps,
+presenceContext: PresenceContextProps | null): VisualState<any, any>
+
 /**
  * @public
  */
@@ -1232,6 +1237,12 @@ declare interface MotionAdvancedProps {
      * Set to `false` to prevent inheriting variant changes from its parent.
      */
     inherit?: boolean;
+}
+
+declare interface MotionContextProps {
+    visualElement?: VisualElement;
+    initial?: false | string | string[];
+    animate?: string | string[];
 }
 
 declare type MotionCSS = MakeMotion<Omit_2<CSSProperties, "rotate" | "scale" | "perspective">>;
@@ -1825,6 +1836,18 @@ declare type PermissiveTransitionDefinition = {
 declare interface Point {
     x: number;
     y: number;
+}
+
+/**
+ * @public
+ */
+declare interface PresenceContextProps {
+    id: number;
+    isPresent: boolean;
+    register: (id: number) => () => void;
+    onExitComplete?: (id: number) => void;
+    initial?: false | VariantLabels;
+    custom?: any;
 }
 
 declare interface ProjectionNodeOptions {
