@@ -1,0 +1,26 @@
+{
+    "name": "@incremental-html/framer-motion",
+    "version": "6.3.3",
+    "main": "dist/index.cjs.js",
+    "module": "dist/index.es.js",
+    "typings": "dist/index.d.ts",
+    "dependencies": {
+        "framesync": "6.0.1",
+        "hey-listen": "^1.0.8",
+        "popmotion": "11.0.3",
+        "style-value-types": "5.0.0",
+        "tslib": "^2.1.0"
+    },
+    "devDependencies": {
+        "@microsoft/api-extractor": "^7.23.1",
+        "@types/react": "^17.0.39",
+        "@types/react-dom": "^17.0.11",
+        "typescript": "^4.5.5",
+        "vite": "^2.9.1"
+    },
+    "scripts": {
+        "build:js": "vite build",
+        "build:typings": "api-extractor run",
+        "build": "pnpm build:js && pnpm build:typings"
+    }
+}

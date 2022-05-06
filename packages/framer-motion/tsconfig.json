@@ -8,19 +8,15 @@
         "strict": true,
         "noImplicitThis": true,
         "jsx": "preserve",
-        "skipLibCheck": true,
         "sourceMap": true,
         "resolveJsonModule": true,
         "esModuleInterop": true,
-        "suppressImplicitAnyIndexErrors": true,
-        "strictPropertyInitialization": false,
         "lib": [
             "esnext",
             "dom"
         ]
     },
     "include": [
-        "src/**/*.ts",
-        "test/**/*.ts"
+        "**/*.ts"
     ]
 }
