@@ -1,16 +1,12 @@
 import { makeVisualState, htmlVisualElement, animationControls, createAnimationState, MotionProps } from '@incremental-html/framer-motion';
 import { Feature } from '@incremental-html/reactivity';
-import { toRawElement } from '@incremental-html/reactivity/dist/esm/src/subscribeNode';
 
 export class Motion extends Feature<{}> {
-    private get rawElement() {
-        return toRawElement(this.element);
-    }
     private visualElement = this.create(() => {
         const motionProps: MotionProps = this.props;
         const visualState = makeVisualState(motionProps, {}, null);
         if (visualState.mount) {
-            visualState.mount(this.rawElement);
+            visualState.mount(this.element);
         }
         const visualElement = htmlVisualElement({
             visualState,
@@ -21,7 +17,7 @@ export class Motion extends Feature<{}> {
         return visualElement;
     })
     public _1 = this.effect(() => {
-        this.visualElement.mount(this.rawElement);
+        this.visualElement.mount(this.element as HTMLElement);
         return () => {
             this.visualElement.unmount();
         }

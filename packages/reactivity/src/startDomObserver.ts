@@ -1,9 +1,9 @@
 import { effect, isRef } from '@vue/reactivity';
 import { evalEventHandler, evalSync } from './eval';
 import { Feature } from './Feature';
-import { camelize, hyphenate } from './naming';
+import { camelize } from './naming';
 import { refreshNode, setNodeProperty } from './renderTemplate';
-import { elementProxy, notifyNodeSubscribers, toRawElement } from './subscribeNode';
+import { notifyNodeSubscribers } from './subscribeNode';
 
 let nextId = 1;
 
@@ -67,7 +67,7 @@ async function mountNode(node: Element) {
         const superGet = Object.getOwnPropertyDescriptor(superProps, "value")!.get!;
         Object.defineProperty(node, "value", {
             get: function () {
-                return superGet.apply(toRawElement(this));
+                return superGet.apply(this);
             },
             set: function (t) {
                 if (isRef(t)) {
@@ -76,12 +76,11 @@ async function mountNode(node: Element) {
                 } else {
                     delete this.$valueRef;
                 }
-                superSet.call(toRawElement(this), t);
+                superSet.call(this, t);
                 notifyNodeSubscribers(xid);
             }
         });
     }
-    const proxiedNode = elementProxy(node);
     for (let i = 0; i < node.attributes.length; i++) {
         const attr = node.attributes[i];
         if (attr.name.startsWith('on:')) {
@@ -94,11 +93,11 @@ async function mountNode(node: Element) {
             })
         } else if (attr.name.startsWith('prop:')) {
             const propName = camelize(attr.name.substring('prop:'.length));
-            setNodeProperty(node, propName, evalSync(attr.value, proxiedNode));
+            setNodeProperty(node, propName, evalSync(attr.value, node));
         } else if (attr.name.startsWith('use:')) {
-            let featureClass = evalSync(attr.value, proxiedNode);
+            let featureClass = evalSync(attr.value, node);
             const featureName = attr.name.substring('use:'.length);
-            const feature = await createFeature(featureClass, proxiedNode, `${featureName}:`);
+            const feature = await createFeature(featureClass, node, `${featureName}:`);
             setNodeProperty(node, camelize(featureName), feature);
         }
     }
