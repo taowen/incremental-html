@@ -63,4 +63,8 @@ export class Feature<Props extends Record<string, any>> {
             }
         }).effect;
     }
+
+    protected create<T>(fn: () => T): T {
+        return fn();
+    }
 }

@@ -7,10 +7,7 @@
     "types": "dist/esm/index.d.ts",
     "dependencies": {
         "@incremental-html/reactivity": "workspace:*",
-        "@incremental-html/framer-motion": "workspace:*",
-        "framesync": "^6.1.0",
-        "popmotion": "^11.0.3",
-        "stylefire": "^7.0.3"
+        "@incremental-html/framer-motion": "workspace:*"
     },
     "devDependencies": {
         "@types/jest": "27.4.1",
