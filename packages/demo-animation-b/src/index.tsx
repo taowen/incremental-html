@@ -12,9 +12,11 @@ root.render(
             <Route index element={<ul>
                 <li><Link to="case1">Case1</Link></li>
                 <li><Link to="case2">Case2</Link></li>
+                <li><Link to="case3">Case3</Link></li>
             </ul>} />
             <Route path='case1' element={<Case1 />} />
             <Route path='case2' element={<Case2 />} />
+            <Route path='case3' element={<Case3 />} />
         </Routes>
     </BrowserRouter>)
 
@@ -27,4 +29,8 @@ function Case2() {
     return <motion.div style={{ width: 100 }} animate={{ x }} onClick={() => {
         setX(100);
     }}>click me</motion.div>
+}
+
+function Case3() {
+    return <motion.div animate={{ x: 100 }} transition={{ delay: 1 }}>hello</motion.div>
 }
