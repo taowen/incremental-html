@@ -2,6 +2,7 @@
 
 import { Context } from 'react';
 import { CSSProperties } from 'react';
+import { Process } from 'framesync';
 import * as React_2 from 'react';
 import { RefObject } from 'react';
 import { SVGAttributes } from 'react';
@@ -152,9 +153,28 @@ declare type AnimationOptions = {
 /**
  * @public
  */
+declare type AnimationOptions_2<V> = (Tween | Spring) & AnimationPlaybackLifecycles<V> & {
+    delay?: number;
+    type?: "tween" | "spring";
+};
+
+/**
+ * @public
+ */
 declare interface AnimationPlaybackControls {
     stop: () => void;
     isAnimating: () => boolean;
+}
+
+/**
+ * @public
+ */
+declare interface AnimationPlaybackLifecycles<V> {
+    onUpdate?: (latest: V) => void;
+    onPlay?: () => void;
+    onComplete?: () => void;
+    onRepeat?: () => void;
+    onStop?: () => void;
 }
 
 /**
@@ -791,6 +811,115 @@ declare interface HoverHandlers {
      */
     onHoverEnd?(event: MouseEvent, info: EventInfo): void;
 }
+
+export declare const HTMLProjectionNode: {
+    new (id: number | undefined, latestValues?: ResolvedValues, parent?: IProjectionNode<unknown> | undefined): {
+        id: number | undefined;
+        instance: HTMLElement;
+        root: IProjectionNode<unknown>;
+        parent?: IProjectionNode<unknown> | undefined;
+        path: IProjectionNode<unknown>[];
+        children: Set<IProjectionNode<unknown>>;
+        options: ProjectionNodeOptions;
+        snapshot: Snapshot | undefined;
+        layout: Layout | undefined;
+        targetLayout?: Box | undefined;
+        layoutCorrected: Box;
+        targetDelta?: Delta | undefined;
+        target?: Box | undefined;
+        relativeTarget?: Box | undefined;
+        relativeTargetOrigin?: Box | undefined;
+        relativeParent?: IProjectionNode<unknown> | undefined;
+        isTreeAnimating: boolean;
+        isAnimationBlocked: boolean;
+        attemptToResolveRelativeTarget?: boolean | undefined;
+        targetWithTransforms?: Box | undefined;
+        projectionDelta?: Delta | undefined;
+        projectionDeltaWithTransform?: Delta | undefined;
+        scroll?: Point | undefined;
+        isLayoutDirty: boolean;
+        updateManuallyBlocked: boolean;
+        updateBlockedByResize: boolean;
+        isUpdating: boolean;
+        isSVG: boolean;
+        needsReset: boolean;
+        shouldResetTransform: boolean;
+        treeScale: Point;
+        resumeFrom?: IProjectionNode<unknown> | undefined;
+        resumingFrom?: IProjectionNode<unknown> | undefined;
+        latestValues: ResolvedValues;
+        eventHandlers: Map<LayoutEvents, SubscriptionManager<any>>;
+        nodes?: FlatTree | undefined;
+        depth: number;
+        projectionTransform: string;
+        prevTransformTemplateValue: string | undefined;
+        preserveOpacity?: boolean | undefined;
+        addEventListener(name: LayoutEvents, handler: any): () => void;
+        notifyListeners(name: LayoutEvents, ...args: any): void;
+        hasListeners(name: LayoutEvents): boolean;
+        potentialNodes: Map<number, IProjectionNode<unknown>>;
+        registerPotentialNode(id: number, node: IProjectionNode<unknown>): void;
+        mount(instance: HTMLElement, isLayoutDirty?: boolean): void;
+        unmount(): void;
+        blockUpdate(): void;
+        unblockUpdate(): void;
+        isUpdateBlocked(): boolean;
+        isTreeAnimationBlocked(): boolean;
+        startUpdate(): void;
+        willUpdate(shouldNotifyListeners?: boolean): void;
+        didUpdate(): void;
+        clearAllSnapshots(): void;
+        scheduleUpdateProjection(): void;
+        scheduleCheckAfterUnmount(): void;
+        checkUpdateFailed: () => void;
+        updateProjection: () => void;
+        updateSnapshot(): void;
+        updateLayout(): void;
+        updateScroll(): void;
+        resetTransform(): void;
+        measure(): Box;
+        removeElementScroll(box: Box): Box;
+        applyTransform(box: Box, transformOnly?: boolean): Box;
+        removeTransform(box: Box): Box;
+        setTargetDelta(delta: Delta): void;
+        setOptions(options: ProjectionNodeOptions): void;
+        clearMeasurements(): void;
+        resolveTargetDelta(): void;
+        getClosestProjectingParent(): IProjectionNode<unknown> | undefined;
+        hasProjected: boolean;
+        calcProjection(): void;
+        isVisible: boolean;
+        hide(): void;
+        show(): void;
+        scheduleRender(notifyAll?: boolean): void;
+        animationValues?: ResolvedValues | undefined;
+        pendingAnimation?: Process | undefined;
+        currentAnimation?: AnimationPlaybackControls | undefined;
+        mixTargetDelta: (progress: number) => void;
+        animationProgress: number;
+        setAnimationOrigin(delta: Delta, hasOnlyRelativeTargetChanged?: boolean): void;
+        startAnimation(options: AnimationOptions_2<number>): void;
+        completeAnimation(): void;
+        finishAnimation(): void;
+        applyTransformsToTarget(): void;
+        sharedNodes: Map<string, NodeStack>;
+        registerSharedNode(layoutId: string, node: IProjectionNode<unknown>): void;
+        isLead(): boolean;
+        getLead(): IProjectionNode<unknown> | any;
+        getPrevLead(): IProjectionNode<unknown> | undefined;
+        getStack(): NodeStack | undefined;
+        promote({ needsReset, transition, preserveFollowOpacity, }?: {
+            needsReset?: boolean | undefined;
+            transition?: Transition | undefined;
+            preserveFollowOpacity?: boolean | undefined;
+        }): void;
+        relegate(): boolean;
+        resetRotation(): void;
+        getProjectionStyles(styleProp?: MotionStyle): ResolvedValues;
+        clearSnapshot(): void;
+        resetTree(): void;
+    };
+};
 
 export declare const htmlVisualElement: ({ parent, props, presenceId, blockInitialAnimation, visualState, shouldReduceMotion, }: VisualElementOptions<HTMLElement, any>, options?: DOMVisualElementOptions) => VisualElement<HTMLElement, any>;
 

@@ -3,6 +3,7 @@ export { createAnimationState } from './motion/packages/framer-motion/types/rend
 export { animationControls } from './motion/packages/framer-motion/types/animation/animation-controls';
 export { MotionProps } from "./motion/packages/framer-motion/types/motion/types"
 export { AnimationType } from './motion/packages/framer-motion/types/render/utils/types'
+export { HTMLProjectionNode } from './motion/packages/framer-motion/types/projection/node/HTMLProjectionNode';
 
 import { MotionProps } from "./motion/packages/framer-motion/types/motion/types"
 import { MotionContextProps } from "./motion/packages/framer-motion/types/context/MotionContext"

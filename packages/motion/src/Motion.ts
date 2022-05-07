@@ -1,5 +1,7 @@
-import { makeVisualState, htmlVisualElement, createAnimationState, MotionProps, AnimationType } from '@incremental-html/framer-motion';
+import { makeVisualState, htmlVisualElement, createAnimationState, MotionProps, AnimationType, useProjection, HTMLProjectionNode } from '@incremental-html/framer-motion';
 import { Feature } from '@incremental-html/reactivity';
+
+let nextProjectionId = 1;
 
 export class Motion extends Feature<{}> {
     private visualElement = this.create(() => {
@@ -13,6 +15,7 @@ export class Motion extends Feature<{}> {
             props: motionProps
         });
         visualElement.animationState = createAnimationState(visualElement);
+        useProjection(nextProjectionId++, motionProps, {}, visualElement, HTMLProjectionNode);
         visualElement.syncRender();
         return visualElement;
     })

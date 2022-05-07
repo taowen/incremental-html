@@ -29,8 +29,8 @@ var __objRest = (source, exclude) => {
     }
   return target;
 };
-import sync, { getFrameData, cancelSync } from "framesync";
-import { velocityPerSecond, cubicBezier, linear, easeIn, easeInOut, easeOut, circIn, circInOut, circOut, backIn, backInOut, backOut, anticipate, bounceIn, bounceInOut, bounceOut, inertia, animate, mix } from "popmotion";
+import sync, { getFrameData, cancelSync, flushSync } from "framesync";
+import { velocityPerSecond, cubicBezier, linear, easeIn, easeInOut, easeOut, circIn, circInOut, circOut, backIn, backInOut, backOut, anticipate, bounceIn, bounceInOut, bounceOut, inertia, animate as animate$1, mix, progress, distance } from "popmotion";
 import { invariant, warning } from "hey-listen";
 import { complex, number, px, degrees, scale, alpha, progressPercentage, color, filter, percent, vw, vh } from "style-value-types";
 function addUniqueItem(arr, item) {
@@ -477,7 +477,7 @@ function getAnimation(key, value, target, transition, onComplete) {
       onComplete,
       onUpdate: (v) => value.set(v)
     };
-    return valueTransition.type === "inertia" || valueTransition.type === "decay" ? inertia(__spreadValues(__spreadValues({}, options), valueTransition)) : animate(__spreadProps(__spreadValues({}, getPopmotionAnimationOptions(valueTransition, options, key)), {
+    return valueTransition.type === "inertia" || valueTransition.type === "decay" ? inertia(__spreadValues(__spreadValues({}, options), valueTransition)) : animate$1(__spreadProps(__spreadValues({}, getPopmotionAnimationOptions(valueTransition, options, key)), {
       onUpdate: (v) => {
         var _a2;
         options.onUpdate(v);
@@ -1288,7 +1288,7 @@ function buildHTMLStyles(state, latestValues, options, transformTemplate) {
   var _a;
   const { style, vars, transform, transformKeys: transformKeys2, transformOrigin } = state;
   transformKeys2.length = 0;
-  let hasTransform = false;
+  let hasTransform2 = false;
   let hasTransformOrigin = false;
   let transformIsNone = true;
   for (const key in latestValues) {
@@ -1300,7 +1300,7 @@ function buildHTMLStyles(state, latestValues, options, transformTemplate) {
     const valueType = numberValueTypes[key];
     const valueAsType = getValueAsType(value, valueType);
     if (isTransformProp(key)) {
-      hasTransform = true;
+      hasTransform2 = true;
       transform[key] = valueAsType;
       transformKeys2.push(key);
       if (!transformIsNone)
@@ -1314,7 +1314,7 @@ function buildHTMLStyles(state, latestValues, options, transformTemplate) {
       style[key] = valueAsType;
     }
   }
-  if (hasTransform) {
+  if (hasTransform2) {
     style.transform = buildTransform(state, options, transformIsNone, transformTemplate);
   } else if (transformTemplate) {
     style.transform = transformTemplate({}, "");
@@ -1589,6 +1589,78 @@ function transformBoxPoints(point, transformPoint) {
     right: bottomRight.x
   };
 }
+function isIdentityScale(scale2) {
+  return scale2 === void 0 || scale2 === 1;
+}
+function hasScale({ scale: scale2, scaleX, scaleY }) {
+  return !isIdentityScale(scale2) || !isIdentityScale(scaleX) || !isIdentityScale(scaleY);
+}
+function hasTransform(values) {
+  return hasScale(values) || hasTranslate(values.x) || hasTranslate(values.y) || values.z || values.rotate || values.rotateX || values.rotateY;
+}
+function hasTranslate(value) {
+  return value && value !== "0%";
+}
+function scalePoint(point, scale2, originPoint) {
+  const distanceFromOrigin = point - originPoint;
+  const scaled = scale2 * distanceFromOrigin;
+  return originPoint + scaled;
+}
+function applyPointDelta(point, translate, scale2, originPoint, boxScale) {
+  if (boxScale !== void 0) {
+    point = scalePoint(point, boxScale, originPoint);
+  }
+  return scalePoint(point, scale2, originPoint) + translate;
+}
+function applyAxisDelta(axis, translate = 0, scale2 = 1, originPoint, boxScale) {
+  axis.min = applyPointDelta(axis.min, translate, scale2, originPoint, boxScale);
+  axis.max = applyPointDelta(axis.max, translate, scale2, originPoint, boxScale);
+}
+function applyBoxDelta(box, { x, y }) {
+  applyAxisDelta(box.x, x.translate, x.scale, x.originPoint);
+  applyAxisDelta(box.y, y.translate, y.scale, y.originPoint);
+}
+function applyTreeDeltas(box, treeScale, treePath, isSharedTransition = false) {
+  var _a, _b;
+  const treeLength = treePath.length;
+  if (!treeLength)
+    return;
+  treeScale.x = treeScale.y = 1;
+  let node;
+  let delta;
+  for (let i = 0; i < treeLength; i++) {
+    node = treePath[i];
+    delta = node.projectionDelta;
+    if (((_b = (_a = node.instance) == null ? void 0 : _a.style) == null ? void 0 : _b.display) === "contents")
+      continue;
+    if (isSharedTransition && node.options.layoutScroll && node.scroll && node !== node.root) {
+      transformBox(box, { x: -node.scroll.x, y: -node.scroll.y });
+    }
+    if (delta) {
+      treeScale.x *= delta.x.scale;
+      treeScale.y *= delta.y.scale;
+      applyBoxDelta(box, delta);
+    }
+    if (isSharedTransition && hasTransform(node.latestValues)) {
+      transformBox(box, node.latestValues);
+    }
+  }
+}
+function translateAxis(axis, distance2) {
+  axis.min = axis.min + distance2;
+  axis.max = axis.max + distance2;
+}
+function transformAxis(axis, transforms, [key, scaleKey, originKey]) {
+  const axisOrigin = transforms[originKey] !== void 0 ? transforms[originKey] : 0.5;
+  const originPoint = mix(axis.min, axis.max, axisOrigin);
+  applyAxisDelta(axis, transforms[key], transforms[scaleKey], originPoint, transforms.scale);
+}
+const xKeys$1 = ["x", "scaleX", "originX"];
+const yKeys$1 = ["y", "scaleY", "originY"];
+function transformBox(box, transform) {
+  transformAxis(box.x, transform, xKeys$1);
+  transformAxis(box.y, transform, yKeys$1);
+}
 function measureViewportBox(instance, transformPoint) {
   return convertBoundingBoxToBox(transformBoxPoints(instance.getBoundingClientRect(), transformPoint));
 }
@@ -1711,6 +1783,1176 @@ function animationControls() {
   };
   return controls;
 }
+function animate(from, to, transition = {}) {
+  const value = isMotionValue(from) ? from : motionValue(from);
+  startAnimation("", value, to, transition);
+  return {
+    stop: () => value.stop(),
+    isAnimating: () => value.isAnimating()
+  };
+}
+const borders = ["TopLeft", "TopRight", "BottomLeft", "BottomRight"];
+const numBorders = borders.length;
+const asNumber = (value) => typeof value === "string" ? parseFloat(value) : value;
+const isPx = (value) => typeof value === "number" || px.test(value);
+function mixValues(target, follow, lead, progress2, shouldCrossfadeOpacity, isOnlyMember) {
+  var _a, _b, _c, _d;
+  if (shouldCrossfadeOpacity) {
+    target.opacity = mix(0, (_a = lead.opacity) != null ? _a : 1, easeCrossfadeIn(progress2));
+    target.opacityExit = mix((_b = follow.opacity) != null ? _b : 1, 0, easeCrossfadeOut(progress2));
+  } else if (isOnlyMember) {
+    target.opacity = mix((_c = follow.opacity) != null ? _c : 1, (_d = lead.opacity) != null ? _d : 1, progress2);
+  }
+  for (let i = 0; i < numBorders; i++) {
+    const borderLabel = `border${borders[i]}Radius`;
+    let followRadius = getRadius(follow, borderLabel);
+    let leadRadius = getRadius(lead, borderLabel);
+    if (followRadius === void 0 && leadRadius === void 0)
+      continue;
+    followRadius || (followRadius = 0);
+    leadRadius || (leadRadius = 0);
+    const canMix = followRadius === 0 || leadRadius === 0 || isPx(followRadius) === isPx(leadRadius);
+    if (canMix) {
+      target[borderLabel] = Math.max(mix(asNumber(followRadius), asNumber(leadRadius), progress2), 0);
+      if (percent.test(leadRadius) || percent.test(followRadius)) {
+        target[borderLabel] += "%";
+      }
+    } else {
+      target[borderLabel] = leadRadius;
+    }
+  }
+  if (follow.rotate || lead.rotate) {
+    target.rotate = mix(follow.rotate || 0, lead.rotate || 0, progress2);
+  }
+}
+function getRadius(values, radiusName) {
+  var _a;
+  return (_a = values[radiusName]) != null ? _a : values.borderRadius;
+}
+const easeCrossfadeIn = compress(0, 0.5, circOut);
+const easeCrossfadeOut = compress(0.5, 0.95, linear);
+function compress(min, max, easing) {
+  return (p) => {
+    if (p < min)
+      return 0;
+    if (p > max)
+      return 1;
+    return easing(progress(min, max, p));
+  };
+}
+function copyAxisInto(axis, originAxis) {
+  axis.min = originAxis.min;
+  axis.max = originAxis.max;
+}
+function copyBoxInto(box, originBox) {
+  copyAxisInto(box.x, originBox.x);
+  copyAxisInto(box.y, originBox.y);
+}
+function calcLength(axis) {
+  return axis.max - axis.min;
+}
+function isNear(value, target = 0, maxDistance = 0.01) {
+  return distance(value, target) < maxDistance;
+}
+function calcAxisDelta(delta, source, target, origin = 0.5) {
+  delta.origin = origin;
+  delta.originPoint = mix(source.min, source.max, delta.origin);
+  delta.scale = calcLength(target) / calcLength(source);
+  if (isNear(delta.scale, 1, 1e-4) || isNaN(delta.scale))
+    delta.scale = 1;
+  delta.translate = mix(target.min, target.max, delta.origin) - delta.originPoint;
+  if (isNear(delta.translate) || isNaN(delta.translate))
+    delta.translate = 0;
+}
+function calcBoxDelta(delta, source, target, origin) {
+  calcAxisDelta(delta.x, source.x, target.x, origin == null ? void 0 : origin.originX);
+  calcAxisDelta(delta.y, source.y, target.y, origin == null ? void 0 : origin.originY);
+}
+function calcRelativeAxis(target, relative, parent) {
+  target.min = parent.min + relative.min;
+  target.max = target.min + calcLength(relative);
+}
+function calcRelativeBox(target, relative, parent) {
+  calcRelativeAxis(target.x, relative.x, parent.x);
+  calcRelativeAxis(target.y, relative.y, parent.y);
+}
+function calcRelativeAxisPosition(target, layout, parent) {
+  target.min = layout.min - parent.min;
+  target.max = target.min + calcLength(layout);
+}
+function calcRelativePosition(target, layout, parent) {
+  calcRelativeAxisPosition(target.x, layout.x, parent.x);
+  calcRelativeAxisPosition(target.y, layout.y, parent.y);
+}
+function removePointDelta(point, translate, scale2, originPoint, boxScale) {
+  point -= translate;
+  point = scalePoint(point, 1 / scale2, originPoint);
+  if (boxScale !== void 0) {
+    point = scalePoint(point, 1 / boxScale, originPoint);
+  }
+  return point;
+}
+function removeAxisDelta(axis, translate = 0, scale2 = 1, origin = 0.5, boxScale, originAxis = axis, sourceAxis = axis) {
+  if (percent.test(translate)) {
+    translate = parseFloat(translate);
+    const relativeProgress = mix(sourceAxis.min, sourceAxis.max, translate / 100);
+    translate = relativeProgress - sourceAxis.min;
+  }
+  if (typeof translate !== "number")
+    return;
+  let originPoint = mix(originAxis.min, originAxis.max, origin);
+  if (axis === originAxis)
+    originPoint -= translate;
+  axis.min = removePointDelta(axis.min, translate, scale2, originPoint, boxScale);
+  axis.max = removePointDelta(axis.max, translate, scale2, originPoint, boxScale);
+}
+function removeAxisTransforms(axis, transforms, [key, scaleKey, originKey], origin, sourceAxis) {
+  removeAxisDelta(axis, transforms[key], transforms[scaleKey], transforms[originKey], transforms.scale, origin, sourceAxis);
+}
+const xKeys = ["x", "scaleX", "originX"];
+const yKeys = ["y", "scaleY", "originY"];
+function removeBoxTransforms(box, transforms, originBox, sourceBox) {
+  removeAxisTransforms(box.x, transforms, xKeys, originBox == null ? void 0 : originBox.x, sourceBox == null ? void 0 : sourceBox.x);
+  removeAxisTransforms(box.y, transforms, yKeys, originBox == null ? void 0 : originBox.y, sourceBox == null ? void 0 : sourceBox.y);
+}
+const createAxisDelta = () => ({
+  translate: 0,
+  scale: 1,
+  origin: 0,
+  originPoint: 0
+});
+const createDelta = () => ({
+  x: createAxisDelta(),
+  y: createAxisDelta()
+});
+const createAxis = () => ({ min: 0, max: 0 });
+const createBox = () => ({
+  x: createAxis(),
+  y: createAxis()
+});
+function isAxisDeltaZero(delta) {
+  return delta.translate === 0 && delta.scale === 1;
+}
+function isDeltaZero(delta) {
+  return isAxisDeltaZero(delta.x) && isAxisDeltaZero(delta.y);
+}
+function boxEquals(a, b) {
+  return a.x.min === b.x.min && a.x.max === b.x.max && a.y.min === b.y.min && a.y.max === b.y.max;
+}
+class NodeStack {
+  constructor() {
+    this.members = [];
+  }
+  add(node) {
+    addUniqueItem(this.members, node);
+    node.scheduleRender();
+  }
+  remove(node) {
+    removeItem(this.members, node);
+    if (node === this.prevLead) {
+      this.prevLead = void 0;
+    }
+    if (node === this.lead) {
+      const prevLead = this.members[this.members.length - 1];
+      if (prevLead) {
+        this.promote(prevLead);
+      }
+    }
+  }
+  relegate(node) {
+    const indexOfNode = this.members.findIndex((member) => node === member);
+    if (indexOfNode === 0)
+      return false;
+    let prevLead;
+    for (let i = indexOfNode; i >= 0; i--) {
+      const member = this.members[i];
+      if (member.isPresent !== false) {
+        prevLead = member;
+        break;
+      }
+    }
+    if (prevLead) {
+      this.promote(prevLead);
+      return true;
+    } else {
+      return false;
+    }
+  }
+  promote(node, preserveFollowOpacity) {
+    var _a;
+    const prevLead = this.lead;
+    if (node === prevLead)
+      return;
+    this.prevLead = prevLead;
+    this.lead = node;
+    node.show();
+    if (prevLead) {
+      prevLead.instance && prevLead.scheduleRender();
+      node.scheduleRender();
+      node.resumeFrom = prevLead;
+      if (preserveFollowOpacity) {
+        node.resumeFrom.preserveOpacity = true;
+      }
+      if (prevLead.snapshot) {
+        node.snapshot = prevLead.snapshot;
+        node.snapshot.latestValues = prevLead.animationValues || prevLead.latestValues;
+        node.snapshot.isShared = true;
+      }
+      if ((_a = node.root) == null ? void 0 : _a.isUpdating) {
+        node.isLayoutDirty = true;
+      }
+      const { crossfade } = node.options;
+      if (crossfade === false) {
+        prevLead.hide();
+      }
+    }
+  }
+  exitAnimationComplete() {
+    this.members.forEach((node) => {
+      var _a, _b, _c, _d, _e;
+      (_b = (_a = node.options).onExitComplete) == null ? void 0 : _b.call(_a);
+      (_e = (_c = node.resumingFrom) == null ? void 0 : (_d = _c.options).onExitComplete) == null ? void 0 : _e.call(_d);
+    });
+  }
+  scheduleRender() {
+    this.members.forEach((node) => {
+      node.instance && node.scheduleRender(false);
+    });
+  }
+  removeLeadSnapshot() {
+    if (this.lead && this.lead.snapshot) {
+      this.lead.snapshot = void 0;
+    }
+  }
+}
+const identityProjection = "translate3d(0px, 0px, 0) scale(1, 1)";
+function buildProjectionTransform(delta, treeScale, latestTransform) {
+  const xTranslate = delta.x.translate / treeScale.x;
+  const yTranslate = delta.y.translate / treeScale.y;
+  let transform = `translate3d(${xTranslate}px, ${yTranslate}px, 0) `;
+  if (latestTransform) {
+    const { rotate, rotateX, rotateY } = latestTransform;
+    if (rotate)
+      transform += `rotate(${rotate}deg) `;
+    if (rotateX)
+      transform += `rotateX(${rotateX}deg) `;
+    if (rotateY)
+      transform += `rotateY(${rotateY}deg) `;
+  }
+  transform += `scale(${delta.x.scale}, ${delta.y.scale})`;
+  return transform === identityProjection ? "none" : transform;
+}
+function eachAxis(callback) {
+  return [callback("x"), callback("y")];
+}
+const compareByDepth = (a, b) => a.depth - b.depth;
+class FlatTree {
+  constructor() {
+    this.children = [];
+    this.isDirty = false;
+  }
+  add(child) {
+    addUniqueItem(this.children, child);
+    this.isDirty = true;
+  }
+  remove(child) {
+    removeItem(this.children, child);
+    this.isDirty = true;
+  }
+  forEach(callback) {
+    this.isDirty && this.children.sort(compareByDepth);
+    this.isDirty = false;
+    this.children.forEach(callback);
+  }
+}
+function resolveMotionValue(value) {
+  const unwrappedValue = isMotionValue(value) ? value.get() : value;
+  return isCustomValue(unwrappedValue) ? unwrappedValue.toValue() : unwrappedValue;
+}
+const animationTarget = 1e3;
+const globalProjectionState = {
+  hasAnimatedSinceResize: true,
+  hasEverUpdated: false
+};
+function createProjectionNode({
+  attachResizeListener,
+  defaultParent,
+  measureScroll,
+  resetTransform
+}) {
+  return class ProjectionNode {
+    constructor(id, latestValues = {}, parent = defaultParent == null ? void 0 : defaultParent()) {
+      this.children = /* @__PURE__ */ new Set();
+      this.options = {};
+      this.isTreeAnimating = false;
+      this.isAnimationBlocked = false;
+      this.isLayoutDirty = false;
+      this.updateManuallyBlocked = false;
+      this.updateBlockedByResize = false;
+      this.isUpdating = false;
+      this.isSVG = false;
+      this.needsReset = false;
+      this.shouldResetTransform = false;
+      this.treeScale = { x: 1, y: 1 };
+      this.eventHandlers = /* @__PURE__ */ new Map();
+      this.potentialNodes = /* @__PURE__ */ new Map();
+      this.checkUpdateFailed = () => {
+        if (this.isUpdating) {
+          this.isUpdating = false;
+          this.clearAllSnapshots();
+        }
+      };
+      this.updateProjection = () => {
+        this.nodes.forEach(resolveTargetDelta);
+        this.nodes.forEach(calcProjection);
+      };
+      this.hasProjected = false;
+      this.isVisible = true;
+      this.animationProgress = 0;
+      this.sharedNodes = /* @__PURE__ */ new Map();
+      this.id = id;
+      this.latestValues = latestValues;
+      this.root = parent ? parent.root || parent : this;
+      this.path = parent ? [...parent.path, parent] : [];
+      this.parent = parent;
+      this.depth = parent ? parent.depth + 1 : 0;
+      id && this.root.registerPotentialNode(id, this);
+      for (let i = 0; i < this.path.length; i++) {
+        this.path[i].shouldResetTransform = true;
+      }
+      if (this.root === this)
+        this.nodes = new FlatTree();
+    }
+    addEventListener(name, handler) {
+      if (!this.eventHandlers.has(name)) {
+        this.eventHandlers.set(name, new SubscriptionManager());
+      }
+      return this.eventHandlers.get(name).add(handler);
+    }
+    notifyListeners(name, ...args) {
+      const subscriptionManager = this.eventHandlers.get(name);
+      subscriptionManager == null ? void 0 : subscriptionManager.notify(...args);
+    }
+    hasListeners(name) {
+      return this.eventHandlers.has(name);
+    }
+    registerPotentialNode(id, node) {
+      this.potentialNodes.set(id, node);
+    }
+    mount(instance, isLayoutDirty = false) {
+      var _a;
+      if (this.instance)
+        return;
+      this.isSVG = instance instanceof SVGElement && instance.tagName !== "svg";
+      this.instance = instance;
+      const { layoutId, layout, visualElement: visualElement2 } = this.options;
+      if (visualElement2 && !visualElement2.getInstance()) {
+        visualElement2.mount(instance);
+      }
+      this.root.nodes.add(this);
+      (_a = this.parent) == null ? void 0 : _a.children.add(this);
+      this.id && this.root.potentialNodes.delete(this.id);
+      if (isLayoutDirty && (layout || layoutId)) {
+        this.isLayoutDirty = true;
+      }
+      if (attachResizeListener) {
+        let unblockTimeout;
+        const resizeUnblockUpdate = () => this.root.updateBlockedByResize = false;
+        attachResizeListener(instance, () => {
+          this.root.updateBlockedByResize = true;
+          clearTimeout(unblockTimeout);
+          unblockTimeout = window.setTimeout(resizeUnblockUpdate, 250);
+          if (globalProjectionState.hasAnimatedSinceResize) {
+            globalProjectionState.hasAnimatedSinceResize = false;
+            this.nodes.forEach(finishAnimation);
+          }
+        });
+      }
+      if (layoutId) {
+        this.root.registerSharedNode(layoutId, this);
+      }
+      if (this.options.animate !== false && visualElement2 && (layoutId || layout)) {
+        this.addEventListener("didUpdate", ({
+          delta,
+          hasLayoutChanged,
+          hasRelativeTargetChanged,
+          layout: newLayout
+        }) => {
+          var _a2, _b, _c, _d, _e;
+          if (this.isTreeAnimationBlocked()) {
+            this.target = void 0;
+            this.relativeTarget = void 0;
+            return;
+          }
+          const layoutTransition = (_b = (_a2 = this.options.transition) != null ? _a2 : visualElement2.getDefaultTransition()) != null ? _b : defaultLayoutTransition;
+          const {
+            onLayoutAnimationStart,
+            onLayoutAnimationComplete
+          } = visualElement2.getProps();
+          const targetChanged = !this.targetLayout || !boxEquals(this.targetLayout, newLayout) || hasRelativeTargetChanged;
+          const hasOnlyRelativeTargetChanged = !hasLayoutChanged && hasRelativeTargetChanged;
+          if (((_c = this.resumeFrom) == null ? void 0 : _c.instance) || hasOnlyRelativeTargetChanged || hasLayoutChanged && (targetChanged || !this.currentAnimation)) {
+            if (this.resumeFrom) {
+              this.resumingFrom = this.resumeFrom;
+              this.resumingFrom.resumingFrom = void 0;
+            }
+            this.setAnimationOrigin(delta, hasOnlyRelativeTargetChanged);
+            const animationOptions = __spreadProps(__spreadValues({}, getValueTransition(layoutTransition, "layout")), {
+              onPlay: onLayoutAnimationStart,
+              onComplete: onLayoutAnimationComplete
+            });
+            if (visualElement2.shouldReduceMotion) {
+              animationOptions.delay = 0;
+              animationOptions.type = false;
+            }
+            this.startAnimation(animationOptions);
+          } else {
+            if (!hasLayoutChanged && this.animationProgress === 0) {
+              this.finishAnimation();
+            }
+            this.isLead() && ((_e = (_d = this.options).onExitComplete) == null ? void 0 : _e.call(_d));
+          }
+          this.targetLayout = newLayout;
+        });
+      }
+    }
+    unmount() {
+      var _a, _b;
+      this.options.layoutId && this.willUpdate();
+      this.root.nodes.remove(this);
+      (_a = this.getStack()) == null ? void 0 : _a.remove(this);
+      (_b = this.parent) == null ? void 0 : _b.children.delete(this);
+      this.instance = void 0;
+      cancelSync.preRender(this.updateProjection);
+    }
+    blockUpdate() {
+      this.updateManuallyBlocked = true;
+    }
+    unblockUpdate() {
+      this.updateManuallyBlocked = false;
+    }
+    isUpdateBlocked() {
+      return this.updateManuallyBlocked || this.updateBlockedByResize;
+    }
+    isTreeAnimationBlocked() {
+      var _a;
+      return this.isAnimationBlocked || ((_a = this.parent) == null ? void 0 : _a.isTreeAnimationBlocked()) || false;
+    }
+    startUpdate() {
+      var _a;
+      if (this.isUpdateBlocked())
+        return;
+      this.isUpdating = true;
+      (_a = this.nodes) == null ? void 0 : _a.forEach(resetRotation);
+    }
+    willUpdate(shouldNotifyListeners = true) {
+      var _a, _b, _c;
+      if (this.root.isUpdateBlocked()) {
+        (_b = (_a = this.options).onExitComplete) == null ? void 0 : _b.call(_a);
+        return;
+      }
+      !this.root.isUpdating && this.root.startUpdate();
+      if (this.isLayoutDirty)
+        return;
+      this.isLayoutDirty = true;
+      for (let i = 0; i < this.path.length; i++) {
+        const node = this.path[i];
+        node.shouldResetTransform = true;
+        node.updateScroll();
+      }
+      const { layoutId, layout } = this.options;
+      if (layoutId === void 0 && !layout)
+        return;
+      const transformTemplate = (_c = this.options.visualElement) == null ? void 0 : _c.getProps().transformTemplate;
+      this.prevTransformTemplateValue = transformTemplate == null ? void 0 : transformTemplate(this.latestValues, "");
+      this.updateSnapshot();
+      shouldNotifyListeners && this.notifyListeners("willUpdate");
+    }
+    didUpdate() {
+      const updateWasBlocked = this.isUpdateBlocked();
+      if (updateWasBlocked) {
+        this.unblockUpdate();
+        this.clearAllSnapshots();
+        this.nodes.forEach(clearMeasurements);
+        return;
+      }
+      if (!this.isUpdating)
+        return;
+      this.isUpdating = false;
+      if (this.potentialNodes.size) {
+        this.potentialNodes.forEach(mountNodeEarly);
+        this.potentialNodes.clear();
+      }
+      this.nodes.forEach(resetTransformStyle);
+      this.nodes.forEach(updateLayout);
+      this.nodes.forEach(notifyLayoutUpdate);
+      this.clearAllSnapshots();
+      flushSync.update();
+      flushSync.preRender();
+      flushSync.render();
+    }
+    clearAllSnapshots() {
+      this.nodes.forEach(clearSnapshot);
+      this.sharedNodes.forEach(removeLeadSnapshots);
+    }
+    scheduleUpdateProjection() {
+      sync.preRender(this.updateProjection, false, true);
+    }
+    scheduleCheckAfterUnmount() {
+      sync.postRender(() => {
+        if (this.isLayoutDirty) {
+          this.root.didUpdate();
+        } else {
+          this.root.checkUpdateFailed();
+        }
+      });
+    }
+    updateSnapshot() {
+      if (this.snapshot || !this.instance)
+        return;
+      const measured = this.measure();
+      const layout = this.removeTransform(this.removeElementScroll(measured));
+      roundBox(layout);
+      this.snapshot = {
+        measured,
+        layout,
+        latestValues: {}
+      };
+    }
+    updateLayout() {
+      var _a;
+      if (!this.instance)
+        return;
+      this.updateScroll();
+      if (!(this.options.alwaysMeasureLayout && this.isLead()) && !this.isLayoutDirty) {
+        return;
+      }
+      if (this.resumeFrom && !this.resumeFrom.instance) {
+        for (let i = 0; i < this.path.length; i++) {
+          const node = this.path[i];
+          node.updateScroll();
+        }
+      }
+      const measured = this.measure();
+      roundBox(measured);
+      const prevLayout = this.layout;
+      this.layout = {
+        measured,
+        actual: this.removeElementScroll(measured)
+      };
+      this.layoutCorrected = createBox();
+      this.isLayoutDirty = false;
+      this.projectionDelta = void 0;
+      this.notifyListeners("measure", this.layout.actual);
+      (_a = this.options.visualElement) == null ? void 0 : _a.notifyLayoutMeasure(this.layout.actual, prevLayout == null ? void 0 : prevLayout.actual);
+    }
+    updateScroll() {
+      if (this.options.layoutScroll && this.instance) {
+        this.scroll = measureScroll(this.instance);
+      }
+    }
+    resetTransform() {
+      var _a;
+      if (!resetTransform)
+        return;
+      const isResetRequested = this.isLayoutDirty || this.shouldResetTransform;
+      const hasProjection = this.projectionDelta && !isDeltaZero(this.projectionDelta);
+      const transformTemplate = (_a = this.options.visualElement) == null ? void 0 : _a.getProps().transformTemplate;
+      const transformTemplateValue = transformTemplate == null ? void 0 : transformTemplate(this.latestValues, "");
+      const transformTemplateHasChanged = transformTemplateValue !== this.prevTransformTemplateValue;
+      if (isResetRequested && (hasProjection || hasTransform(this.latestValues) || transformTemplateHasChanged)) {
+        resetTransform(this.instance, transformTemplateValue);
+        this.shouldResetTransform = false;
+        this.scheduleRender();
+      }
+    }
+    measure() {
+      const { visualElement: visualElement2 } = this.options;
+      if (!visualElement2)
+        return createBox();
+      const box = visualElement2.measureViewportBox();
+      const { scroll } = this.root;
+      if (scroll) {
+        translateAxis(box.x, scroll.x);
+        translateAxis(box.y, scroll.y);
+      }
+      return box;
+    }
+    removeElementScroll(box) {
+      const boxWithoutScroll = createBox();
+      copyBoxInto(boxWithoutScroll, box);
+      for (let i = 0; i < this.path.length; i++) {
+        const node = this.path[i];
+        const { scroll, options } = node;
+        if (node !== this.root && scroll && options.layoutScroll) {
+          translateAxis(boxWithoutScroll.x, scroll.x);
+          translateAxis(boxWithoutScroll.y, scroll.y);
+        }
+      }
+      return boxWithoutScroll;
+    }
+    applyTransform(box, transformOnly = false) {
+      const withTransforms = createBox();
+      copyBoxInto(withTransforms, box);
+      for (let i = 0; i < this.path.length; i++) {
+        const node = this.path[i];
+        if (!transformOnly && node.options.layoutScroll && node.scroll && node !== node.root) {
+          transformBox(withTransforms, {
+            x: -node.scroll.x,
+            y: -node.scroll.y
+          });
+        }
+        if (!hasTransform(node.latestValues))
+          continue;
+        transformBox(withTransforms, node.latestValues);
+      }
+      if (hasTransform(this.latestValues)) {
+        transformBox(withTransforms, this.latestValues);
+      }
+      return withTransforms;
+    }
+    removeTransform(box) {
+      var _a;
+      const boxWithoutTransform = createBox();
+      copyBoxInto(boxWithoutTransform, box);
+      for (let i = 0; i < this.path.length; i++) {
+        const node = this.path[i];
+        if (!node.instance)
+          continue;
+        if (!hasTransform(node.latestValues))
+          continue;
+        hasScale(node.latestValues) && node.updateSnapshot();
+        const sourceBox = createBox();
+        const nodeBox = node.measure();
+        copyBoxInto(sourceBox, nodeBox);
+        removeBoxTransforms(boxWithoutTransform, node.latestValues, (_a = node.snapshot) == null ? void 0 : _a.layout, sourceBox);
+      }
+      if (hasTransform(this.latestValues)) {
+        removeBoxTransforms(boxWithoutTransform, this.latestValues);
+      }
+      return boxWithoutTransform;
+    }
+    setTargetDelta(delta) {
+      this.targetDelta = delta;
+      this.root.scheduleUpdateProjection();
+    }
+    setOptions(options) {
+      var _a;
+      this.options = __spreadProps(__spreadValues(__spreadValues({}, this.options), options), {
+        crossfade: (_a = options.crossfade) != null ? _a : true
+      });
+    }
+    clearMeasurements() {
+      this.scroll = void 0;
+      this.layout = void 0;
+      this.snapshot = void 0;
+      this.prevTransformTemplateValue = void 0;
+      this.targetDelta = void 0;
+      this.target = void 0;
+      this.isLayoutDirty = false;
+    }
+    resolveTargetDelta() {
+      var _a;
+      const { layout, layoutId } = this.options;
+      if (!this.layout || !(layout || layoutId))
+        return;
+      if (!this.targetDelta && !this.relativeTarget) {
+        this.relativeParent = this.getClosestProjectingParent();
+        if (this.relativeParent && this.relativeParent.layout) {
+          this.relativeTarget = createBox();
+          this.relativeTargetOrigin = createBox();
+          calcRelativePosition(this.relativeTargetOrigin, this.layout.actual, this.relativeParent.layout.actual);
+          copyBoxInto(this.relativeTarget, this.relativeTargetOrigin);
+        }
+      }
+      if (!this.relativeTarget && !this.targetDelta)
+        return;
+      if (!this.target) {
+        this.target = createBox();
+        this.targetWithTransforms = createBox();
+      }
+      if (this.relativeTarget && this.relativeTargetOrigin && ((_a = this.relativeParent) == null ? void 0 : _a.target)) {
+        calcRelativeBox(this.target, this.relativeTarget, this.relativeParent.target);
+      } else if (this.targetDelta) {
+        if (Boolean(this.resumingFrom)) {
+          this.target = this.applyTransform(this.layout.actual);
+        } else {
+          copyBoxInto(this.target, this.layout.actual);
+        }
+        applyBoxDelta(this.target, this.targetDelta);
+      } else {
+        copyBoxInto(this.target, this.layout.actual);
+      }
+      if (this.attemptToResolveRelativeTarget) {
+        this.attemptToResolveRelativeTarget = false;
+        this.relativeParent = this.getClosestProjectingParent();
+        if (this.relativeParent && Boolean(this.relativeParent.resumingFrom) === Boolean(this.resumingFrom) && !this.relativeParent.options.layoutScroll && this.relativeParent.target) {
+          this.relativeTarget = createBox();
+          this.relativeTargetOrigin = createBox();
+          calcRelativePosition(this.relativeTargetOrigin, this.target, this.relativeParent.target);
+          copyBoxInto(this.relativeTarget, this.relativeTargetOrigin);
+        }
+      }
+    }
+    getClosestProjectingParent() {
+      if (!this.parent || hasTransform(this.parent.latestValues))
+        return void 0;
+      if ((this.parent.relativeTarget || this.parent.targetDelta) && this.parent.layout) {
+        return this.parent;
+      } else {
+        return this.parent.getClosestProjectingParent();
+      }
+    }
+    calcProjection() {
+      var _a;
+      const { layout, layoutId } = this.options;
+      this.isTreeAnimating = Boolean(((_a = this.parent) == null ? void 0 : _a.isTreeAnimating) || this.currentAnimation || this.pendingAnimation);
+      if (!this.isTreeAnimating) {
+        this.targetDelta = this.relativeTarget = void 0;
+      }
+      if (!this.layout || !(layout || layoutId))
+        return;
+      const lead = this.getLead();
+      copyBoxInto(this.layoutCorrected, this.layout.actual);
+      applyTreeDeltas(this.layoutCorrected, this.treeScale, this.path, Boolean(this.resumingFrom) || this !== lead);
+      const { target } = lead;
+      if (!target)
+        return;
+      if (!this.projectionDelta) {
+        this.projectionDelta = createDelta();
+        this.projectionDeltaWithTransform = createDelta();
+      }
+      const prevTreeScaleX = this.treeScale.x;
+      const prevTreeScaleY = this.treeScale.y;
+      const prevProjectionTransform = this.projectionTransform;
+      calcBoxDelta(this.projectionDelta, this.layoutCorrected, target, this.latestValues);
+      this.projectionTransform = buildProjectionTransform(this.projectionDelta, this.treeScale);
+      if (this.projectionTransform !== prevProjectionTransform || this.treeScale.x !== prevTreeScaleX || this.treeScale.y !== prevTreeScaleY) {
+        this.hasProjected = true;
+        this.scheduleRender();
+        this.notifyListeners("projectionUpdate", target);
+      }
+    }
+    hide() {
+      this.isVisible = false;
+    }
+    show() {
+      this.isVisible = true;
+    }
+    scheduleRender(notifyAll = true) {
+      var _a, _b, _c;
+      (_b = (_a = this.options).scheduleRender) == null ? void 0 : _b.call(_a);
+      notifyAll && ((_c = this.getStack()) == null ? void 0 : _c.scheduleRender());
+      if (this.resumingFrom && !this.resumingFrom.instance) {
+        this.resumingFrom = void 0;
+      }
+    }
+    setAnimationOrigin(delta, hasOnlyRelativeTargetChanged = false) {
+      var _a;
+      const snapshot = this.snapshot;
+      const snapshotLatestValues = (snapshot == null ? void 0 : snapshot.latestValues) || {};
+      const mixedValues = __spreadValues({}, this.latestValues);
+      const targetDelta = createDelta();
+      this.relativeTarget = this.relativeTargetOrigin = void 0;
+      this.attemptToResolveRelativeTarget = !hasOnlyRelativeTargetChanged;
+      const relativeLayout = createBox();
+      const isSharedLayoutAnimation = snapshot == null ? void 0 : snapshot.isShared;
+      const isOnlyMember = (((_a = this.getStack()) == null ? void 0 : _a.members.length) || 0) <= 1;
+      const shouldCrossfadeOpacity = Boolean(isSharedLayoutAnimation && !isOnlyMember && this.options.crossfade === true && !this.path.some(hasOpacityCrossfade));
+      this.animationProgress = 0;
+      this.mixTargetDelta = (latest) => {
+        var _a2;
+        const progress2 = latest / 1e3;
+        mixAxisDelta(targetDelta.x, delta.x, progress2);
+        mixAxisDelta(targetDelta.y, delta.y, progress2);
+        this.setTargetDelta(targetDelta);
+        if (this.relativeTarget && this.relativeTargetOrigin && this.layout && ((_a2 = this.relativeParent) == null ? void 0 : _a2.layout)) {
+          calcRelativePosition(relativeLayout, this.layout.actual, this.relativeParent.layout.actual);
+          mixBox(this.relativeTarget, this.relativeTargetOrigin, relativeLayout, progress2);
+        }
+        if (isSharedLayoutAnimation) {
+          this.animationValues = mixedValues;
+          mixValues(mixedValues, snapshotLatestValues, this.latestValues, progress2, shouldCrossfadeOpacity, isOnlyMember);
+        }
+        this.root.scheduleUpdateProjection();
+        this.scheduleRender();
+        this.animationProgress = progress2;
+      };
+      this.mixTargetDelta(0);
+    }
+    startAnimation(options) {
+      var _a, _b;
+      this.notifyListeners("animationStart");
+      (_a = this.currentAnimation) == null ? void 0 : _a.stop();
+      if (this.resumingFrom) {
+        (_b = this.resumingFrom.currentAnimation) == null ? void 0 : _b.stop();
+      }
+      if (this.pendingAnimation) {
+        cancelSync.update(this.pendingAnimation);
+        this.pendingAnimation = void 0;
+      }
+      this.pendingAnimation = sync.update(() => {
+        globalProjectionState.hasAnimatedSinceResize = true;
+        this.currentAnimation = animate(0, animationTarget, __spreadProps(__spreadValues({}, options), {
+          onUpdate: (latest) => {
+            var _a2;
+            this.mixTargetDelta(latest);
+            (_a2 = options.onUpdate) == null ? void 0 : _a2.call(options, latest);
+          },
+          onComplete: () => {
+            var _a2;
+            (_a2 = options.onComplete) == null ? void 0 : _a2.call(options);
+            this.completeAnimation();
+          }
+        }));
+        if (this.resumingFrom) {
+          this.resumingFrom.currentAnimation = this.currentAnimation;
+        }
+        this.pendingAnimation = void 0;
+      });
+    }
+    completeAnimation() {
+      var _a;
+      if (this.resumingFrom) {
+        this.resumingFrom.currentAnimation = void 0;
+        this.resumingFrom.preserveOpacity = void 0;
+      }
+      (_a = this.getStack()) == null ? void 0 : _a.exitAnimationComplete();
+      this.resumingFrom = this.currentAnimation = this.animationValues = void 0;
+      this.notifyListeners("animationComplete");
+    }
+    finishAnimation() {
+      var _a;
+      if (this.currentAnimation) {
+        (_a = this.mixTargetDelta) == null ? void 0 : _a.call(this, animationTarget);
+        this.currentAnimation.stop();
+      }
+      this.completeAnimation();
+    }
+    applyTransformsToTarget() {
+      const { targetWithTransforms, target, layout, latestValues } = this.getLead();
+      if (!targetWithTransforms || !target || !layout)
+        return;
+      copyBoxInto(targetWithTransforms, target);
+      transformBox(targetWithTransforms, latestValues);
+      calcBoxDelta(this.projectionDeltaWithTransform, this.layoutCorrected, targetWithTransforms, latestValues);
+    }
+    registerSharedNode(layoutId, node) {
+      var _a, _b, _c;
+      if (!this.sharedNodes.has(layoutId)) {
+        this.sharedNodes.set(layoutId, new NodeStack());
+      }
+      const stack = this.sharedNodes.get(layoutId);
+      stack.add(node);
+      node.promote({
+        transition: (_a = node.options.initialPromotionConfig) == null ? void 0 : _a.transition,
+        preserveFollowOpacity: (_c = (_b = node.options.initialPromotionConfig) == null ? void 0 : _b.shouldPreserveFollowOpacity) == null ? void 0 : _c.call(_b, node)
+      });
+    }
+    isLead() {
+      const stack = this.getStack();
+      return stack ? stack.lead === this : true;
+    }
+    getLead() {
+      var _a;
+      const { layoutId } = this.options;
+      return layoutId ? ((_a = this.getStack()) == null ? void 0 : _a.lead) || this : this;
+    }
+    getPrevLead() {
+      var _a;
+      const { layoutId } = this.options;
+      return layoutId ? (_a = this.getStack()) == null ? void 0 : _a.prevLead : void 0;
+    }
+    getStack() {
+      const { layoutId } = this.options;
+      if (layoutId)
+        return this.root.sharedNodes.get(layoutId);
+    }
+    promote({
+      needsReset,
+      transition,
+      preserveFollowOpacity
+    } = {}) {
+      const stack = this.getStack();
+      if (stack)
+        stack.promote(this, preserveFollowOpacity);
+      if (needsReset) {
+        this.projectionDelta = void 0;
+        this.needsReset = true;
+      }
+      if (transition)
+        this.setOptions({ transition });
+    }
+    relegate() {
+      const stack = this.getStack();
+      if (stack) {
+        return stack.relegate(this);
+      } else {
+        return false;
+      }
+    }
+    resetRotation() {
+      const { visualElement: visualElement2 } = this.options;
+      if (!visualElement2)
+        return;
+      let hasRotate = false;
+      const resetValues = {};
+      for (let i = 0; i < transformAxes.length; i++) {
+        const axis = transformAxes[i];
+        const key = "rotate" + axis;
+        if (!visualElement2.getStaticValue(key)) {
+          continue;
+        }
+        hasRotate = true;
+        resetValues[key] = visualElement2.getStaticValue(key);
+        visualElement2.setStaticValue(key, 0);
+      }
+      if (!hasRotate)
+        return;
+      visualElement2 == null ? void 0 : visualElement2.syncRender();
+      for (const key in resetValues) {
+        visualElement2.setStaticValue(key, resetValues[key]);
+      }
+      visualElement2.scheduleRender();
+    }
+    getProjectionStyles(styleProp = {}) {
+      var _a, _b, _c, _d, _e, _f;
+      const styles = {};
+      if (!this.instance || this.isSVG)
+        return styles;
+      if (!this.isVisible) {
+        return { visibility: "hidden" };
+      } else {
+        styles.visibility = "";
+      }
+      const transformTemplate = (_a = this.options.visualElement) == null ? void 0 : _a.getProps().transformTemplate;
+      if (this.needsReset) {
+        this.needsReset = false;
+        styles.opacity = "";
+        styles.pointerEvents = resolveMotionValue(styleProp.pointerEvents) || "";
+        styles.transform = transformTemplate ? transformTemplate(this.latestValues, "") : "none";
+        return styles;
+      }
+      const lead = this.getLead();
+      if (!this.projectionDelta || !this.layout || !lead.target) {
+        const emptyStyles = {};
+        if (this.options.layoutId) {
+          emptyStyles.opacity = (_b = this.latestValues.opacity) != null ? _b : 1;
+          emptyStyles.pointerEvents = resolveMotionValue(styleProp.pointerEvents) || "";
+        }
+        if (this.hasProjected && !hasTransform(this.latestValues)) {
+          emptyStyles.transform = transformTemplate ? transformTemplate({}, "") : "none";
+          this.hasProjected = false;
+        }
+        return emptyStyles;
+      }
+      const valuesToRender = lead.animationValues || lead.latestValues;
+      this.applyTransformsToTarget();
+      styles.transform = buildProjectionTransform(this.projectionDeltaWithTransform, this.treeScale, valuesToRender);
+      if (transformTemplate) {
+        styles.transform = transformTemplate(valuesToRender, styles.transform);
+      }
+      const { x, y } = this.projectionDelta;
+      styles.transformOrigin = `${x.origin * 100}% ${y.origin * 100}% 0`;
+      if (lead.animationValues) {
+        styles.opacity = lead === this ? (_d = (_c = valuesToRender.opacity) != null ? _c : this.latestValues.opacity) != null ? _d : 1 : this.preserveOpacity ? this.latestValues.opacity : valuesToRender.opacityExit;
+      } else {
+        styles.opacity = lead === this ? (_e = valuesToRender.opacity) != null ? _e : "" : (_f = valuesToRender.opacityExit) != null ? _f : 0;
+      }
+      for (const key in scaleCorrectors) {
+        if (valuesToRender[key] === void 0)
+          continue;
+        const { correct, applyTo } = scaleCorrectors[key];
+        const corrected = correct(valuesToRender[key], lead);
+        if (applyTo) {
+          const num = applyTo.length;
+          for (let i = 0; i < num; i++) {
+            styles[applyTo[i]] = corrected;
+          }
+        } else {
+          styles[key] = corrected;
+        }
+      }
+      if (this.options.layoutId) {
+        styles.pointerEvents = lead === this ? resolveMotionValue(styleProp.pointerEvents) || "" : "none";
+      }
+      return styles;
+    }
+    clearSnapshot() {
+      this.resumeFrom = this.snapshot = void 0;
+    }
+    resetTree() {
+      this.root.nodes.forEach((node) => {
+        var _a;
+        return (_a = node.currentAnimation) == null ? void 0 : _a.stop();
+      });
+      this.root.nodes.forEach(clearMeasurements);
+      this.root.sharedNodes.clear();
+    }
+  };
+}
+function updateLayout(node) {
+  node.updateLayout();
+}
+function notifyLayoutUpdate(node) {
+  var _a, _b, _c, _d;
+  const snapshot = (_b = (_a = node.resumeFrom) == null ? void 0 : _a.snapshot) != null ? _b : node.snapshot;
+  if (node.isLead() && node.layout && snapshot && node.hasListeners("didUpdate")) {
+    const { actual: layout, measured: measuredLayout } = node.layout;
+    if (node.options.animationType === "size") {
+      eachAxis((axis) => {
+        const axisSnapshot = snapshot.isShared ? snapshot.measured[axis] : snapshot.layout[axis];
+        const length = calcLength(axisSnapshot);
+        axisSnapshot.min = layout[axis].min;
+        axisSnapshot.max = axisSnapshot.min + length;
+      });
+    } else if (node.options.animationType === "position") {
+      eachAxis((axis) => {
+        const axisSnapshot = snapshot.isShared ? snapshot.measured[axis] : snapshot.layout[axis];
+        const length = calcLength(layout[axis]);
+        axisSnapshot.max = axisSnapshot.min + length;
+      });
+    }
+    const layoutDelta = createDelta();
+    calcBoxDelta(layoutDelta, layout, snapshot.layout);
+    const visualDelta = createDelta();
+    if (snapshot.isShared) {
+      calcBoxDelta(visualDelta, node.applyTransform(measuredLayout, true), snapshot.measured);
+    } else {
+      calcBoxDelta(visualDelta, layout, snapshot.layout);
+    }
+    const hasLayoutChanged = !isDeltaZero(layoutDelta);
+    let hasRelativeTargetChanged = false;
+    if (!node.resumeFrom) {
+      node.relativeParent = node.getClosestProjectingParent();
+      if (node.relativeParent && !node.relativeParent.resumeFrom) {
+        const { snapshot: parentSnapshot, layout: parentLayout } = node.relativeParent;
+        if (parentSnapshot && parentLayout) {
+          const relativeSnapshot = createBox();
+          calcRelativePosition(relativeSnapshot, snapshot.layout, parentSnapshot.layout);
+          const relativeLayout = createBox();
+          calcRelativePosition(relativeLayout, layout, parentLayout.actual);
+          if (!boxEquals(relativeSnapshot, relativeLayout)) {
+            hasRelativeTargetChanged = true;
+          }
+        }
+      }
+    }
+    node.notifyListeners("didUpdate", {
+      layout,
+      snapshot,
+      delta: visualDelta,
+      layoutDelta,
+      hasLayoutChanged,
+      hasRelativeTargetChanged
+    });
+  } else if (node.isLead()) {
+    (_d = (_c = node.options).onExitComplete) == null ? void 0 : _d.call(_c);
+  }
+  node.options.transition = void 0;
+}
+function clearSnapshot(node) {
+  node.clearSnapshot();
+}
+function clearMeasurements(node) {
+  node.clearMeasurements();
+}
+function resetTransformStyle(node) {
+  const { visualElement: visualElement2 } = node.options;
+  if (visualElement2 == null ? void 0 : visualElement2.getProps().onBeforeLayoutMeasure) {
+    visualElement2.notifyBeforeLayoutMeasure();
+  }
+  node.resetTransform();
+}
+function finishAnimation(node) {
+  node.finishAnimation();
+  node.targetDelta = node.relativeTarget = node.target = void 0;
+}
+function resolveTargetDelta(node) {
+  node.resolveTargetDelta();
+}
+function calcProjection(node) {
+  node.calcProjection();
+}
+function resetRotation(node) {
+  node.resetRotation();
+}
+function removeLeadSnapshots(stack) {
+  stack.removeLeadSnapshot();
+}
+function mixAxisDelta(output, delta, p) {
+  output.translate = mix(delta.translate, 0, p);
+  output.scale = mix(delta.scale, 1, p);
+  output.origin = delta.origin;
+  output.originPoint = delta.originPoint;
+}
+function mixAxis(output, from, to, p) {
+  output.min = mix(from.min, to.min, p);
+  output.max = mix(from.max, to.max, p);
+}
+function mixBox(output, from, to, p) {
+  mixAxis(output.x, from.x, to.x, p);
+  mixAxis(output.y, from.y, to.y, p);
+}
+function hasOpacityCrossfade(node) {
+  return node.animationValues && node.animationValues.opacityExit !== void 0;
+}
+const defaultLayoutTransition = {
+  duration: 0.45,
+  ease: [0.4, 0, 0.1, 1]
+};
+function mountNodeEarly(node, id) {
+  let searchNode = node.root;
+  for (let i = node.path.length - 1; i >= 0; i--) {
+    if (Boolean(node.path[i].instance)) {
+      searchNode = node.path[i];
+      break;
+    }
+  }
+  const searchElement = searchNode && searchNode !== node.root ? searchNode.instance : document;
+  const element = searchElement.querySelector(`[data-projection-id="${id}"]`);
+  if (element)
+    node.mount(element, true);
+}
+function roundAxis(axis) {
+  axis.min = Math.round(axis.min);
+  axis.max = Math.round(axis.max);
+}
+function roundBox(box) {
+  roundAxis(box.x);
+  roundAxis(box.y);
+}
+const DocumentProjectionNode = createProjectionNode({
+  attachResizeListener: (ref, notify) => {
+    ref.addEventListener("resize", notify, { passive: true });
+    return () => ref.removeEventListener("resize", notify);
+  },
+  measureScroll: () => ({
+    x: document.documentElement.scrollLeft || document.body.scrollLeft,
+    y: document.documentElement.scrollTop || document.body.scrollTop
+  })
+});
+const rootProjectionNode = {
+  current: void 0
+};
+const HTMLProjectionNode = createProjectionNode({
+  measureScroll: (instance) => ({
+    x: instance.scrollLeft,
+    y: instance.scrollTop
+  }),
+  defaultParent: () => {
+    if (!rootProjectionNode.current) {
+      const documentNode = new DocumentProjectionNode(0, {});
+      documentNode.mount(window);
+      documentNode.setOptions({ layoutScroll: true });
+      rootProjectionNode.current = documentNode;
+    }
+    return rootProjectionNode.current;
+  },
+  resetTransform: (instance, value) => {
+    instance.style.transform = value != null ? value : "none";
+  }
+});
 const createHtmlRenderState = () => ({
   style: {},
   transform: {},
@@ -1718,10 +2960,6 @@ const createHtmlRenderState = () => ({
   transformOrigin: {},
   vars: {}
 });
-function resolveMotionValue(value) {
-  const unwrappedValue = isMotionValue(value) ? value.get() : value;
-  return isCustomValue(unwrappedValue) ? unwrappedValue.toValue() : unwrappedValue;
-}
 function pixelsToPercent(pixels, axis) {
   if (axis.max === axis.min)
     return 0;
@@ -1847,6 +3085,7 @@ const MeasureLayoutWithContext = {
         onExitComplete: () => this.safeToRemove(props)
       }));
     }
+    globalProjectionState.hasEverUpdated = true;
   },
   getSnapshotBeforeUpdate(props, prevProps) {
     const { layoutDependency, visualElement: visualElement2, drag, isPresent } = props;
@@ -1934,4 +3173,4 @@ function useProjection(projectionId, { layoutId, layout, drag, dragConstraints, 
     layoutScroll
   });
 }
-export { AnimationType, MeasureLayoutWithContext, animationControls, createAnimationState, htmlVisualElement, makeVisualState, useProjection };
+export { AnimationType, HTMLProjectionNode, MeasureLayoutWithContext, animationControls, createAnimationState, htmlVisualElement, makeVisualState, useProjection };
