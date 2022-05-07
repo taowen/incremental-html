@@ -10,7 +10,7 @@ let nextId = 1;
 const mutationObserver = new MutationObserver((mutationList) => {
     for (const mutation of mutationList) {
         if (mutation.attributeName) {
-            notifyNodeSubscribers((mutation.target as any).$xid)
+            notifyNodeSubscribers((mutation.target as any).$xid);
         }
         for (let i = 0; i < mutation.addedNodes.length; i++) {
             const addedNode = mutation.addedNodes.item(i)!;
@@ -90,7 +90,7 @@ async function mountNode(node: Element) {
                 const [event] = args;
                 event.preventDefault();
                 event.stopPropagation();
-                callEventHandler(eventName, event.target!, attr.value, ...args);
+                callEventHandler(eventName, node, attr.value, ...args);
             })
         } else if (attr.name.startsWith('prop:')) {
             const propName = camelize(attr.name.substring('prop:'.length));

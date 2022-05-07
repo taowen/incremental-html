@@ -6,7 +6,7 @@ import {
 } from "react-router-dom";
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
-root.render(<React.StrictMode>
+root.render(
     <BrowserRouter>
         <Routes>
             <Route index element={<ul>
@@ -16,9 +16,7 @@ root.render(<React.StrictMode>
             <Route path='case1' element={<Case1 />} />
             <Route path='case2' element={<Case2 />} />
         </Routes>
-    </BrowserRouter>
-
-</React.StrictMode>)
+    </BrowserRouter>)
 
 function Case1() {
     return <motion.div animate={{ opacity: 0.5 }}>hello</motion.div>

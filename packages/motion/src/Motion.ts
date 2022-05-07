@@ -3,9 +3,6 @@ import { Feature } from '@incremental-html/reactivity';
 import { toRawElement } from '@incremental-html/reactivity/dist/esm/src/subscribeNode';
 
 export class Motion extends Feature<{}> {
-    public static get featureName(): string {
-        return 'motion';
-    }
     private get rawElement() {
         return toRawElement(this.element);
     }
@@ -20,6 +17,7 @@ export class Motion extends Feature<{}> {
             props: motionProps
         });
         visualElement.animationState = createAnimationState(visualElement);
+        visualElement.syncRender();
         return visualElement;
     })
     public _1 = this.effect(() => {
@@ -29,7 +27,7 @@ export class Motion extends Feature<{}> {
         }
     })
     public _2 = this.effect(() => {
-        this.visualElement.syncRender();
+        this.visualElement.setProps(this.props);
         if (this.visualElement.animationState) {
             this.visualElement.animationState.animateChanges();
         }

@@ -29,8 +29,9 @@
         </div>
         <div
             style="width: 150px; height: 150px; border-radius: 30px; overflow: hidden; position: relative; cursor: grab;">
-            <div draggable="false" use:motion="$Motion" motion:animate="{ opacity: 0.1 }"
-                style="width: 150px; height: 390px; user-select: none; touch-action: none;">
+            <div use:motion="$Motion" motion:animate="{ opacity: 1 }" on:click="
+            this.setAttribute('motion:animate', '{ opacity: 0.1 }')
+            ">
                 <div
                     style="width: 150px; height: 70px; border-radius: 20px; background-color: rgb(255, 255, 255); margin-bottom: 10px;">
                 </div>
