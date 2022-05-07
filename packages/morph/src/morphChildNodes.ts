@@ -32,15 +32,18 @@ export function morphChildNodes(oldEl: Element, newEl: Element | Node[]) {
         oldEl.insertBefore(newChildren[i]!, next as Node);
     }
     // remove old extra nodes not in new nodes
-    if (newChildren.length === 0) {
-        oldEl.innerHTML = '';
-        return;
-    }
-    let oldChild = newChildren[0]!.previousSibling;
+    let oldChild = newChildren.length === 0 ? oldEl.lastChild : newChildren[0]!.previousSibling;
     while (oldChild) {
         const toRemove = oldChild;
         oldChild = oldChild.previousSibling;
-        oldEl.removeChild(toRemove);
+        if((toRemove as any).$beforeRemove) {
+            (async () => {
+                await (toRemove as any).$beforeRemove();
+                oldEl.removeChild(toRemove);
+            })();
+        } else {
+            oldEl.removeChild(toRemove);
+        }
     }
 }
 

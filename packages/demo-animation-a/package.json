@@ -4,7 +4,8 @@
     "version": "1.0.0",
     "dependencies": {
         "@incremental-html/reactivity": "workspace:*",
-        "@incremental-html/motion": "workspace:*"
+        "@incremental-html/motion": "workspace:*",
+        "@incremental-html/morph": "workspace:*"
     },
     "devDependencies": {
         "typescript": "^4.5.5",

@@ -1,4 +1,4 @@
-import { makeVisualState, htmlVisualElement, animationControls, createAnimationState, MotionProps, AnimationType } from '@incremental-html/framer-motion';
+import { makeVisualState, htmlVisualElement, createAnimationState, MotionProps, AnimationType } from '@incremental-html/framer-motion';
 import { Feature } from '@incremental-html/reactivity';
 
 export class Motion extends Feature<{}> {
@@ -24,8 +24,11 @@ export class Motion extends Feature<{}> {
     })
     public _2 = this.effect(() => {
         this.visualElement.setProps(this.props);
-        if (this.visualElement.animationState) {
-            this.visualElement.animationState.animateChanges();
+        this.visualElement.animationState!.animateChanges();
+    })
+    public _3 = this.effect(() => {
+        (this.element as any).$beforeRemove = () => {
+            return this.visualElement.animationState!.setActive(AnimationType.Exit, true)
         }
     })
 }

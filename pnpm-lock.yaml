@@ -12,11 +12,13 @@ importers:
 
   packages/demo-animation-a:
     specifiers:
+      '@incremental-html/morph': workspace:*
       '@incremental-html/motion': workspace:*
       '@incremental-html/reactivity': workspace:*
       typescript: ^4.5.5
       vite: ^2.9.1
     dependencies:
+      '@incremental-html/morph': link:../morph
       '@incremental-html/motion': link:../motion
       '@incremental-html/reactivity': link:../reactivity
     devDependencies:

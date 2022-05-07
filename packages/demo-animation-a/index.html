@@ -28,7 +28,10 @@
             style="width: 40px; height: 40px; border-radius: 20px; background-color: rgb(255, 255, 255); position: absolute; top: 50%; margin-top: -85px; left: 50%; margin-left: -20px; opacity: 0; transform: scale(0) translateZ(0px);">
         </div>
         <div
-            style="width: 150px; height: 150px; border-radius: 30px; overflow: hidden; position: relative; cursor: grab;">
+            style="width: 150px; height: 150px; border-radius: 30px; overflow: hidden; position: relative; cursor: grab;"
+            on:click="
+            $morphInnerHTML(this, '');
+            ">
             <div use:motion="$Motion" motion:initial="{ opacity: 0 }" motion:animate="{ opacity: 1 }" motion:exit="{ opacity: 0 }" motion:transition="{ duration: 2 }">
                 <div
                     style="width: 150px; height: 70px; border-radius: 20px; background-color: rgb(255, 255, 255); margin-bottom: 10px;">
@@ -50,8 +53,9 @@
     </div>
     <script type="module">
         import { startDomObserver, setEvalGlobals } from '@incremental-html/reactivity';
+        import { morphInnerHTML } from '@incremental-html/morph';
         import { Motion } from '@incremental-html/motion';
-        setEvalGlobals({ Motion });
+        setEvalGlobals({ Motion, morphInnerHTML });
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>
