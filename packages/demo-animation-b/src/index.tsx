@@ -14,11 +14,13 @@ root.render(
                 <li><Link to="case2">Case2</Link></li>
                 <li><Link to="case3">Case3</Link></li>
                 <li><Link to="case4">Case4</Link></li>
+                <li><Link to="case5">Case5</Link></li>
             </ul>} />
             <Route path='case1' element={<Case1 />} />
             <Route path='case2' element={<Case2 />} />
             <Route path='case3' element={<Case3 />} />
             <Route path='case4' element={<Case4 />} />
+            <Route path='case5' element={<Case5 />} />
         </Routes>
     </BrowserRouter>)
 
@@ -59,3 +61,16 @@ function Case4() {
         <div key="c">~~~</div>
     </AnimatePresence>
 }
+
+function Case5() {
+    const [justifyContent, setJustifyContent] = React.useState('flex-start');
+    return <div style={{ left: '200px', top: '100px', width: '500px', display: 'flex', justifyContent}} onClick={() => {
+        setJustifyContent('flex-end');
+    }}>
+        <Case5_Child />
+    </div>
+}
+
+const Case5_Child = /*React.memo*/(() => {
+    return <motion.div layout style={{ width: '50px', height: '20px', backgroundColor: 'red'}}></motion.div>;
+})
