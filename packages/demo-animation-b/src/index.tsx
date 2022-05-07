@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom/client';
 import {
@@ -13,10 +13,12 @@ root.render(
                 <li><Link to="case1">Case1</Link></li>
                 <li><Link to="case2">Case2</Link></li>
                 <li><Link to="case3">Case3</Link></li>
+                <li><Link to="case4">Case4</Link></li>
             </ul>} />
             <Route path='case1' element={<Case1 />} />
             <Route path='case2' element={<Case2 />} />
             <Route path='case3' element={<Case3 />} />
+            <Route path='case4' element={<Case4 />} />
         </Routes>
     </BrowserRouter>)
 
@@ -33,4 +35,24 @@ function Case2() {
 
 function Case3() {
     return <motion.div animate={{ x: 100 }} transition={{ delay: 1 }}>hello</motion.div>
+}
+
+function Case4() {
+    const [isVisible, setVisible] = React.useState(true);
+    React.useLayoutEffect(() => {
+        setTimeout(() => {
+            console.log('set to false');
+            setVisible(false);
+        }, 10000);
+    }, []);
+    return <AnimatePresence>
+        {isVisible && (
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ delay: 5 }}
+            >Hello World</motion.div>
+        )}
+    </AnimatePresence>
 }
