@@ -43,16 +43,19 @@ function Case4() {
         setTimeout(() => {
             console.log('set to false');
             setVisible(false);
-        }, 10000);
+        }, 3000);
     }, []);
     return <AnimatePresence>
+        <div key="a">===</div>
         {isVisible && (
             <motion.div
+                key="b"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ delay: 5 }}
+                transition={{ duration: 2 }}
             >Hello World</motion.div>
         )}
+        <div key="c">~~~</div>
     </AnimatePresence>
 }
