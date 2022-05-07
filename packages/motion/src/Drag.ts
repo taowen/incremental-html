@@ -1,13 +1,18 @@
 import { makeVisualState, htmlVisualElement, animationControls, createAnimationState, MotionProps } from '@incremental-html/framer-motion';
 import { Feature } from '@incremental-html/reactivity';
+import { toRawElement } from '@incremental-html/reactivity/dist/esm/src/subscribeNode';
 import { addPointerEvent } from './events';
 import { Point } from './geometry';
 import { PanInfo, PanSession } from './PanSession';
 import { getStyle, setStyle } from './styler';
 
 export class Drag extends Feature<{}> {
+    public static get featureName(): string {
+        return 'drag';
+    }
     // private originPoint: Point = { x: 0, y: 0 }
     private _ = this.effect(() => {
+        const rawElement = toRawElement(this.element);
         const motionProps: MotionProps = {
             animate: {
                 opacity: 0.5
@@ -15,17 +20,21 @@ export class Drag extends Feature<{}> {
         };
         const visualState = makeVisualState(motionProps, {}, null);
         if (visualState.mount) {
-            visualState.mount(this.element);
+            visualState.mount(rawElement);
         }
         const visualElement = htmlVisualElement({
             visualState,
             props: motionProps
         });
         visualElement.animationState = createAnimationState(visualElement);
-        visualElement.mount(this.element as HTMLElement);
+        visualElement.mount(rawElement as HTMLElement);
         const controls = animationControls();
         const unsubscribe = (controls as any).subscribe(visualElement);
         controls.mount();
+        visualElement.syncRender();
+        if (visualElement.animationState) {
+            visualElement.animationState.animateChanges();
+        }
         return unsubscribe;
     })
     // constructor(private props: { element: HTMLElement, direction?: 'x' | 'y', constraints?: Element }) {
