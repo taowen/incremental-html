@@ -2479,6 +2479,14 @@ declare interface Tween extends Repeat {
 
 declare type UpdateListener = (latest: ResolvedValues) => void;
 
+export declare function useProjection(
+projectionId: number | undefined,
+    { layoutId, layout, drag, dragConstraints, layoutScroll }: MotionProps,
+initialPromotionConfig: SwitchLayoutGroupContext,
+visualElement?: VisualElement,
+ProjectionNodeConstructor?: any
+): void
+
 /**
  * @public
  */

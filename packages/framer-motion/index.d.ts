@@ -31,3 +31,13 @@ export const MeasureLayoutWithContext: {
     componentDidUpdate(props: FeatureProps & MeasureContextProps);
     componentWillUnmount(props: FeatureProps & MeasureContextProps);
 }
+
+import { VisualElement } from './motion/packages/framer-motion/types/render/types'
+
+export function useProjection(
+    projectionId: number | undefined,
+    { layoutId, layout, drag, dragConstraints, layoutScroll }: MotionProps,
+    initialPromotionConfig: SwitchLayoutGroupContext,
+    visualElement?: VisualElement,
+    ProjectionNodeConstructor?: any
+): void

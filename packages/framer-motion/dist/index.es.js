@@ -1917,4 +1917,21 @@ const defaultScaleCorrectors = {
   borderBottomRightRadius: correctBorderRadius,
   boxShadow: correctBoxShadow
 };
-export { AnimationType, MeasureLayoutWithContext, animationControls, createAnimationState, htmlVisualElement, makeVisualState };
+function useProjection(projectionId, { layoutId, layout, drag, dragConstraints, layoutScroll }, initialPromotionConfig, visualElement2, ProjectionNodeConstructor) {
+  var _a;
+  if (!ProjectionNodeConstructor || !visualElement2 || (visualElement2 == null ? void 0 : visualElement2.projection)) {
+    return;
+  }
+  visualElement2.projection = new ProjectionNodeConstructor(projectionId, visualElement2.getLatestValues(), (_a = visualElement2.parent) == null ? void 0 : _a.projection);
+  visualElement2.projection.setOptions({
+    layoutId,
+    layout,
+    alwaysMeasureLayout: false,
+    visualElement: visualElement2,
+    scheduleRender: () => visualElement2.scheduleRender(),
+    animationType: typeof layout === "string" ? layout : "both",
+    initialPromotionConfig,
+    layoutScroll
+  });
+}
+export { AnimationType, MeasureLayoutWithContext, animationControls, createAnimationState, htmlVisualElement, makeVisualState, useProjection };
