@@ -1550,6 +1550,9 @@ const parseDomVariant = (visualElement2, target, origin, transitionEnd) => {
   return unitConversion(visualElement2, target, origin, transitionEnd);
 };
 const scaleCorrectors = {};
+function addScaleCorrector(correctors) {
+  Object.assign(scaleCorrectors, correctors);
+}
 function isForcedMotionValue(key, { layout, layoutId }) {
   return isTransformProp(key) || isTransformOriginProp(key) || (layout || layoutId !== void 0) && (!!scaleCorrectors[key] || key === "opacity");
 }
@@ -1725,6 +1728,65 @@ function resolveMotionValue(value) {
   const unwrappedValue = isMotionValue(value) ? value.get() : value;
   return isCustomValue(unwrappedValue) ? unwrappedValue.toValue() : unwrappedValue;
 }
+function pixelsToPercent(pixels, axis) {
+  if (axis.max === axis.min)
+    return 0;
+  return pixels / (axis.max - axis.min) * 100;
+}
+const correctBorderRadius = {
+  correct: (latest, node) => {
+    if (!node.target)
+      return latest;
+    if (typeof latest === "string") {
+      if (styleValueTypes.px.test(latest)) {
+        latest = parseFloat(latest);
+      } else {
+        return latest;
+      }
+    }
+    const x = pixelsToPercent(latest, node.target.x);
+    const y = pixelsToPercent(latest, node.target.y);
+    return `${x}% ${y}%`;
+  }
+};
+const varToken = "_$css";
+const correctBoxShadow = {
+  correct: (latest, { treeScale, projectionDelta }) => {
+    const original = latest;
+    const containsCSSVariables = latest.includes("var(");
+    const cssVariables = [];
+    if (containsCSSVariables) {
+      latest = latest.replace(cssVariableRegex, (match) => {
+        cssVariables.push(match);
+        return varToken;
+      });
+    }
+    const shadow = styleValueTypes.complex.parse(latest);
+    if (shadow.length > 5)
+      return original;
+    const template = styleValueTypes.complex.createTransformer(latest);
+    const offset = typeof shadow[0] !== "number" ? 1 : 0;
+    const xScale = projectionDelta.x.scale * treeScale.x;
+    const yScale = projectionDelta.y.scale * treeScale.y;
+    shadow[0 + offset] /= xScale;
+    shadow[1 + offset] /= yScale;
+    const averageScale = popmotion.mix(xScale, yScale, 0.5);
+    if (typeof shadow[2 + offset] === "number")
+      shadow[2 + offset] /= averageScale;
+    if (typeof shadow[3 + offset] === "number")
+      shadow[3 + offset] /= averageScale;
+    let output = template(shadow);
+    if (containsCSSVariables) {
+      let i = 0;
+      output = output.replace(varToken, () => {
+        const cssVariable = cssVariables[i];
+        i++;
+        return cssVariable;
+      });
+    }
+    return output;
+  }
+};
 function makeVisualState(props, context, presenceContext) {
   const renderState = createHtmlRenderState();
   const state = {
@@ -1772,7 +1834,97 @@ function makeLatestValues(props, context, presenceContext) {
   }
   return values;
 }
+const MeasureLayoutWithContext = {
+  componentDidMount(props) {
+    const { visualElement: visualElement2, layoutGroup, switchLayoutGroup, layoutId } = props;
+    const { projection } = visualElement2;
+    addScaleCorrector(defaultScaleCorrectors);
+    if (projection) {
+      if (layoutGroup == null ? void 0 : layoutGroup.group)
+        layoutGroup.group.add(projection);
+      if ((switchLayoutGroup == null ? void 0 : switchLayoutGroup.register) && layoutId) {
+        switchLayoutGroup.register(projection);
+      }
+      projection.root.didUpdate();
+      projection.addEventListener("animationComplete", () => {
+        this.safeToRemove(props);
+      });
+      projection.setOptions(__spreadProps(__spreadValues({}, projection.options), {
+        onExitComplete: () => this.safeToRemove(props)
+      }));
+    }
+  },
+  getSnapshotBeforeUpdate(props, prevProps) {
+    const { layoutDependency, visualElement: visualElement2, drag, isPresent } = props;
+    const projection = visualElement2.projection;
+    if (!projection)
+      return null;
+    projection.isPresent = isPresent;
+    if (drag || prevProps.layoutDependency !== layoutDependency || layoutDependency === void 0) {
+      projection.willUpdate();
+    } else {
+      this.safeToRemove(props);
+    }
+    if (prevProps.isPresent !== isPresent) {
+      if (isPresent) {
+        projection.promote();
+      } else if (!projection.relegate()) {
+        sync__default["default"].postRender(() => {
+          var _a;
+          if (!((_a = projection.getStack()) == null ? void 0 : _a.members.length)) {
+            this.safeToRemove(props);
+          }
+        });
+      }
+    }
+    return null;
+  },
+  componentDidUpdate(props) {
+    const { projection } = props.visualElement;
+    if (projection) {
+      projection.root.didUpdate();
+      if (!projection.currentAnimation && projection.isLead()) {
+        this.safeToRemove(props);
+      }
+    }
+  },
+  componentWillUnmount(props) {
+    const {
+      visualElement: visualElement2,
+      layoutGroup,
+      switchLayoutGroup: promoteContext
+    } = props;
+    const { projection } = visualElement2;
+    if (projection) {
+      projection.scheduleCheckAfterUnmount();
+      if (layoutGroup == null ? void 0 : layoutGroup.group)
+        layoutGroup.group.remove(projection);
+      if (promoteContext == null ? void 0 : promoteContext.deregister)
+        promoteContext.deregister(projection);
+    }
+  },
+  safeToRemove(props) {
+    const { safeToRemove } = props;
+    safeToRemove == null ? void 0 : safeToRemove();
+  }
+};
+const defaultScaleCorrectors = {
+  borderRadius: __spreadProps(__spreadValues({}, correctBorderRadius), {
+    applyTo: [
+      "borderTopLeftRadius",
+      "borderTopRightRadius",
+      "borderBottomLeftRadius",
+      "borderBottomRightRadius"
+    ]
+  }),
+  borderTopLeftRadius: correctBorderRadius,
+  borderTopRightRadius: correctBorderRadius,
+  borderBottomLeftRadius: correctBorderRadius,
+  borderBottomRightRadius: correctBorderRadius,
+  boxShadow: correctBoxShadow
+};
 exports.AnimationType = AnimationType;
+exports.MeasureLayoutWithContext = MeasureLayoutWithContext;
 exports.animationControls = animationControls;
 exports.createAnimationState = createAnimationState;
 exports.htmlVisualElement = htmlVisualElement;

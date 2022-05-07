@@ -1,5 +1,6 @@
 /// <reference types="react" />
 
+import { Context } from 'react';
 import { CSSProperties } from 'react';
 import * as React_2 from 'react';
 import { RefObject } from 'react';
@@ -714,6 +715,13 @@ declare interface EventInfo {
     point: Point;
 }
 
+/**
+ * @public
+ */
+declare interface FeatureProps extends MotionProps {
+    visualElement: VisualElement;
+}
+
 declare class FlatTree {
     private children;
     private isDirty;
@@ -1079,6 +1087,12 @@ declare type LayoutAnimationStartListener = () => void;
 
 declare type LayoutEvents = "willUpdate" | "didUpdate" | "beforeMeasure" | "measure" | "projectionUpdate" | "animationStart" | "animationComplete";
 
+declare interface LayoutGroupContextProps {
+    id?: string;
+    group?: NodeGroup;
+    forceRender?: VoidFunction;
+}
+
 declare interface LayoutLifecycles {
     onBeforeLayoutMeasure?(box: Box): void;
     onLayoutMeasure?(box: Box, prevBox: Box): void;
@@ -1215,6 +1229,20 @@ export declare function makeVisualState(
 props: MotionProps,
 context: MotionContextProps,
 presenceContext: PresenceContextProps | null): VisualState<any, any>
+
+declare interface MeasureContextProps {
+    layoutGroup?: LayoutGroupContextProps
+    switchLayoutGroup?: SwitchLayoutGroupContext
+    isPresent: boolean
+    safeToRemove?: VoidFunction | null
+}
+
+export declare const MeasureLayoutWithContext: {
+    componentDidMount(props: FeatureProps & MeasureContextProps): void;
+    getSnapshotBeforeUpdate(props: FeatureProps & MeasureContextProps, prevProps: FeatureProps & MeasureContextProps);
+    componentDidUpdate(props: FeatureProps & MeasureContextProps);
+    componentWillUnmount(props: FeatureProps & MeasureContextProps);
+};
 
 /**
  * @public
@@ -1458,6 +1486,12 @@ declare class MotionValue<V = any> {
      * @public
      */
     destroy(): void;
+}
+
+declare interface NodeGroup {
+    add: (node: IProjectionNode) => void;
+    remove: (node: IProjectionNode) => void;
+    dirty: VoidFunction;
 }
 
 declare class NodeStack {
@@ -2149,6 +2183,15 @@ declare interface SVGPathProperties {
     pathOffset?: number;
     pathSpacing?: number;
 }
+
+declare interface SwitchLayoutGroup {
+    register?: (member: IProjectionNode) => void;
+    deregister?: (member: IProjectionNode) => void;
+}
+
+declare type SwitchLayoutGroupContext = SwitchLayoutGroup & InitialPromotionConfig;
+
+/* Excluded declaration from this release type: SwitchLayoutGroupContext */
 
 /**
  * @public
