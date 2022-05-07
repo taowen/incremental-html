@@ -29,7 +29,7 @@
         </div>
         <div
             style="width: 150px; height: 150px; border-radius: 30px; overflow: hidden; position: relative; cursor: grab;">
-            <div use:motion="$Motion" motion:animate="{ x: 100 }" motion:transition="{ delay: 1 }">
+            <div use:motion="$Motion" motion:initial="{ opacity: 0 }" motion:animate="{ opacity: 1 }" motion:exit="{ opacity: 0 }" motion:transition="{ duration: 2 }">
                 <div
                     style="width: 150px; height: 70px; border-radius: 20px; background-color: rgb(255, 255, 255); margin-bottom: 10px;">
                 </div>

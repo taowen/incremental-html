@@ -1772,6 +1772,7 @@ function makeLatestValues(props, context, presenceContext) {
   }
   return values;
 }
+exports.AnimationType = AnimationType;
 exports.animationControls = animationControls;
 exports.createAnimationState = createAnimationState;
 exports.htmlVisualElement = htmlVisualElement;

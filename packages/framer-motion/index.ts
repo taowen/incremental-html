@@ -1,6 +1,7 @@
 export { htmlVisualElement } from './motion/packages/framer-motion/src/render/html/visual-element'
 export { createAnimationState } from './motion/packages/framer-motion/src/render/utils/animation-state';
 export { animationControls } from './motion/packages/framer-motion/src/animation/animation-controls';
+export { AnimationType } from './motion/packages/framer-motion/src/render/utils/types'
 
 import { scrapeMotionValuesFromProps } from './motion/packages/framer-motion/src/render/html/utils/scrape-motion-values'
 import { createHtmlRenderState } from './motion/packages/framer-motion/src/render/html/utils/create-render-state'
@@ -19,7 +20,6 @@ import {
     PresenceContextProps,
 } from "./motion/packages/framer-motion/src/context/PresenceContext"
 import { VisualState } from './motion/packages/framer-motion/src/motion/utils/use-visual-state';
-export { MotionProps };
 
 export function makeVisualState(
     props: MotionProps,

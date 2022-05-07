@@ -1,4 +1,4 @@
-import { makeVisualState, htmlVisualElement, animationControls, createAnimationState, MotionProps } from '@incremental-html/framer-motion';
+import { makeVisualState, htmlVisualElement, animationControls, createAnimationState, MotionProps, AnimationType } from '@incremental-html/framer-motion';
 import { Feature } from '@incremental-html/reactivity';
 
 export class Motion extends Feature<{}> {

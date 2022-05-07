@@ -1766,4 +1766,4 @@ function makeLatestValues(props, context, presenceContext) {
   }
   return values;
 }
-export { animationControls, createAnimationState, htmlVisualElement, makeVisualState };
+export { AnimationType, animationControls, createAnimationState, htmlVisualElement, makeVisualState };

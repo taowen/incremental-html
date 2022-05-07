@@ -247,7 +247,7 @@ declare interface AnimationState {
     };
 }
 
-declare enum AnimationType {
+export declare enum AnimationType {
     Animate = "animate",
     Hover = "whileHover",
     Tap = "whileTap",

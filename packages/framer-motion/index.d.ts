@@ -2,6 +2,7 @@ export { htmlVisualElement } from './motion/packages/framer-motion/types/render/
 export { createAnimationState } from './motion/packages/framer-motion/types/render/utils/animation-state';
 export { animationControls } from './motion/packages/framer-motion/types/animation/animation-controls';
 export { MotionProps } from "./motion/packages/framer-motion/types/motion/types"
+export { AnimationType } from './motion/packages/framer-motion/types/render/utils/types'
 
 import { MotionProps } from "./motion/packages/framer-motion/types/motion/types"
 import { MotionContextProps } from "./motion/packages/framer-motion/types/context/MotionContext"
