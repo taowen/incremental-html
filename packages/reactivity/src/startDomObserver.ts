@@ -98,7 +98,8 @@ async function mountNode(node: Element) {
         } else if (attr.name.startsWith('use:')) {
             let featureClass = evalSync(attr.value, proxiedNode);
             const featureName = attr.name.substring('use:'.length);
-            setNodeProperty(node, camelize(featureName), await createFeature(featureClass, proxiedNode));
+            const feature = await createFeature(featureClass, proxiedNode, `${featureName}:`);
+            setNodeProperty(node, camelize(featureName), feature);
         }
     }
     effect(() => {
@@ -116,12 +117,12 @@ async function mountNode(node: Element) {
     return xid;
 }
 
-async function createFeature(featureClass: any, element: Element) {
+async function createFeature(featureClass: any, element: Element, prefix: string) {
     if (typeof featureClass !== 'function') {
         throw new Error(`invalid feature class: ${featureClass}`);
     }
     if (isAssignableFrom(featureClass, Feature)) {
-        return new featureClass(element);
+        return new featureClass(element, prefix);
     }
     const { default: lazyLoadedFeatureClass } = await(featureClass());
     return new lazyLoadedFeatureClass(element);
@@ -164,13 +165,4 @@ async function callEventHandler(eventName: string, node: EventTarget, eventHandl
         console.error('failed to handle ' + eventName, { e });
         return undefined;
     }
-}
-
-export function queryFeature<T>(element: Element, featureClass: { new (element: Element): T; featureName: string }): T | undefined {
-    const featureElement = element.closest(`[use\\:${hyphenate(featureClass.featureName)}]`);
-    if (featureElement) {
-        const propName = featureClass.featureName.charAt(0).toLowerCase() + featureClass.featureName.slice(1);
-        return (featureElement as any)[propName]
-    }
-    return undefined;
 }

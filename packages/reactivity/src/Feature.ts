@@ -5,10 +5,14 @@ import { subscribeNode } from "./subscribeNode";
 
 export class Feature<Props extends Record<string, any>> {
     private computedProps: { value: Record<string, any> }
-    constructor(public element: Element) {
+    constructor(public element: Element, prefix: string) {
+        let features = (element as any).features;
+        if (!features) {
+            features = (element as any).features = new Map();
+        }
+        features.set(this.constructor, this);
         this.computedProps = computed(() => {
             subscribeNode(this.element);
-            const prefix = `${(this.constructor as typeof Feature).featureName}:`
             const props: Record<string, any> = { element };
             for (let i = 0; i < element.attributes.length; i++) {
                 const attr = element.attributes[i];
@@ -35,10 +39,6 @@ export class Feature<Props extends Record<string, any>> {
         }
     }
     
-    public static get featureName() {
-        return this.name;
-    }
-
     public get props(): Props {
         return this.computedProps.value as Props;
     }
@@ -67,4 +67,19 @@ export class Feature<Props extends Record<string, any>> {
     protected create<T>(fn: () => T): T {
         return fn();
     }
+}
+
+export function queryFeature<T>(element: Element, featureClass: { new (element: Element): T; featureName: string }): T | undefined {
+    if (!element) {
+        return undefined;
+    }
+    const features = (element as any).features;
+    if (!features) {
+        return queryFeature(element.parentElement!, featureClass);
+    }
+    const feature = features.get(featureClass)
+    if (!feature) {
+        return queryFeature(element.parentElement!, featureClass);
+    }
+    return feature;
 }
