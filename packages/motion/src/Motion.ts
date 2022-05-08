@@ -1,4 +1,5 @@
-import { makeVisualState, htmlVisualElement, createAnimationState, MotionProps, AnimationType, useProjection, HTMLProjectionNode, MeasureLayoutWithContext } from '@incremental-html/framer-motion';
+import { makeVisualState, htmlVisualElement, createAnimationState, MotionProps, AnimationType, useProjection, HTMLProjectionNode, 
+    MeasureLayoutWithContext, addPointerEvent, createHoverEvent } from '@incremental-html/framer-motion';
 import { Feature } from '@incremental-html/reactivity';
 
 let nextProjectionId = 1;
@@ -19,6 +20,18 @@ export class Motion extends Feature<MotionProps> {
         this.visualElement.mount(this.element as HTMLElement);
         const featureProps = {...this.props, visualElement: this.visualElement, isPresent: true};
         MeasureLayoutWithContext.componentDidMount(featureProps);
+        const hoverStartHandler = this.props.onHoverStart || this.props.whileHover
+            ? createHoverEvent(this.visualElement, true, this.props.onHoverStart)
+            : undefined;
+        if (hoverStartHandler) {
+            addPointerEvent(this.element, 'pointerenter', hoverStartHandler);
+        }
+        const hoverEndHandler = this.props.onHoverEnd || this.props.whileHover
+            ? createHoverEvent(this.visualElement, false, this.props.onHoverEnd)
+            : undefined;
+        if (hoverEndHandler) {
+            addPointerEvent(this.element, 'pointerleave', hoverEndHandler);
+        }
         return () => {
             this.visualElement.unmount();
             const featureProps = {...this.props, visualElement: this.visualElement, isPresent: true};

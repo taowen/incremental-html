@@ -7,6 +7,8 @@ import * as React_2 from 'react';
 import { RefObject } from 'react';
 import { SVGAttributes } from 'react';
 
+export declare function addPointerEvent(target: EventTarget, eventName: string, handler: EventListenerWithPointInfo, options?: AddEventListenerOptions): () => void;
+
 declare type AnimationCompleteListener = (definition: AnimationDefinition) => void;
 
 /**
@@ -337,6 +339,12 @@ declare interface Box {
 declare type ControlsAnimationDefinition = string | string[] | TargetAndTransition | TargetResolver;
 
 export declare function createAnimationState(visualElement: VisualElement): AnimationState;
+
+export declare function createHoverEvent(
+visualElement: VisualElement,
+isActive: boolean,
+callback?: (event: MouseEvent, info: EventInfo) => void
+): (event: MouseEvent | TouchEvent | PointerEvent, info: EventInfo) => void
 
 declare type CSSPropertiesWithoutTransitionOrSingleTransforms = Omit_2<CSSProperties, "transition" | "rotate" | "scale" | "perspective">;
 
@@ -750,6 +758,8 @@ declare type EasingFunction = (v: number) => number;
 declare interface EventInfo {
     point: Point;
 }
+
+declare type EventListenerWithPointInfo = (e: MouseEvent | TouchEvent | PointerEvent, info: EventInfo) => void;
 
 /**
  * @public

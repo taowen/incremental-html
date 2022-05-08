@@ -3,6 +3,7 @@ export { createAnimationState } from './motion/packages/framer-motion/src/render
 export { animationControls } from './motion/packages/framer-motion/src/animation/animation-controls';
 export { AnimationType } from './motion/packages/framer-motion/src/render/utils/types'
 export { HTMLProjectionNode } from './motion/packages/framer-motion/src/projection/node/HTMLProjectionNode';
+export { addPointerEvent } from './motion/packages/framer-motion/src/events/use-pointer-event';
 
 import { scrapeMotionValuesFromProps } from './motion/packages/framer-motion/src/render/html/utils/scrape-motion-values'
 import { createHtmlRenderState } from './motion/packages/framer-motion/src/render/html/utils/create-render-state'
@@ -288,4 +289,25 @@ export function useProjection(
         initialPromotionConfig,
         layoutScroll,
     })
+}
+
+import { EventInfo } from './motion/packages/framer-motion/src/events/types'
+import { isMouseEvent } from './motion/packages/framer-motion/src/gestures/utils/event-type'
+import { isDragActive } from './motion/packages/framer-motion/src/gestures/drag/utils/lock'
+import { AnimationType } from './motion/packages/framer-motion/src/render/utils/types'
+
+export function createHoverEvent(
+    visualElement: VisualElement,
+    isActive: boolean,
+    callback?: (event: MouseEvent, info: EventInfo) => void
+) {
+    return (event: MouseEvent | TouchEvent | PointerEvent, info: EventInfo) => {
+        if (!isMouseEvent(event) || isDragActive()) return
+
+        /**
+         * Ensure we trigger animations before firing event callback
+         */
+        visualElement.animationState?.setActive(AnimationType.Hover, isActive)
+        callback?.(event, info)
+    }
 }
