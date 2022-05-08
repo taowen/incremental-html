@@ -1,14 +1,11 @@
 import { makeVisualState, htmlVisualElement, createAnimationState, MotionProps, AnimationType, useProjection, HTMLProjectionNode, MeasureLayoutWithContext } from '@incremental-html/framer-motion';
-import { Feature, subscribeNode } from '@incremental-html/reactivity';
+import { Feature } from '@incremental-html/reactivity';
 
 let nextProjectionId = 1;
 
 export class Motion extends Feature<MotionProps> {
     private visualElement = this.create(() => {
         const visualState = makeVisualState(this.props, {}, null);
-        if (visualState.mount) {
-            visualState.mount(this.element);
-        }
         const visualElement = htmlVisualElement({
             visualState,
             props: this.props
@@ -18,12 +15,14 @@ export class Motion extends Feature<MotionProps> {
         visualElement.syncRender();
         return visualElement;
     })
-    public _1 = this.effect(() => {
+    public _1 = this.onMount(() => {
         this.visualElement.mount(this.element as HTMLElement);
         const featureProps = {...this.props, visualElement: this.visualElement, isPresent: true};
         MeasureLayoutWithContext.componentDidMount(featureProps);
         return () => {
             this.visualElement.unmount();
+            const featureProps = {...this.props, visualElement: this.visualElement, isPresent: true};
+            MeasureLayoutWithContext.componentWillUnmount(featureProps);
         }
     })
     public _2 = this.effect(() => {

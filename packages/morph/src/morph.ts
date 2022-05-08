@@ -4,6 +4,5 @@ export function morph(node: Element, cb: () => void) {
         cb();
     } finally {
         node.dispatchEvent(new Event('afterMorph'));
-
     }
 }

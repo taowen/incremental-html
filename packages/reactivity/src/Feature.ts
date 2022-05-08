@@ -68,6 +68,11 @@ export class Feature<Props extends Record<string, any>> {
         }).effect;
     }
 
+    protected onMount(fn: () => void | (() => void)) {
+        const onStop = fn();
+        return { onStop }
+    }
+
     protected create<T>(fn: () => T): T {
         return fn();
     }
