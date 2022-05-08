@@ -743,7 +743,7 @@ declare interface EventInfo {
     point: Point;
 }
 
-declare type EventListenerWithPointInfo = (e: MouseEvent | TouchEvent | PointerEvent, info: EventInfo) => void;
+export declare type EventListenerWithPointInfo = (e: MouseEvent | TouchEvent | PointerEvent, info: EventInfo) => void;
 
 /**
  * @public
@@ -2625,6 +2625,8 @@ initialPromotionConfig: SwitchLayoutGroupContext,
 visualElement?: VisualElement,
 ProjectionNodeConstructor?: any
 ): void
+
+export declare function useTapGesture(props: FeatureProps): () => void;
 
 /**
  * @public

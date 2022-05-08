@@ -9,7 +9,7 @@
 
 <body prop:store="$reactive({ justifyContent: 'flex-start' })">
     <div style="margin-left: 100px; margin-top: 100px; width: fit-content"
-        use:motion="$Motion" motion:while-hover="{ scale: 1.2 }">Hello World</div>
+        use:motion="$Motion" motion:while-tap="{ scale: 1.2 }">Hello World</div>
     <script type="module">
         import { startDomObserver, setEvalGlobals, reactive } from '@incremental-html/reactivity';
         import { morphInnerHTML, morph } from '@incremental-html/morph';

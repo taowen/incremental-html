@@ -3508,6 +3508,15 @@ function isDragActive() {
   openGestureLock();
   return false;
 }
+const isNodeOrChild = (parent, child) => {
+  if (!child) {
+    return false;
+  } else if (parent === child) {
+    return true;
+  } else {
+    return isNodeOrChild(parent, child.parentElement);
+  }
+};
 function makeVisualState(props, context, presenceContext) {
   const renderState = createHtmlRenderState();
   const state = {
@@ -3671,6 +3680,54 @@ function createHoverEvent(visualElement2, isActive, callback) {
     callback == null ? void 0 : callback(event, info);
   };
 }
+function useTapGesture({
+  onTap,
+  onTapStart,
+  onTapCancel,
+  whileTap,
+  visualElement: visualElement2
+}) {
+  const hasPressListeners = onTap || onTapStart || onTapCancel || whileTap;
+  let isPressing = false;
+  let cancelPointerEndListeners = null;
+  function removePointerEndListener() {
+    if (cancelPointerEndListeners) {
+      cancelPointerEndListeners();
+    }
+    cancelPointerEndListeners = null;
+  }
+  function checkPointerEnd() {
+    var _a;
+    removePointerEndListener();
+    isPressing = false;
+    (_a = visualElement2.animationState) == null ? void 0 : _a.setActive(AnimationType.Tap, false);
+    return !isDragActive();
+  }
+  function onPointerUp(event, info) {
+    if (!checkPointerEnd())
+      return;
+    !isNodeOrChild(visualElement2.getInstance(), event.target) ? onTapCancel == null ? void 0 : onTapCancel(event, info) : onTap == null ? void 0 : onTap(event, info);
+  }
+  function onPointerCancel(event, info) {
+    if (!checkPointerEnd())
+      return;
+    onTapCancel == null ? void 0 : onTapCancel(event, info);
+  }
+  function onPointerDown(event, info) {
+    var _a;
+    removePointerEndListener();
+    if (isPressing)
+      return;
+    isPressing = true;
+    cancelPointerEndListeners = popmotion.pipe(addPointerEvent(window, "pointerup", onPointerUp), addPointerEvent(window, "pointercancel", onPointerCancel));
+    (_a = visualElement2.animationState) == null ? void 0 : _a.setActive(AnimationType.Tap, true);
+    onTapStart == null ? void 0 : onTapStart(event, info);
+  }
+  if (hasPressListeners) {
+    addPointerEvent(visualElement2.getInstance(), "pointerdown", onPointerDown);
+  }
+  return removePointerEndListener;
+}
 exports.AnimationType = AnimationType;
 exports.HTMLProjectionNode = HTMLProjectionNode;
 exports.MeasureLayoutWithContext = MeasureLayoutWithContext;
@@ -3681,3 +3738,4 @@ exports.createHoverEvent = createHoverEvent;
 exports.htmlVisualElement = htmlVisualElement;
 exports.makeVisualState = makeVisualState;
 exports.useProjection = useProjection;
+exports.useTapGesture = useTapGesture;

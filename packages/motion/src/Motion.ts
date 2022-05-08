@@ -1,5 +1,4 @@
-import { makeVisualState, htmlVisualElement, createAnimationState, MotionProps, AnimationType, useProjection, HTMLProjectionNode, 
-    MeasureLayoutWithContext, addPointerEvent, createHoverEvent } from '@incremental-html/framer-motion';
+import { addPointerEvent, AnimationType, createAnimationState, createHoverEvent, EventListenerWithPointInfo, HTMLProjectionNode, htmlVisualElement, makeVisualState, MeasureLayoutWithContext, MotionProps, useProjection, useTapGesture } from '@incremental-html/framer-motion';
 import { Feature } from '@incremental-html/reactivity';
 
 let nextProjectionId = 1;
@@ -16,52 +15,52 @@ export class Motion extends Feature<MotionProps> {
         visualElement.syncRender();
         return visualElement;
     })
+    private addPointerEvent = (eventName: string, handler?: EventListenerWithPointInfo, options?: AddEventListenerOptions) => {
+        if (handler) {
+            addPointerEvent(this.element, eventName, handler, options);
+        }
+    }
     public _1 = this.onMount(() => {
         this.visualElement.mount(this.element as HTMLElement);
-        const featureProps = {...this.props, visualElement: this.visualElement, isPresent: true};
+        const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
         MeasureLayoutWithContext.componentDidMount(featureProps);
-        const hoverStartHandler = this.props.onHoverStart || this.props.whileHover
+        this.addPointerEvent('pointerenter', this.props.onHoverStart || this.props.whileHover
             ? createHoverEvent(this.visualElement, true, this.props.onHoverStart)
-            : undefined;
-        if (hoverStartHandler) {
-            addPointerEvent(this.element, 'pointerenter', hoverStartHandler);
-        }
-        const hoverEndHandler = this.props.onHoverEnd || this.props.whileHover
+            : undefined);
+        this.addPointerEvent('pointerleave', this.props.onHoverEnd || this.props.whileHover
             ? createHoverEvent(this.visualElement, false, this.props.onHoverEnd)
-            : undefined;
-        if (hoverEndHandler) {
-            addPointerEvent(this.element, 'pointerleave', hoverEndHandler);
-        }
+            : undefined);
         return () => {
             this.visualElement.unmount();
-            const featureProps = {...this.props, visualElement: this.visualElement, isPresent: true};
+            const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
             MeasureLayoutWithContext.componentWillUnmount(featureProps);
         }
     })
-    public _2 = this.effect(() => {
+    public _2 = this.onMount(useTapGesture({ ...this.props, visualElement: this.visualElement }))
+    public _3 = this.effect(() => {
         this.visualElement.setProps(this.props);
         this.visualElement.animationState!.animateChanges();
     })
-    public _3 = this.effect(() => {
+    public _4 = this.effect(() => {
         (this.element as any).$beforeRemove = () => {
             return this.visualElement.animationState!.setActive(AnimationType.Exit, true)
         }
     })
     private beforeMorph = () => {
-        const featureProps = {...this.props, visualElement: this.visualElement, isPresent: true};
+        const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
         MeasureLayoutWithContext.getSnapshotBeforeUpdate(featureProps, featureProps);
     }
     private afterMorph = () => {
-        const featureProps = {...this.props, visualElement: this.visualElement, isPresent: true};
+        const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
         MeasureLayoutWithContext.componentDidUpdate(featureProps);
     }
-    public _4 = this.effect(() => {
+    public _5 = this.effect(() => {
         if (!this.props.layout) {
             return;
         }
         const ancestors: HTMLElement[] = [];
         let parent = this.element.parentElement;
-        while(parent) {
+        while (parent) {
             if (parent === document.body) {
                 break;
             }

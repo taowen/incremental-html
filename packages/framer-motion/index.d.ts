@@ -5,6 +5,7 @@ export { MotionProps } from "./motion/packages/framer-motion/types/motion/types"
 export { AnimationType } from './motion/packages/framer-motion/types/render/utils/types'
 export { HTMLProjectionNode } from './motion/packages/framer-motion/types/projection/node/HTMLProjectionNode';
 export { addPointerEvent } from './motion/packages/framer-motion/types/events/use-pointer-event';
+export { EventListenerWithPointInfo } from './motion/packages/framer-motion/types/events/event-info';
 
 import { MotionProps } from "./motion/packages/framer-motion/types/motion/types"
 import { MotionContextProps } from "./motion/packages/framer-motion/types/context/MotionContext"
@@ -51,3 +52,5 @@ export function createHoverEvent(
     isActive: boolean,
     callback?: (event: MouseEvent, info: EventInfo) => void
 ): (event: MouseEvent | TouchEvent | PointerEvent, info: EventInfo) => void
+
+export function useTapGesture(props: FeatureProps): () => void;

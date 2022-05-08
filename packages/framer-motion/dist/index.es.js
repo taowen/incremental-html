@@ -30,7 +30,7 @@ var __objRest = (source, exclude) => {
   return target;
 };
 import sync, { getFrameData, cancelSync, flushSync } from "framesync";
-import { velocityPerSecond, cubicBezier, linear, easeIn, easeInOut, easeOut, circIn, circInOut, circOut, backIn, backInOut, backOut, anticipate, bounceIn, bounceInOut, bounceOut, inertia, animate as animate$1, mix, progress, distance } from "popmotion";
+import { velocityPerSecond, cubicBezier, linear, easeIn, easeInOut, easeOut, circIn, circInOut, circOut, backIn, backInOut, backOut, anticipate, bounceIn, bounceInOut, bounceOut, inertia, animate as animate$1, mix, progress, distance, pipe } from "popmotion";
 import { invariant, warning } from "hey-listen";
 import { complex, number, px, degrees, scale, alpha, progressPercentage, color, filter, percent, vw, vh } from "style-value-types";
 function addUniqueItem(arr, item) {
@@ -3502,6 +3502,15 @@ function isDragActive() {
   openGestureLock();
   return false;
 }
+const isNodeOrChild = (parent, child) => {
+  if (!child) {
+    return false;
+  } else if (parent === child) {
+    return true;
+  } else {
+    return isNodeOrChild(parent, child.parentElement);
+  }
+};
 function makeVisualState(props, context, presenceContext) {
   const renderState = createHtmlRenderState();
   const state = {
@@ -3665,4 +3674,52 @@ function createHoverEvent(visualElement2, isActive, callback) {
     callback == null ? void 0 : callback(event, info);
   };
 }
-export { AnimationType, HTMLProjectionNode, MeasureLayoutWithContext, addPointerEvent, animationControls, createAnimationState, createHoverEvent, htmlVisualElement, makeVisualState, useProjection };
+function useTapGesture({
+  onTap,
+  onTapStart,
+  onTapCancel,
+  whileTap,
+  visualElement: visualElement2
+}) {
+  const hasPressListeners = onTap || onTapStart || onTapCancel || whileTap;
+  let isPressing = false;
+  let cancelPointerEndListeners = null;
+  function removePointerEndListener() {
+    if (cancelPointerEndListeners) {
+      cancelPointerEndListeners();
+    }
+    cancelPointerEndListeners = null;
+  }
+  function checkPointerEnd() {
+    var _a;
+    removePointerEndListener();
+    isPressing = false;
+    (_a = visualElement2.animationState) == null ? void 0 : _a.setActive(AnimationType.Tap, false);
+    return !isDragActive();
+  }
+  function onPointerUp(event, info) {
+    if (!checkPointerEnd())
+      return;
+    !isNodeOrChild(visualElement2.getInstance(), event.target) ? onTapCancel == null ? void 0 : onTapCancel(event, info) : onTap == null ? void 0 : onTap(event, info);
+  }
+  function onPointerCancel(event, info) {
+    if (!checkPointerEnd())
+      return;
+    onTapCancel == null ? void 0 : onTapCancel(event, info);
+  }
+  function onPointerDown(event, info) {
+    var _a;
+    removePointerEndListener();
+    if (isPressing)
+      return;
+    isPressing = true;
+    cancelPointerEndListeners = pipe(addPointerEvent(window, "pointerup", onPointerUp), addPointerEvent(window, "pointercancel", onPointerCancel));
+    (_a = visualElement2.animationState) == null ? void 0 : _a.setActive(AnimationType.Tap, true);
+    onTapStart == null ? void 0 : onTapStart(event, info);
+  }
+  if (hasPressListeners) {
+    addPointerEvent(visualElement2.getInstance(), "pointerdown", onPointerDown);
+  }
+  return removePointerEndListener;
+}
+export { AnimationType, HTMLProjectionNode, MeasureLayoutWithContext, addPointerEvent, animationControls, createAnimationState, createHoverEvent, htmlVisualElement, makeVisualState, useProjection, useTapGesture };

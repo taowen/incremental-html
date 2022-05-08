@@ -311,3 +311,79 @@ export function createHoverEvent(
         callback?.(event, info)
     }
 }
+import { isNodeOrChild } from "./motion/packages/framer-motion/src/gestures/utils/is-node-or-child"
+import { pipe } from "popmotion"
+import { addPointerEvent } from './motion/packages/framer-motion/src/events/use-pointer-event';
+
+export function useTapGesture({
+    onTap,
+    onTapStart,
+    onTapCancel,
+    whileTap,
+    visualElement,
+}: FeatureProps) {
+    const hasPressListeners = onTap || onTapStart || onTapCancel || whileTap
+    let isPressing = false;
+    let cancelPointerEndListeners: Function | null = null;
+
+    function removePointerEndListener() {
+        if(cancelPointerEndListeners) {
+            cancelPointerEndListeners();
+        }
+        cancelPointerEndListeners = null;
+    }
+
+    function checkPointerEnd() {
+        removePointerEndListener()
+        isPressing = false
+        visualElement.animationState?.setActive(AnimationType.Tap, false)
+        return !isDragActive()
+    }
+
+    function onPointerUp(event: PointerEvent | MouseEvent | TouchEvent, info: EventInfo) {
+        if (!checkPointerEnd()) return
+
+        /**
+         * We only count this as a tap gesture if the event.target is the same
+         * as, or a child of, this component's element
+         */
+        !isNodeOrChild(visualElement.getInstance(), event.target as Element)
+            ? onTapCancel?.(event, info)
+            : onTap?.(event, info)
+    }
+
+    function onPointerCancel(event: PointerEvent | MouseEvent | TouchEvent, info: EventInfo) {
+        if (!checkPointerEnd()) return
+
+        onTapCancel?.(event, info)
+    }
+
+    function onPointerDown(event: PointerEvent | MouseEvent | TouchEvent, info: EventInfo) {
+        removePointerEndListener()
+
+        if (isPressing) return
+        isPressing = true
+
+        cancelPointerEndListeners = pipe(
+            addPointerEvent(window, "pointerup", onPointerUp),
+            addPointerEvent(window, "pointercancel", onPointerCancel)
+        )
+
+        /**
+         * Ensure we trigger animations before firing event callback
+         */
+        visualElement.animationState?.setActive(AnimationType.Tap, true)
+
+        onTapStart?.(event, info)
+    }
+
+    if (hasPressListeners) {
+        addPointerEvent(
+            visualElement.getInstance(),
+            "pointerdown",
+            onPointerDown
+        )
+    }
+
+    return removePointerEndListener;
+}
