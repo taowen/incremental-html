@@ -45,12 +45,5 @@ export function useProjection(
     ProjectionNodeConstructor?: any
 ): void
 
-import { EventInfo } from './motion/packages/framer-motion/types/events/types'
-
-export function createHoverEvent(
-    visualElement: VisualElement,
-    isActive: boolean,
-    callback?: (event: MouseEvent, info: EventInfo) => void
-): (event: MouseEvent | TouchEvent | PointerEvent, info: EventInfo) => void
-
+export function useHoverGesture(props: FeatureProps): () => void;
 export function useTapGesture(props: FeatureProps): () => void;

@@ -296,7 +296,7 @@ import { isMouseEvent } from './motion/packages/framer-motion/src/gestures/utils
 import { isDragActive } from './motion/packages/framer-motion/src/gestures/drag/utils/lock'
 import { AnimationType } from './motion/packages/framer-motion/src/render/utils/types'
 
-export function createHoverEvent(
+function createHoverEvent(
     visualElement: VisualElement,
     isActive: boolean,
     callback?: (event: MouseEvent, info: EventInfo) => void
@@ -311,6 +311,16 @@ export function createHoverEvent(
         callback?.(event, info)
     }
 }
+
+export function useHoverGesture({ visualElement, onHoverStart, whileHover, onHoverEnd }: FeatureProps) {
+    if(onHoverStart || whileHover) {
+        addPointerEvent(visualElement.getInstance(), 'pointerenter', createHoverEvent(visualElement, true, onHoverStart));
+    }
+    if (onHoverEnd || whileHover) {
+        addPointerEvent(visualElement.getInstance(), 'pointerleave', createHoverEvent(visualElement, false, onHoverEnd));
+    }
+}
+
 import { isNodeOrChild } from "./motion/packages/framer-motion/src/gestures/utils/is-node-or-child"
 import { pipe } from "popmotion"
 import { addPointerEvent } from './motion/packages/framer-motion/src/events/use-pointer-event';

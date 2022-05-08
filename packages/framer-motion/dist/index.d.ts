@@ -329,12 +329,6 @@ declare type ControlsAnimationDefinition = string | string[] | TargetAndTransiti
 
 export declare function createAnimationState(visualElement: VisualElement): AnimationState;
 
-export declare function createHoverEvent(
-visualElement: VisualElement,
-isActive: boolean,
-callback?: (event: MouseEvent, info: EventInfo) => void
-): (event: MouseEvent | TouchEvent | PointerEvent, info: EventInfo) => void
-
 declare type CSSPropertiesWithoutTransitionOrSingleTransforms = Omit_2<CSSProperties, "transition" | "rotate" | "scale" | "perspective">;
 
 declare interface CustomStyles {
@@ -2617,6 +2611,8 @@ declare interface Tween extends Repeat {
 }
 
 declare type UpdateListener = (latest: ResolvedValues) => void;
+
+export declare function useHoverGesture(props: FeatureProps): () => void;
 
 export declare function useProjection(
 projectionId: number | undefined,

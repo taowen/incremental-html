@@ -3674,6 +3674,14 @@ function createHoverEvent(visualElement2, isActive, callback) {
     callback == null ? void 0 : callback(event, info);
   };
 }
+function useHoverGesture({ visualElement: visualElement2, onHoverStart, whileHover, onHoverEnd }) {
+  if (onHoverStart || whileHover) {
+    addPointerEvent(visualElement2.getInstance(), "pointerenter", createHoverEvent(visualElement2, true, onHoverStart));
+  }
+  if (onHoverEnd || whileHover) {
+    addPointerEvent(visualElement2.getInstance(), "pointerleave", createHoverEvent(visualElement2, false, onHoverEnd));
+  }
+}
 function useTapGesture({
   onTap,
   onTapStart,
@@ -3722,4 +3730,4 @@ function useTapGesture({
   }
   return removePointerEndListener;
 }
-export { AnimationType, HTMLProjectionNode, MeasureLayoutWithContext, addPointerEvent, animationControls, createAnimationState, createHoverEvent, htmlVisualElement, makeVisualState, useProjection, useTapGesture };
+export { AnimationType, HTMLProjectionNode, MeasureLayoutWithContext, addPointerEvent, animationControls, createAnimationState, htmlVisualElement, makeVisualState, useHoverGesture, useProjection, useTapGesture };
