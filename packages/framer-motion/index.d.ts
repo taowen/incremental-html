@@ -47,3 +47,4 @@ export function useProjection(
 
 export function useHoverGesture(props: FeatureProps): () => void;
 export function useTapGesture(props: FeatureProps): () => void;
+export function useFocusGesture(props: FeatureProps): () => void;

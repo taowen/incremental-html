@@ -3736,6 +3736,20 @@ function useTapGesture({
   }
   return removePointerEndListener;
 }
+function useFocusGesture({ whileFocus, visualElement: visualElement2 }) {
+  const onFocus = () => {
+    var _a;
+    (_a = visualElement2.animationState) == null ? void 0 : _a.setActive(AnimationType.Focus, true);
+  };
+  const onBlur = () => {
+    var _a;
+    (_a = visualElement2.animationState) == null ? void 0 : _a.setActive(AnimationType.Focus, false);
+  };
+  if (whileFocus) {
+    addDomEvent(visualElement2.getInstance(), "focus", onFocus);
+    addDomEvent(visualElement2.getInstance(), "blur", onBlur);
+  }
+}
 exports.AnimationType = AnimationType;
 exports.HTMLProjectionNode = HTMLProjectionNode;
 exports.MeasureLayoutWithContext = MeasureLayoutWithContext;
@@ -3744,6 +3758,7 @@ exports.animationControls = animationControls;
 exports.createAnimationState = createAnimationState;
 exports.htmlVisualElement = htmlVisualElement;
 exports.makeVisualState = makeVisualState;
+exports.useFocusGesture = useFocusGesture;
 exports.useHoverGesture = useHoverGesture;
 exports.useProjection = useProjection;
 exports.useTapGesture = useTapGesture;

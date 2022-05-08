@@ -397,3 +397,20 @@ export function useTapGesture({
 
     return removePointerEndListener;
 }
+
+import { addDomEvent } from './motion/packages/framer-motion/src/events/use-dom-event';
+
+export function useFocusGesture({ whileFocus, visualElement }: FeatureProps) {
+    const onFocus = () => {
+        visualElement.animationState?.setActive(AnimationType.Focus, true)
+    }
+
+    const onBlur = () => {
+        visualElement.animationState?.setActive(AnimationType.Focus, false)
+    }
+
+    if (whileFocus) {
+        addDomEvent(visualElement.getInstance(), "focus", onFocus);
+        addDomEvent(visualElement.getInstance(), "blur", onBlur);
+    }
+}

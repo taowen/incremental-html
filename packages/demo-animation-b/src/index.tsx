@@ -16,6 +16,7 @@ root.render(
                 <li><Link to="case4">Case4</Link></li>
                 <li><Link to="case5">Case5</Link></li>
                 <li><Link to="case6">Case6</Link></li>
+                <li><Link to="case7">Case7</Link></li>
             </ul>} />
             <Route path='case1' element={<Case1 />} />
             <Route path='case2' element={<Case2 />} />
@@ -23,6 +24,7 @@ root.render(
             <Route path='case4' element={<Case4 />} />
             <Route path='case5' element={<Case5 />} />
             <Route path='case6' element={<Case6 />} />
+            <Route path='case7' element={<Case7 />} />
         </Routes>
     </BrowserRouter>)
 
@@ -78,4 +80,11 @@ const Case5_Child = /*React.memo*/(() => {
 
 function Case6() {
     return <motion.div style={{ marginLeft: '100px', marginTop: '100px', width: 'fit-content'}} whileHover={{ scale: 1.2 }}>Hello World</motion.div>
+}
+
+function Case7() {
+    return <div>
+        <motion.input whileFocus={{ scale: 1.2 }}></motion.input>
+        <motion.a href="#">world</motion.a>
+    </div>
 }

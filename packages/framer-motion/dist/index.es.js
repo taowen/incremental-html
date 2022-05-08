@@ -3730,4 +3730,18 @@ function useTapGesture({
   }
   return removePointerEndListener;
 }
-export { AnimationType, HTMLProjectionNode, MeasureLayoutWithContext, addPointerEvent, animationControls, createAnimationState, htmlVisualElement, makeVisualState, useHoverGesture, useProjection, useTapGesture };
+function useFocusGesture({ whileFocus, visualElement: visualElement2 }) {
+  const onFocus = () => {
+    var _a;
+    (_a = visualElement2.animationState) == null ? void 0 : _a.setActive(AnimationType.Focus, true);
+  };
+  const onBlur = () => {
+    var _a;
+    (_a = visualElement2.animationState) == null ? void 0 : _a.setActive(AnimationType.Focus, false);
+  };
+  if (whileFocus) {
+    addDomEvent(visualElement2.getInstance(), "focus", onFocus);
+    addDomEvent(visualElement2.getInstance(), "blur", onBlur);
+  }
+}
+export { AnimationType, HTMLProjectionNode, MeasureLayoutWithContext, addPointerEvent, animationControls, createAnimationState, htmlVisualElement, makeVisualState, useFocusGesture, useHoverGesture, useProjection, useTapGesture };

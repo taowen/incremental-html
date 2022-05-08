@@ -2612,6 +2612,8 @@ declare interface Tween extends Repeat {
 
 declare type UpdateListener = (latest: ResolvedValues) => void;
 
+export declare function useFocusGesture(props: FeatureProps): () => void;
+
 export declare function useHoverGesture(props: FeatureProps): () => void;
 
 export declare function useProjection(
