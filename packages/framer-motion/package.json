@@ -1,9 +1,14 @@
 {
     "name": "@incremental-html/framer-motion",
+    "description": "A simple and powerful animation library",
     "version": "6.3.3",
     "main": "dist/index.cjs.js",
     "module": "dist/index.es.js",
     "typings": "dist/index.d.ts",
+    "author": "Framer",
+    "license": "MIT",
+    "repository": "https://github.com/framer/motion/",
+    "sideEffects": false,
     "dependencies": {
         "framesync": "6.0.1",
         "hey-listen": "^1.0.8",
