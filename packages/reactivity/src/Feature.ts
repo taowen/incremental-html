@@ -18,7 +18,11 @@ export class Feature<Props extends Record<string, any>> {
                 const attr = element.attributes[i];
                 if (attr.name.startsWith(prefix)) {
                     const propName = camelize(attr.name.substring(prefix.length));
-                    props[propName] = evalSync(attr.value, element);
+                    if (attr.value) {
+                        props[propName] = evalSync(attr.value, element);
+                    } else {
+                        props[propName] = true;
+                    }
                 }
             }
             return props;

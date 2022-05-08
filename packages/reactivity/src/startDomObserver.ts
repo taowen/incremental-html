@@ -9,6 +9,10 @@ let nextId = 1;
 
 const mutationObserver = new MutationObserver((mutationList) => {
     for (const mutation of mutationList) {
+        if (mutation.attributeName === 'style') {
+            // avoid animation trigger observer recompute
+            continue;
+        }
         if (mutation.attributeName) {
             notifyNodeSubscribers((mutation.target as any).$xid);
         }
@@ -120,38 +124,13 @@ async function createFeature(featureClass: any, element: Element, prefix: string
     if (typeof featureClass !== 'function') {
         throw new Error(`invalid feature class: ${featureClass}`);
     }
-    if (isAssignableFrom(featureClass, Feature)) {
+    const isSubclassOfFeature = featureClass.prototype.__proto__ === Feature.prototype;
+    if (isSubclassOfFeature) {
         return new featureClass(element, prefix);
     }
     const { default: lazyLoadedFeatureClass } = await(featureClass());
     return new lazyLoadedFeatureClass(element);
 }
-
-function findInPrototype(clazz: any, matcher: (prototype: any) => boolean) {
-    if (!(typeof clazz === 'function')) {
-        return false;
-    }
-    let p = clazz.prototype;
-    while (p) {
-        if (matcher(p)) {
-            return true;
-        }
-        // eslint-disable-next-line no-proto
-        p = p.__proto__;
-    }
-    return false;
-}
-
-function isAssignableFrom(subClass: any, superClass: any): boolean {
-    if (!(typeof superClass === 'function')) {
-        return false;
-    }
-    if (subClass === superClass) {
-        return true;
-    }
-    return findInPrototype(subClass, p => p === superClass.prototype);
-}
-
 
 async function callEventHandler(eventName: string, node: EventTarget, eventHandler: string | Function, ...args: any[]) {
     try {

@@ -1,6 +1,13 @@
+import { morph } from "./morph";
 import { morphAttributes } from "./morphAttributes";
 
 export function morphChildNodes(oldEl: Element, newEl: Element | Node[]) {
+    morph(oldEl, () => {
+        _morphChildNodes(oldEl, newEl);
+    })
+}
+
+function _morphChildNodes(oldEl: Element, newEl: Element | Node[]) {
     const oldChildren = indexOldChildren(oldEl);
     const newChildren = [];
     // build the new nodes

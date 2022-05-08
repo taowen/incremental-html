@@ -1,4 +1,4 @@
-import { morphChildNodes, morphInnerHTML } from '@incremental-html/morph';
+import { morph, morphChildNodes, morphInnerHTML } from '@incremental-html/morph';
 import { evalSync } from './eval';
 import { camelize } from './naming';
 
@@ -10,17 +10,19 @@ morphChildNodes.morphProperties = (oldEl, newEl) => {
 }
 
 export function refreshNode(node: Element) {
-    for (let i = 0; i < node.attributes.length; i++) {
-        const attr = node.attributes[i];
-        if (attr.name.startsWith('bind:')) {
-            try {
-                const newValue = evalSync(attr.value, node);
-                setNodeProperty(node, camelize(attr.name.substring('bind:'.length)), newValue);
-            } catch (e) {
-                console.error(`failed to eval ${attr.name}`, { node, e });
+    morph(node, () => {
+        for (let i = 0; i < node.attributes.length; i++) {
+            const attr = node.attributes[i];
+            if (attr.name.startsWith('bind:')) {
+                try {
+                    const newValue = evalSync(attr.value, node);
+                    setNodeProperty(node, camelize(attr.name.substring('bind:'.length)), newValue);
+                } catch (e) {
+                    console.error(`failed to eval ${attr.name}`, { node, e });
+                }
             }
         }
-    }
+    })
 }
 
 export function setNodeProperty(node: Element, name: string, value: any) {

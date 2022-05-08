@@ -64,13 +64,12 @@ function Case4() {
 
 function Case5() {
     const [justifyContent, setJustifyContent] = React.useState('flex-start');
-    return <div style={{ left: '200px', top: '100px', width: '500px', display: 'flex', justifyContent}} onClick={() => {
-        setJustifyContent('flex-end');
-    }}>
+    return <div style={{ left: '200px', top: '100px', width: '500px', display: 'flex', justifyContent }}
+        onClick={() => { setJustifyContent('flex-end'); }}>
         <Case5_Child />
     </div>
 }
 
 const Case5_Child = /*React.memo*/(() => {
-    return <motion.div layout style={{ width: '50px', height: '20px', backgroundColor: 'red'}}></motion.div>;
+    return <motion.div layout style={{ width: '50px', height: '20px', backgroundColor: 'red' }}></motion.div>;
 })

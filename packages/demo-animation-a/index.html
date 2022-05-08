@@ -5,57 +5,19 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Demo</title>
     <link rel="shortcut icon" href="#" />
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            --from-left: 0;
-            --from-top: 3;
-            background-clip: border-box;
-            background-repeat: no-repeat;
-            background-image: url("data:image/png;base64,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");
-            background-size: 7000px 4300px;
-            background-position-x: calc(var(--from-left) * -902px);
-            background-position-y: calc(var(--from-top) * -500px);
-        }
-    </style>
 </head>
 
-<body>
-    <div id="root">
-        <div
-            style="width: 40px; height: 40px; border-radius: 20px; background-color: rgb(255, 255, 255); position: absolute; top: 50%; margin-top: -85px; left: 50%; margin-left: -20px; opacity: 0; transform: scale(0) translateZ(0px);">
-        </div>
-        <div
-            style="width: 150px; height: 150px; border-radius: 30px; overflow: hidden; position: relative; cursor: grab;"
-            on:click="
-            $morphInnerHTML(this, '');
-            ">
-            <div use:motion="$Motion" motion:initial="{ opacity: 0 }" motion:animate="{ opacity: 1 }" motion:exit="{ opacity: 0 }" motion:transition="{ duration: 2 }">
-                <div
-                    style="width: 150px; height: 70px; border-radius: 20px; background-color: rgb(255, 255, 255); margin-bottom: 10px;">
-                </div>
-                <div
-                    style="width: 150px; height: 70px; border-radius: 20px; background-color: rgb(255, 255, 255); margin-bottom: 10px;">
-                </div>
-                <div
-                    style="width: 150px; height: 70px; border-radius: 20px; background-color: rgb(255, 255, 255); margin-bottom: 10px;">
-                </div>
-                <div
-                    style="width: 150px; height: 70px; border-radius: 20px; background-color: rgb(255, 255, 255); margin-bottom: 10px;">
-                </div>
-                <div
-                    style="width: 150px; height: 70px; border-radius: 20px; background-color: rgb(255, 255, 255); margin-bottom: 0px;">
-                </div>
-            </div>
-        </div>
+<body prop:store="$reactive({ justifyContent: 'flex-start' })">
+    <div style="left: 200px; top: 100px; width: 500px; display: flex; justify-content: flex-start;" 
+        bind:style.justify-content="document.body.store.justifyContent"
+        on:click="document.body.store.justifyContent = 'flex-end';">
+        <div style="width: 50px; height: 20px; background-color: red;" use:motion="$Motion" motion:layout></div>
     </div>
     <script type="module">
-        import { startDomObserver, setEvalGlobals } from '@incremental-html/reactivity';
-        import { morphInnerHTML } from '@incremental-html/morph';
+        import { startDomObserver, setEvalGlobals, reactive } from '@incremental-html/reactivity';
+        import { morphInnerHTML, morph } from '@incremental-html/morph';
         import { Motion } from '@incremental-html/motion';
-        setEvalGlobals({ Motion, morphInnerHTML });
+        setEvalGlobals({ Motion, morphInnerHTML, morph, reactive });
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>
