@@ -3511,6 +3511,41 @@ const isNodeOrChild = (parent, child) => {
     return isNodeOrChild(parent, child.parentElement);
   }
 };
+const observerCallbacks = /* @__PURE__ */ new WeakMap();
+const observers = /* @__PURE__ */ new WeakMap();
+const fireObserverCallback = (entry) => {
+  var _a;
+  (_a = observerCallbacks.get(entry.target)) == null ? void 0 : _a(entry);
+};
+const fireAllObserverCallbacks = (entries) => {
+  entries.forEach(fireObserverCallback);
+};
+function initIntersectionObserver(_h) {
+  var _i = _h, {
+    root
+  } = _i, options = __objRest(_i, [
+    "root"
+  ]);
+  const lookupRoot = root || document;
+  if (!observers.has(lookupRoot)) {
+    observers.set(lookupRoot, {});
+  }
+  const rootObservers = observers.get(lookupRoot);
+  const key = JSON.stringify(options);
+  if (!rootObservers[key]) {
+    rootObservers[key] = new IntersectionObserver(fireAllObserverCallbacks, __spreadValues({ root }, options));
+  }
+  return rootObservers[key];
+}
+function observeIntersection(element, options, callback) {
+  const rootInteresectionObserver = initIntersectionObserver(options);
+  observerCallbacks.set(element, callback);
+  rootInteresectionObserver.observe(element);
+  return () => {
+    observerCallbacks.delete(element);
+    rootInteresectionObserver.unobserve(element);
+  };
+}
 function makeVisualState(props, context, presenceContext) {
   const renderState = createHtmlRenderState();
   const state = {
@@ -3744,4 +3779,62 @@ function useFocusGesture({ whileFocus, visualElement: visualElement2 }) {
     addDomEvent(visualElement2.getInstance(), "blur", onBlur);
   }
 }
-export { AnimationType, HTMLProjectionNode, MeasureLayoutWithContext, addPointerEvent, animationControls, createAnimationState, htmlVisualElement, makeVisualState, useFocusGesture, useHoverGesture, useProjection, useTapGesture };
+function useViewport({
+  visualElement: visualElement2,
+  whileInView,
+  onViewportEnter,
+  onViewportLeave,
+  viewport = {}
+}) {
+  const state = {
+    hasEnteredView: false,
+    isInView: false
+  };
+  let shouldObserve = Boolean(whileInView || onViewportEnter || onViewportLeave);
+  if (viewport.once && state.hasEnteredView)
+    shouldObserve = false;
+  const useObserver = typeof IntersectionObserver === "undefined" ? useMissingIntersectionObserver : useIntersectionObserver;
+  return useObserver(shouldObserve, state, visualElement2, viewport);
+}
+const thresholdNames = {
+  some: 0,
+  all: 1
+};
+function useIntersectionObserver(shouldObserve, state, visualElement2, { root, margin: rootMargin, amount = "some", once }) {
+  if (!shouldObserve)
+    return;
+  const options = {
+    root: root == null ? void 0 : root.current,
+    rootMargin,
+    threshold: typeof amount === "number" ? amount : thresholdNames[amount]
+  };
+  const intersectionCallback = (entry) => {
+    var _a;
+    const { isIntersecting } = entry;
+    if (state.isInView === isIntersecting)
+      return;
+    state.isInView = isIntersecting;
+    if (once && !isIntersecting && state.hasEnteredView) {
+      return;
+    } else if (isIntersecting) {
+      state.hasEnteredView = true;
+    }
+    (_a = visualElement2.animationState) == null ? void 0 : _a.setActive(AnimationType.InView, isIntersecting);
+    const props = visualElement2.getProps();
+    const callback = isIntersecting ? props.onViewportEnter : props.onViewportLeave;
+    callback == null ? void 0 : callback(entry);
+  };
+  return observeIntersection(visualElement2.getInstance(), options, intersectionCallback);
+}
+function useMissingIntersectionObserver(shouldObserve, state, visualElement2, { fallback = true }) {
+  if (!shouldObserve || !fallback)
+    return;
+  requestAnimationFrame(() => {
+    var _a;
+    state.hasEnteredView = true;
+    const { onViewportEnter } = visualElement2.getProps();
+    onViewportEnter == null ? void 0 : onViewportEnter(null);
+    (_a = visualElement2.animationState) == null ? void 0 : _a.setActive(AnimationType.InView, true);
+  });
+}
+export { AnimationType, HTMLProjectionNode, MeasureLayoutWithContext, addPointerEvent, animationControls, createAnimationState, htmlVisualElement, makeVisualState, useFocusGesture, useHoverGesture, useProjection, useTapGesture, useViewport };

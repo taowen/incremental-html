@@ -7,9 +7,9 @@
     <link rel="shortcut icon" href="#" />
 </head>
 
-<body prop:store="$reactive({ justifyContent: 'flex-start' })">
-    <input use:motion="$Motion" motion:while-focus="{ scale: 1.2 }" />
-    <a href="#">link 2</a>
+<body>
+    <div style="margin-top: 120vh; width: 50px; height: 20px; background-color: red; opacity: 0;"
+    use:motion="$Motion" motion:while-in-view="{ opacity: 1 }" motion:transition="{ duration: 2 }"></div>
     <script type="module">
         import { startDomObserver, setEvalGlobals, reactive } from '@incremental-html/reactivity';
         import { morphInnerHTML, morph } from '@incremental-html/morph';

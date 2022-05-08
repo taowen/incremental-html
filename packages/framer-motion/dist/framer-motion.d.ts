@@ -2919,6 +2919,8 @@ ProjectionNodeConstructor?: any
 
 export declare function useTapGesture(props: FeatureProps): () => void;
 
+export declare function useViewport(props: FeatureProps): () => void;
+
 /**
  * @public
  */

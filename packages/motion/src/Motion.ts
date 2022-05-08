@@ -1,4 +1,4 @@
-import { AnimationType, createAnimationState, HTMLProjectionNode, htmlVisualElement, makeVisualState, MeasureLayoutWithContext, MotionProps, useHoverGesture, useProjection, useTapGesture, useFocusGesture } from '@incremental-html/framer-motion';
+import { AnimationType, createAnimationState, HTMLProjectionNode, htmlVisualElement, makeVisualState, MeasureLayoutWithContext, MotionProps, useHoverGesture, useProjection, useTapGesture, useFocusGesture, useViewport } from '@incremental-html/framer-motion';
 import { Feature } from '@incremental-html/reactivity';
 
 let nextProjectionId = 1;
@@ -34,11 +34,14 @@ export class Motion extends Feature<MotionProps> {
     public _4 = this.onMount(() => {
         return useFocusGesture({ ...this.props, visualElement: this.visualElement });
     });
-    public _5 = this.effect(() => {
+    public _5 = this.onMount(() => {
+        return useViewport({ ...this.props, visualElement: this.visualElement });
+    })
+    public _6 = this.effect(() => {
         this.visualElement.setProps(this.props);
         this.visualElement.animationState!.animateChanges();
     })
-    public _6 = this.effect(() => {
+    public _7 = this.effect(() => {
         (this.element as any).$beforeRemove = () => {
             return this.visualElement.animationState!.setActive(AnimationType.Exit, true)
         }
@@ -51,7 +54,7 @@ export class Motion extends Feature<MotionProps> {
         const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
         MeasureLayoutWithContext.componentDidUpdate(featureProps);
     }
-    public _7 = this.effect(() => {
+    public _8 = this.effect(() => {
         if (!this.props.layout) {
             return;
         }
