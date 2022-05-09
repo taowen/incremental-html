@@ -3066,7 +3066,7 @@ declare interface VisualElement<Instance = any, RenderState = any> extends Lifec
 /**
  *
  */
-declare class VisualElementDragControls {
+export declare class VisualElementDragControls {
     private visualElement;
     private panSession?;
     private openGlobalLock;

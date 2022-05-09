@@ -1,4 +1,4 @@
-import { AnimationType, createAnimationState, HTMLProjectionNode, htmlVisualElement, makeVisualState, MeasureLayoutWithContext, MotionProps, useHoverGesture, useProjection, useTapGesture, useFocusGesture, useViewport, usePanGesture } from '@incremental-html/framer-motion';
+import { AnimationType, createAnimationState, HTMLProjectionNode, htmlVisualElement, makeVisualState, MeasureLayoutWithContext, MotionProps, useHoverGesture, useProjection, useTapGesture, useFocusGesture, useViewport, usePanGesture, VisualElementDragControls } from '@incremental-html/framer-motion';
 import { Feature } from '@incremental-html/reactivity';
 
 let nextProjectionId = 1;
@@ -22,6 +22,7 @@ export class Motion extends Feature<MotionProps> {
         (this.element as any).$beforeRemove = () => {
             return this.visualElement.animationState!.setActive(AnimationType.Exit, true)
         }
+        new VisualElementDragControls(this.visualElement).addListeners();
         return () => {
             this.visualElement.unmount();
             const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };

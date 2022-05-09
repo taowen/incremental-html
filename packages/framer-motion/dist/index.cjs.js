@@ -1583,6 +1583,9 @@ function convertBoundingBoxToBox({
     y: { min: top, max: bottom }
   };
 }
+function convertBoxToBoundingBox({ x: x2, y: y2 }) {
+  return { top: y2.min, right: x2.max, bottom: y2.max, left: x2.min };
+}
 function transformBoxPoints(point, transformPoint2) {
   if (!transformPoint2)
     return point;
@@ -1669,6 +1672,15 @@ function transformBox(box, transform) {
 }
 function measureViewportBox(instance, transformPoint2) {
   return convertBoundingBoxToBox(transformBoxPoints(instance.getBoundingClientRect(), transformPoint2));
+}
+function measurePageBox(element, rootProjectionNode2, transformPagePoint) {
+  const viewportBox = measureViewportBox(element, transformPagePoint);
+  const { scroll } = rootProjectionNode2;
+  if (scroll) {
+    translateAxis(viewportBox.x, scroll.x);
+    translateAxis(viewportBox.y, scroll.y);
+  }
+  return viewportBox;
 }
 function getComputedStyle$1(element) {
   return window.getComputedStyle(element);
@@ -3397,161 +3409,6 @@ function getPointerEventName(name) {
 function addPointerEvent(target, eventName, handler, options) {
   return addDomEvent(target, getPointerEventName(eventName), wrapHandler(handler, eventName === "pointerdown"), options);
 }
-const createHtmlRenderState = () => ({
-  style: {},
-  transform: {},
-  transformKeys: [],
-  transformOrigin: {},
-  vars: {}
-});
-function pixelsToPercent(pixels, axis) {
-  if (axis.max === axis.min)
-    return 0;
-  return pixels / (axis.max - axis.min) * 100;
-}
-const correctBorderRadius = {
-  correct: (latest, node) => {
-    if (!node.target)
-      return latest;
-    if (typeof latest === "string") {
-      if (styleValueTypes.px.test(latest)) {
-        latest = parseFloat(latest);
-      } else {
-        return latest;
-      }
-    }
-    const x2 = pixelsToPercent(latest, node.target.x);
-    const y2 = pixelsToPercent(latest, node.target.y);
-    return `${x2}% ${y2}%`;
-  }
-};
-const varToken = "_$css";
-const correctBoxShadow = {
-  correct: (latest, { treeScale, projectionDelta }) => {
-    const original = latest;
-    const containsCSSVariables = latest.includes("var(");
-    const cssVariables = [];
-    if (containsCSSVariables) {
-      latest = latest.replace(cssVariableRegex, (match) => {
-        cssVariables.push(match);
-        return varToken;
-      });
-    }
-    const shadow = styleValueTypes.complex.parse(latest);
-    if (shadow.length > 5)
-      return original;
-    const template = styleValueTypes.complex.createTransformer(latest);
-    const offset = typeof shadow[0] !== "number" ? 1 : 0;
-    const xScale = projectionDelta.x.scale * treeScale.x;
-    const yScale = projectionDelta.y.scale * treeScale.y;
-    shadow[0 + offset] /= xScale;
-    shadow[1 + offset] /= yScale;
-    const averageScale = popmotion.mix(xScale, yScale, 0.5);
-    if (typeof shadow[2 + offset] === "number")
-      shadow[2 + offset] /= averageScale;
-    if (typeof shadow[3 + offset] === "number")
-      shadow[3 + offset] /= averageScale;
-    let output = template(shadow);
-    if (containsCSSVariables) {
-      let i = 0;
-      output = output.replace(varToken, () => {
-        const cssVariable = cssVariables[i];
-        i++;
-        return cssVariable;
-      });
-    }
-    return output;
-  }
-};
-function createLock(name) {
-  let lock = null;
-  return () => {
-    const openLock = () => {
-      lock = null;
-    };
-    if (lock === null) {
-      lock = name;
-      return openLock;
-    }
-    return false;
-  };
-}
-const globalHorizontalLock = createLock("dragHorizontal");
-const globalVerticalLock = createLock("dragVertical");
-function getGlobalLock(drag) {
-  let lock = false;
-  if (drag === "y") {
-    lock = globalVerticalLock();
-  } else if (drag === "x") {
-    lock = globalHorizontalLock();
-  } else {
-    const openHorizontal = globalHorizontalLock();
-    const openVertical = globalVerticalLock();
-    if (openHorizontal && openVertical) {
-      lock = () => {
-        openHorizontal();
-        openVertical();
-      };
-    } else {
-      if (openHorizontal)
-        openHorizontal();
-      if (openVertical)
-        openVertical();
-    }
-  }
-  return lock;
-}
-function isDragActive() {
-  const openGestureLock = getGlobalLock(true);
-  if (!openGestureLock)
-    return true;
-  openGestureLock();
-  return false;
-}
-const isNodeOrChild = (parent, child) => {
-  if (!child) {
-    return false;
-  } else if (parent === child) {
-    return true;
-  } else {
-    return isNodeOrChild(parent, child.parentElement);
-  }
-};
-const observerCallbacks = /* @__PURE__ */ new WeakMap();
-const observers = /* @__PURE__ */ new WeakMap();
-const fireObserverCallback = (entry) => {
-  var _a;
-  (_a = observerCallbacks.get(entry.target)) == null ? void 0 : _a(entry);
-};
-const fireAllObserverCallbacks = (entries) => {
-  entries.forEach(fireObserverCallback);
-};
-function initIntersectionObserver(_h) {
-  var _i = _h, {
-    root
-  } = _i, options = __objRest(_i, [
-    "root"
-  ]);
-  const lookupRoot = root || document;
-  if (!observers.has(lookupRoot)) {
-    observers.set(lookupRoot, {});
-  }
-  const rootObservers = observers.get(lookupRoot);
-  const key = JSON.stringify(options);
-  if (!rootObservers[key]) {
-    rootObservers[key] = new IntersectionObserver(fireAllObserverCallbacks, __spreadValues({ root }, options));
-  }
-  return rootObservers[key];
-}
-function observeIntersection(element, options, callback) {
-  const rootInteresectionObserver = initIntersectionObserver(options);
-  observerCallbacks.set(element, callback);
-  rootInteresectionObserver.observe(element);
-  return () => {
-    observerCallbacks.delete(element);
-    rootInteresectionObserver.unobserve(element);
-  };
-}
 class PanSession {
   constructor(event, handlers, { transformPagePoint } = {}) {
     this.startEvent = null;
@@ -3667,6 +3524,568 @@ function getVelocity(history, timeDelta) {
     currentVelocity.y = 0;
   }
   return currentVelocity;
+}
+function createLock(name) {
+  let lock = null;
+  return () => {
+    const openLock = () => {
+      lock = null;
+    };
+    if (lock === null) {
+      lock = name;
+      return openLock;
+    }
+    return false;
+  };
+}
+const globalHorizontalLock = createLock("dragHorizontal");
+const globalVerticalLock = createLock("dragVertical");
+function getGlobalLock(drag) {
+  let lock = false;
+  if (drag === "y") {
+    lock = globalVerticalLock();
+  } else if (drag === "x") {
+    lock = globalHorizontalLock();
+  } else {
+    const openHorizontal = globalHorizontalLock();
+    const openVertical = globalVerticalLock();
+    if (openHorizontal && openVertical) {
+      lock = () => {
+        openHorizontal();
+        openVertical();
+      };
+    } else {
+      if (openHorizontal)
+        openHorizontal();
+      if (openVertical)
+        openVertical();
+    }
+  }
+  return lock;
+}
+function isDragActive() {
+  const openGestureLock = getGlobalLock(true);
+  if (!openGestureLock)
+    return true;
+  openGestureLock();
+  return false;
+}
+function isRefObject(ref) {
+  return typeof ref === "object" && Object.prototype.hasOwnProperty.call(ref, "current");
+}
+function applyConstraints(point, { min, max }, elastic) {
+  if (min !== void 0 && point < min) {
+    point = elastic ? popmotion.mix(min, point, elastic.min) : Math.max(point, min);
+  } else if (max !== void 0 && point > max) {
+    point = elastic ? popmotion.mix(max, point, elastic.max) : Math.min(point, max);
+  }
+  return point;
+}
+function calcRelativeAxisConstraints(axis, min, max) {
+  return {
+    min: min !== void 0 ? axis.min + min : void 0,
+    max: max !== void 0 ? axis.max + max - (axis.max - axis.min) : void 0
+  };
+}
+function calcRelativeConstraints(layoutBox, { top, left, bottom, right }) {
+  return {
+    x: calcRelativeAxisConstraints(layoutBox.x, left, right),
+    y: calcRelativeAxisConstraints(layoutBox.y, top, bottom)
+  };
+}
+function calcViewportAxisConstraints(layoutAxis, constraintsAxis) {
+  let min = constraintsAxis.min - layoutAxis.min;
+  let max = constraintsAxis.max - layoutAxis.max;
+  if (constraintsAxis.max - constraintsAxis.min < layoutAxis.max - layoutAxis.min) {
+    [min, max] = [max, min];
+  }
+  return { min, max };
+}
+function calcViewportConstraints(layoutBox, constraintsBox) {
+  return {
+    x: calcViewportAxisConstraints(layoutBox.x, constraintsBox.x),
+    y: calcViewportAxisConstraints(layoutBox.y, constraintsBox.y)
+  };
+}
+function calcOrigin(source, target) {
+  let origin = 0.5;
+  const sourceLength = calcLength(source);
+  const targetLength = calcLength(target);
+  if (targetLength > sourceLength) {
+    origin = popmotion.progress(target.min, target.max - sourceLength, source.min);
+  } else if (sourceLength > targetLength) {
+    origin = popmotion.progress(source.min, source.max - targetLength, target.min);
+  }
+  return popmotion.clamp(0, 1, origin);
+}
+function rebaseAxisConstraints(layout, constraints) {
+  const relativeConstraints = {};
+  if (constraints.min !== void 0) {
+    relativeConstraints.min = constraints.min - layout.min;
+  }
+  if (constraints.max !== void 0) {
+    relativeConstraints.max = constraints.max - layout.min;
+  }
+  return relativeConstraints;
+}
+const defaultElastic = 0.35;
+function resolveDragElastic(dragElastic = defaultElastic) {
+  if (dragElastic === false) {
+    dragElastic = 0;
+  } else if (dragElastic === true) {
+    dragElastic = defaultElastic;
+  }
+  return {
+    x: resolveAxisElastic(dragElastic, "left", "right"),
+    y: resolveAxisElastic(dragElastic, "top", "bottom")
+  };
+}
+function resolveAxisElastic(dragElastic, minLabel, maxLabel) {
+  return {
+    min: resolvePointElastic(dragElastic, minLabel),
+    max: resolvePointElastic(dragElastic, maxLabel)
+  };
+}
+function resolvePointElastic(dragElastic, label) {
+  var _a;
+  return typeof dragElastic === "number" ? dragElastic : (_a = dragElastic[label]) != null ? _a : 0;
+}
+const elementDragControls = /* @__PURE__ */ new WeakMap();
+class VisualElementDragControls {
+  constructor(visualElement2) {
+    this.openGlobalLock = null;
+    this.isDragging = false;
+    this.currentDirection = null;
+    this.originPoint = { x: 0, y: 0 };
+    this.constraints = false;
+    this.hasMutatedConstraints = false;
+    this.elastic = createBox();
+    this.visualElement = visualElement2;
+  }
+  start(originEvent, { snapToCursor = false } = {}) {
+    if (this.visualElement.isPresent === false)
+      return;
+    const onSessionStart = (event) => {
+      this.stopAnimation();
+      if (snapToCursor) {
+        this.snapToCursor(extractEventInfo(event, "page").point);
+      }
+    };
+    const onStart = (event, info) => {
+      var _a;
+      const { drag, dragPropagation, onDragStart } = this.getProps();
+      if (drag && !dragPropagation) {
+        if (this.openGlobalLock)
+          this.openGlobalLock();
+        this.openGlobalLock = getGlobalLock(drag);
+        if (!this.openGlobalLock)
+          return;
+      }
+      this.isDragging = true;
+      this.currentDirection = null;
+      this.resolveConstraints();
+      if (this.visualElement.projection) {
+        this.visualElement.projection.isAnimationBlocked = true;
+        this.visualElement.projection.target = void 0;
+      }
+      eachAxis((axis) => {
+        var _a2, _b;
+        let current = this.getAxisMotionValue(axis).get() || 0;
+        if (styleValueTypes.percent.test(current)) {
+          const measuredAxis = (_b = (_a2 = this.visualElement.projection) == null ? void 0 : _a2.layout) == null ? void 0 : _b.actual[axis];
+          if (measuredAxis) {
+            const length = calcLength(measuredAxis);
+            current = length * (parseFloat(current) / 100);
+          }
+        }
+        this.originPoint[axis] = current;
+      });
+      onDragStart == null ? void 0 : onDragStart(event, info);
+      (_a = this.visualElement.animationState) == null ? void 0 : _a.setActive(AnimationType.Drag, true);
+    };
+    const onMove = (event, info) => {
+      const {
+        dragPropagation,
+        dragDirectionLock,
+        onDirectionLock,
+        onDrag
+      } = this.getProps();
+      if (!dragPropagation && !this.openGlobalLock)
+        return;
+      const { offset } = info;
+      if (dragDirectionLock && this.currentDirection === null) {
+        this.currentDirection = getCurrentDirection(offset);
+        if (this.currentDirection !== null) {
+          onDirectionLock == null ? void 0 : onDirectionLock(this.currentDirection);
+        }
+        return;
+      }
+      this.updateAxis("x", info.point, offset);
+      this.updateAxis("y", info.point, offset);
+      this.visualElement.syncRender();
+      onDrag == null ? void 0 : onDrag(event, info);
+    };
+    const onSessionEnd = (event, info) => this.stop(event, info);
+    this.panSession = new PanSession(originEvent, {
+      onSessionStart,
+      onStart,
+      onMove,
+      onSessionEnd
+    }, { transformPagePoint: this.visualElement.getTransformPagePoint() });
+  }
+  stop(event, info) {
+    const isDragging = this.isDragging;
+    this.cancel();
+    if (!isDragging)
+      return;
+    const { velocity } = info;
+    this.startAnimation(velocity);
+    const { onDragEnd } = this.getProps();
+    onDragEnd == null ? void 0 : onDragEnd(event, info);
+  }
+  cancel() {
+    var _a, _b;
+    this.isDragging = false;
+    if (this.visualElement.projection) {
+      this.visualElement.projection.isAnimationBlocked = false;
+    }
+    (_a = this.panSession) == null ? void 0 : _a.end();
+    this.panSession = void 0;
+    const { dragPropagation } = this.getProps();
+    if (!dragPropagation && this.openGlobalLock) {
+      this.openGlobalLock();
+      this.openGlobalLock = null;
+    }
+    (_b = this.visualElement.animationState) == null ? void 0 : _b.setActive(AnimationType.Drag, false);
+  }
+  updateAxis(axis, _point, offset) {
+    const { drag } = this.getProps();
+    if (!offset || !shouldDrag(axis, drag, this.currentDirection))
+      return;
+    const axisValue = this.getAxisMotionValue(axis);
+    let next = this.originPoint[axis] + offset[axis];
+    if (this.constraints && this.constraints[axis]) {
+      next = applyConstraints(next, this.constraints[axis], this.elastic[axis]);
+    }
+    axisValue.set(next);
+  }
+  resolveConstraints() {
+    const { dragConstraints, dragElastic } = this.getProps();
+    const { layout } = this.visualElement.projection || {};
+    const prevConstraints = this.constraints;
+    if (dragConstraints && isRefObject(dragConstraints)) {
+      if (!this.constraints) {
+        this.constraints = this.resolveRefConstraints();
+      }
+    } else {
+      if (dragConstraints && layout) {
+        this.constraints = calcRelativeConstraints(layout.actual, dragConstraints);
+      } else {
+        this.constraints = false;
+      }
+    }
+    this.elastic = resolveDragElastic(dragElastic);
+    if (prevConstraints !== this.constraints && layout && this.constraints && !this.hasMutatedConstraints) {
+      eachAxis((axis) => {
+        if (this.getAxisMotionValue(axis)) {
+          this.constraints[axis] = rebaseAxisConstraints(layout.actual[axis], this.constraints[axis]);
+        }
+      });
+    }
+  }
+  resolveRefConstraints() {
+    const { dragConstraints: constraints, onMeasureDragConstraints } = this.getProps();
+    if (!constraints || !isRefObject(constraints))
+      return false;
+    const constraintsElement = constraints.current;
+    heyListen.invariant(constraintsElement !== null, "If `dragConstraints` is set as a React ref, that ref must be passed to another component's `ref` prop.");
+    const { projection } = this.visualElement;
+    if (!projection || !projection.layout)
+      return false;
+    const constraintsBox = measurePageBox(constraintsElement, projection.root, this.visualElement.getTransformPagePoint());
+    let measuredConstraints = calcViewportConstraints(projection.layout.actual, constraintsBox);
+    if (onMeasureDragConstraints) {
+      const userConstraints = onMeasureDragConstraints(convertBoxToBoundingBox(measuredConstraints));
+      this.hasMutatedConstraints = !!userConstraints;
+      if (userConstraints) {
+        measuredConstraints = convertBoundingBoxToBox(userConstraints);
+      }
+    }
+    return measuredConstraints;
+  }
+  startAnimation(velocity) {
+    const {
+      drag,
+      dragMomentum,
+      dragElastic,
+      dragTransition,
+      dragSnapToOrigin,
+      onDragTransitionEnd
+    } = this.getProps();
+    const constraints = this.constraints || {};
+    const momentumAnimations = eachAxis((axis) => {
+      var _a;
+      if (!shouldDrag(axis, drag, this.currentDirection)) {
+        return;
+      }
+      let transition = (_a = constraints == null ? void 0 : constraints[axis]) != null ? _a : {};
+      if (dragSnapToOrigin)
+        transition = { min: 0, max: 0 };
+      const bounceStiffness = dragElastic ? 200 : 1e6;
+      const bounceDamping = dragElastic ? 40 : 1e7;
+      const inertia = __spreadValues(__spreadValues({
+        type: "inertia",
+        velocity: dragMomentum ? velocity[axis] : 0,
+        bounceStiffness,
+        bounceDamping,
+        timeConstant: 750,
+        restDelta: 1,
+        restSpeed: 10
+      }, dragTransition), transition);
+      return this.startAxisValueAnimation(axis, inertia);
+    });
+    return Promise.all(momentumAnimations).then(onDragTransitionEnd);
+  }
+  startAxisValueAnimation(axis, transition) {
+    const axisValue = this.getAxisMotionValue(axis);
+    return startAnimation(axis, axisValue, 0, transition);
+  }
+  stopAnimation() {
+    eachAxis((axis) => this.getAxisMotionValue(axis).stop());
+  }
+  getAxisMotionValue(axis) {
+    var _a, _b;
+    const dragKey = "_drag" + axis.toUpperCase();
+    const externalMotionValue = this.visualElement.getProps()[dragKey];
+    return externalMotionValue ? externalMotionValue : this.visualElement.getValue(axis, (_b = (_a = this.visualElement.getProps().initial) == null ? void 0 : _a[axis]) != null ? _b : 0);
+  }
+  snapToCursor(point) {
+    eachAxis((axis) => {
+      const { drag } = this.getProps();
+      if (!shouldDrag(axis, drag, this.currentDirection))
+        return;
+      const { projection } = this.visualElement;
+      const axisValue = this.getAxisMotionValue(axis);
+      if (projection && projection.layout) {
+        const { min, max } = projection.layout.actual[axis];
+        axisValue.set(point[axis] - popmotion.mix(min, max, 0.5));
+      }
+    });
+  }
+  scalePositionWithinConstraints() {
+    var _a;
+    const { drag, dragConstraints } = this.getProps();
+    const { projection } = this.visualElement;
+    if (!isRefObject(dragConstraints) || !projection || !this.constraints)
+      return;
+    this.stopAnimation();
+    const boxProgress = { x: 0, y: 0 };
+    eachAxis((axis) => {
+      const axisValue = this.getAxisMotionValue(axis);
+      if (axisValue) {
+        const latest = axisValue.get();
+        boxProgress[axis] = calcOrigin({ min: latest, max: latest }, this.constraints[axis]);
+      }
+    });
+    const { transformTemplate } = this.visualElement.getProps();
+    this.visualElement.getInstance().style.transform = transformTemplate ? transformTemplate({}, "") : "none";
+    (_a = projection.root) == null ? void 0 : _a.updateScroll();
+    projection.updateLayout();
+    this.resolveConstraints();
+    eachAxis((axis) => {
+      if (!shouldDrag(axis, drag, null))
+        return;
+      const axisValue = this.getAxisMotionValue(axis);
+      const { min, max } = this.constraints[axis];
+      axisValue.set(popmotion.mix(min, max, boxProgress[axis]));
+    });
+  }
+  addListeners() {
+    var _a;
+    elementDragControls.set(this.visualElement, this);
+    const element = this.visualElement.getInstance();
+    const stopPointerListener = addPointerEvent(element, "pointerdown", (event) => {
+      const { drag, dragListener = true } = this.getProps();
+      drag && dragListener && this.start(event);
+    });
+    const measureDragConstraints = () => {
+      const { dragConstraints } = this.getProps();
+      if (isRefObject(dragConstraints)) {
+        this.constraints = this.resolveRefConstraints();
+      }
+    };
+    const { projection } = this.visualElement;
+    const stopMeasureLayoutListener = projection.addEventListener("measure", measureDragConstraints);
+    if (projection && !projection.layout) {
+      (_a = projection.root) == null ? void 0 : _a.updateScroll();
+      projection.updateLayout();
+    }
+    measureDragConstraints();
+    const stopResizeListener = addDomEvent(window, "resize", () => {
+      this.scalePositionWithinConstraints();
+    });
+    projection.addEventListener("didUpdate", ({
+      delta,
+      hasLayoutChanged
+    }) => {
+      if (this.isDragging && hasLayoutChanged) {
+        eachAxis((axis) => {
+          const motionValue2 = this.getAxisMotionValue(axis);
+          if (!motionValue2)
+            return;
+          this.originPoint[axis] += delta[axis].translate;
+          motionValue2.set(motionValue2.get() + delta[axis].translate);
+        });
+        this.visualElement.syncRender();
+      }
+    });
+    return () => {
+      stopResizeListener();
+      stopPointerListener();
+      stopMeasureLayoutListener();
+    };
+  }
+  getProps() {
+    const props = this.visualElement.getProps();
+    const {
+      drag = false,
+      dragDirectionLock = false,
+      dragPropagation = false,
+      dragConstraints = false,
+      dragElastic = defaultElastic,
+      dragMomentum = true
+    } = props;
+    return __spreadProps(__spreadValues({}, props), {
+      drag,
+      dragDirectionLock,
+      dragPropagation,
+      dragConstraints,
+      dragElastic,
+      dragMomentum
+    });
+  }
+}
+function shouldDrag(direction, drag, currentDirection) {
+  return (drag === true || drag === direction) && (currentDirection === null || currentDirection === direction);
+}
+function getCurrentDirection(offset, lockThreshold = 10) {
+  let direction = null;
+  if (Math.abs(offset.y) > lockThreshold) {
+    direction = "y";
+  } else if (Math.abs(offset.x) > lockThreshold) {
+    direction = "x";
+  }
+  return direction;
+}
+const createHtmlRenderState = () => ({
+  style: {},
+  transform: {},
+  transformKeys: [],
+  transformOrigin: {},
+  vars: {}
+});
+function pixelsToPercent(pixels, axis) {
+  if (axis.max === axis.min)
+    return 0;
+  return pixels / (axis.max - axis.min) * 100;
+}
+const correctBorderRadius = {
+  correct: (latest, node) => {
+    if (!node.target)
+      return latest;
+    if (typeof latest === "string") {
+      if (styleValueTypes.px.test(latest)) {
+        latest = parseFloat(latest);
+      } else {
+        return latest;
+      }
+    }
+    const x2 = pixelsToPercent(latest, node.target.x);
+    const y2 = pixelsToPercent(latest, node.target.y);
+    return `${x2}% ${y2}%`;
+  }
+};
+const varToken = "_$css";
+const correctBoxShadow = {
+  correct: (latest, { treeScale, projectionDelta }) => {
+    const original = latest;
+    const containsCSSVariables = latest.includes("var(");
+    const cssVariables = [];
+    if (containsCSSVariables) {
+      latest = latest.replace(cssVariableRegex, (match) => {
+        cssVariables.push(match);
+        return varToken;
+      });
+    }
+    const shadow = styleValueTypes.complex.parse(latest);
+    if (shadow.length > 5)
+      return original;
+    const template = styleValueTypes.complex.createTransformer(latest);
+    const offset = typeof shadow[0] !== "number" ? 1 : 0;
+    const xScale = projectionDelta.x.scale * treeScale.x;
+    const yScale = projectionDelta.y.scale * treeScale.y;
+    shadow[0 + offset] /= xScale;
+    shadow[1 + offset] /= yScale;
+    const averageScale = popmotion.mix(xScale, yScale, 0.5);
+    if (typeof shadow[2 + offset] === "number")
+      shadow[2 + offset] /= averageScale;
+    if (typeof shadow[3 + offset] === "number")
+      shadow[3 + offset] /= averageScale;
+    let output = template(shadow);
+    if (containsCSSVariables) {
+      let i = 0;
+      output = output.replace(varToken, () => {
+        const cssVariable = cssVariables[i];
+        i++;
+        return cssVariable;
+      });
+    }
+    return output;
+  }
+};
+const isNodeOrChild = (parent, child) => {
+  if (!child) {
+    return false;
+  } else if (parent === child) {
+    return true;
+  } else {
+    return isNodeOrChild(parent, child.parentElement);
+  }
+};
+const observerCallbacks = /* @__PURE__ */ new WeakMap();
+const observers = /* @__PURE__ */ new WeakMap();
+const fireObserverCallback = (entry) => {
+  var _a;
+  (_a = observerCallbacks.get(entry.target)) == null ? void 0 : _a(entry);
+};
+const fireAllObserverCallbacks = (entries) => {
+  entries.forEach(fireObserverCallback);
+};
+function initIntersectionObserver(_h) {
+  var _i = _h, {
+    root
+  } = _i, options = __objRest(_i, [
+    "root"
+  ]);
+  const lookupRoot = root || document;
+  if (!observers.has(lookupRoot)) {
+    observers.set(lookupRoot, {});
+  }
+  const rootObservers = observers.get(lookupRoot);
+  const key = JSON.stringify(options);
+  if (!rootObservers[key]) {
+    rootObservers[key] = new IntersectionObserver(fireAllObserverCallbacks, __spreadValues({ root }, options));
+  }
+  return rootObservers[key];
+}
+function observeIntersection(element, options, callback) {
+  const rootInteresectionObserver = initIntersectionObserver(options);
+  observerCallbacks.set(element, callback);
+  rootInteresectionObserver.observe(element);
+  return () => {
+    observerCallbacks.delete(element);
+    rootInteresectionObserver.unobserve(element);
+  };
 }
 function makeVisualState(props, context, presenceContext) {
   const renderState = createHtmlRenderState();
@@ -3990,6 +4409,7 @@ function usePanGesture({
 exports.AnimationType = AnimationType;
 exports.HTMLProjectionNode = HTMLProjectionNode;
 exports.MeasureLayoutWithContext = MeasureLayoutWithContext;
+exports.VisualElementDragControls = VisualElementDragControls;
 exports.addPointerEvent = addPointerEvent;
 exports.animationControls = animationControls;
 exports.createAnimationState = createAnimationState;

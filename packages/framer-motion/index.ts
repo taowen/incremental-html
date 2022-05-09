@@ -4,6 +4,7 @@ export { animationControls } from './motion/packages/framer-motion/src/animation
 export { AnimationType } from './motion/packages/framer-motion/src/render/utils/types'
 export { HTMLProjectionNode } from './motion/packages/framer-motion/src/projection/node/HTMLProjectionNode';
 export { addPointerEvent } from './motion/packages/framer-motion/src/events/use-pointer-event';
+export { VisualElementDragControls } from './motion/packages/framer-motion/src/gestures/drag/VisualElementDragControls';
 
 import { scrapeMotionValuesFromProps } from './motion/packages/framer-motion/src/render/html/utils/scrape-motion-values'
 import { createHtmlRenderState } from './motion/packages/framer-motion/src/render/html/utils/create-render-state'
