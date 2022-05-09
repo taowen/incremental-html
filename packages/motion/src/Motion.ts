@@ -20,19 +20,21 @@ export class Motion extends Feature<MotionProps> {
         const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
         MeasureLayoutWithContext.componentDidMount(featureProps);
         new VisualElementDragControls(this.visualElement).addListeners();
+        const unmount = () => {
+            this.visualElement.unmount();
+            const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
+            MeasureLayoutWithContext.componentWillUnmount(featureProps);
+        }
         return () => {
-            if (this.props.exit) {
-                return (async () => {
-                    await this.visualElement.animationState!.setActive(AnimationType.Exit, true);
-                    this.visualElement.unmount();
-                    const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
-                    MeasureLayoutWithContext.componentWillUnmount(featureProps);
-                })();
-            } else {
-                this.visualElement.unmount();
-                const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
-                MeasureLayoutWithContext.componentWillUnmount(featureProps);
+            if (!this.props.exit) {
+                unmount();
+                return;
             }
+            // play exit animation before unmount
+            return (async () => {
+                await this.visualElement.animationState!.setActive(AnimationType.Exit, true);
+                unmount();
+            })();
         }
     })
     public _2 = this.onMount(() => {
