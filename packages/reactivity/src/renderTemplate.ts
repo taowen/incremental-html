@@ -1,5 +1,5 @@
 import { morph, morphChildNodes, morphInnerHTML } from '@incremental-html/morph';
-import { evalSync } from './eval';
+import { callEventHandler, evalSync } from './eval';
 import { camelize } from './naming';
 
 morphChildNodes.morphProperties = (oldEl, newEl) => {
@@ -28,6 +28,10 @@ export function refreshNode(node: Element) {
 export function setNodeProperty(node: Element, name: string, value: any) {
     if (name.startsWith('style.')) {
         Reflect.set((node as HTMLElement).style, name.substring('style.'.length), value)
+        return;
+    }
+    if (name === 'class') {
+        node.className = value;
         return;
     }
     if (name.startsWith('class.')) {
@@ -68,13 +72,25 @@ export function renderTemplate(selector: string, props?: Record<string, any>) {
         rendered.push(child);
     }
     if (rendered.length === 1) {
+        renderNode(rendered[0] as Element);
         return rendered[0]
     }
     const div = document.createElement('div');
     for (const child of rendered) {
         div.appendChild(child);
     }
+    renderNode(div);
     return div;
+}
+
+function renderNode(node: Element) {
+    refreshNode(node);
+    if (node.hasAttribute('on:render')) {
+        callEventHandler('render', node, node.getAttribute('on:render')!);
+    }
+    for (let i = 0; i < node.children.length; i++) {
+        renderNode(node.children[i])
+    }
 }
 
 function setProps(node: Node, props: Record<string, any>) {

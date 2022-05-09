@@ -1,5 +1,5 @@
 import { effect, isRef } from '@vue/reactivity';
-import { evalEventHandler, evalSync } from './eval';
+import { callEventHandler, evalEventHandler, evalSync } from './eval';
 import { Feature } from './Feature';
 import { camelize } from './naming';
 import { refreshNode, setNodeProperty } from './renderTemplate';
@@ -97,7 +97,14 @@ async function mountNode(node: Element) {
             })
         } else if (attr.name.startsWith('prop:')) {
             const propName = camelize(attr.name.substring('prop:'.length));
-            setNodeProperty(node, propName, evalSync(attr.value, node));
+            let value = undefined;
+            try {
+                value = evalSync(attr.value, node);
+            } catch(e) {
+                console.error(`failed to eval ${attr.name} of `, node, e);
+                continue;
+            }
+            setNodeProperty(node, propName, value);
         } else if (attr.name.startsWith('use:')) {
             let featureClass = evalSync(attr.value, node);
             const featureName = attr.name.substring('use:'.length);
@@ -130,17 +137,4 @@ async function createFeature(featureClass: any, element: Element, prefix: string
     }
     const { default: lazyLoadedFeatureClass } = await(featureClass());
     return new lazyLoadedFeatureClass(element);
-}
-
-async function callEventHandler(eventName: string, node: EventTarget, eventHandler: string | Function, ...args: any[]) {
-    try {
-        if (typeof eventHandler === 'string') {
-            return await evalEventHandler(eventHandler, node, ...args);
-        } else {
-            return await eventHandler.apply(node, args);
-        }
-    } catch (e) {
-        console.error('failed to handle ' + eventName, { e });
-        return undefined;
-    }
 }

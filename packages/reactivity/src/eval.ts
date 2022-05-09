@@ -23,3 +23,16 @@ export function setEvalGlobals(evalGlobals: Record<string, any>) {
         globalValues.push(v);
     }
 }
+
+export async function callEventHandler(eventName: string, node: EventTarget, eventHandler: string | Function, ...args: any[]) {
+    try {
+        if (typeof eventHandler === 'string') {
+            return await evalEventHandler(eventHandler, node, ...args);
+        } else {
+            return await eventHandler.apply(node, args);
+        }
+    } catch (e) {
+        console.error('failed to handle ' + eventName, { e });
+        return undefined;
+    }
+}

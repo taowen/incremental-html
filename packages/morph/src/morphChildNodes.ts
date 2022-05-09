@@ -46,7 +46,11 @@ function _morphChildNodes(oldEl: Element, newEl: Element | Node[]) {
         if((toRemove as any).$beforeRemove) {
             (async () => {
                 await (toRemove as any).$beforeRemove();
-                oldEl.removeChild(toRemove);
+                try {
+                    oldEl.removeChild(toRemove);
+                } catch(e) {
+                    // parent might has been removed as well
+                }
             })();
         } else {
             oldEl.removeChild(toRemove);
