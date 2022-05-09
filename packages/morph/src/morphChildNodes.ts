@@ -15,9 +15,9 @@ export async function morphChildNodes(oldEl: Element, newEl: Element | Node[]) {
         }
     }
     await Promise.all(removeProgress);
-    oldEl.dispatchEvent(new Event('beforeMorph'));
+    // ensure exit animation completes
+    await new Promise(resolve => setTimeout(resolve, 0));
     commitNewChildNodes(oldEl);
-    oldEl.dispatchEvent(new Event('afterMorph'));
 }
 
 function commitNewChildNodes(el: Element) {
@@ -74,7 +74,13 @@ function removeIncompatibleChildNodes(removeProgress: Promise<void>[], oldEl: El
         if (oldChild.nodeType === 1) {
             const promise = morphChildNodes.beforeRemove(oldChild as Element);
             if (promise) {
-                removeProgress.push(promise.finally(() => oldEl.removeChild(oldChild)));
+                removeProgress.push(promise.finally(() => {
+                    try {
+                        oldEl.removeChild(oldChild)
+                    } catch (e) {
+                        // ignore
+                    }
+                }));
             } else {
                 oldEl.removeChild(oldChild);
             }

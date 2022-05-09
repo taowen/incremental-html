@@ -1,4 +1,4 @@
-import { AnimationType, createAnimationState, HTMLProjectionNode, htmlVisualElement, makeVisualState, MeasureLayoutWithContext, MotionProps, useHoverGesture, useProjection, useTapGesture, useFocusGesture, useViewport, usePanGesture, VisualElementDragControls } from '@incremental-html/framer-motion';
+import { AnimationType, createAnimationState, HTMLProjectionNode, htmlVisualElement, makeVisualState, MeasureLayoutWithContext, MotionProps, useFocusGesture, useHoverGesture, usePanGesture, useProjection, useTapGesture, useViewport, VisualElementDragControls } from '@incremental-html/framer-motion';
 import { Feature } from '@incremental-html/reactivity';
 
 let nextProjectionId = 1;
@@ -20,11 +20,19 @@ export class Motion extends Feature<MotionProps> {
         const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
         MeasureLayoutWithContext.componentDidMount(featureProps);
         new VisualElementDragControls(this.visualElement).addListeners();
-        return async () => {
-            this.visualElement.unmount();
-            const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
-            MeasureLayoutWithContext.componentWillUnmount(featureProps);
-            await this.visualElement.animationState!.setActive(AnimationType.Exit, true);
+        return () => {
+            if (this.props.exit) {
+                return (async () => {
+                    await this.visualElement.animationState!.setActive(AnimationType.Exit, true);
+                    this.visualElement.unmount();
+                    const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
+                    MeasureLayoutWithContext.componentWillUnmount(featureProps);
+                })();
+            } else {
+                this.visualElement.unmount();
+                const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
+                MeasureLayoutWithContext.componentWillUnmount(featureProps);
+            }
         }
     })
     public _2 = this.onMount(() => {
@@ -40,7 +48,7 @@ export class Motion extends Feature<MotionProps> {
         return useViewport({ ...this.props, visualElement: this.visualElement });
     })
     public _6 = this.onMount(() => {
-        return usePanGesture({ ...this.props, visualElement: this.visualElement}, {});
+        return usePanGesture({ ...this.props, visualElement: this.visualElement }, {});
     })
     public _7 = this.effect(() => {
         this.visualElement.setProps(this.props);
