@@ -10,27 +10,47 @@ morphChildNodes.morphProperties = (oldEl, newEl) => {
 }
 
 export function refreshNode(node: Element) {
-    const moreMorphs: (()=>void)[] = [];
-    morph(node, () => {
-        for (let i = 0; i < node.attributes.length; i++) {
-            const attr = node.attributes[i];
-            if (attr.name.startsWith('bind:')) {
-                const name = camelize(attr.name.substring('bind:'.length));
-                try {
-                    const newValue = evalSync(attr.value, node);
-                    if (name === 'innerHtml' || name === 'childNodes') {
-                        moreMorphs.push(() => setNodeProperty(node, name, newValue))
-                    } else {
-                        setNodeProperty(node, name, newValue);
-                    }
-                } catch (e) {
-                    console.error(`failed to eval ${attr.name}`, { node, e });
+    for (let i = 0; i < node.attributes.length; i++) {
+        const attr = node.attributes[i];
+        if (attr.name.startsWith('bind:')) {
+            const name = camelize(attr.name.substring('bind:'.length));
+            try {
+                const newValue = evalSync(attr.value, node);
+                let bindProps = (node as any).$bindProps;
+                if (!bindProps) {
+                    (node as any).$bindProps = bindProps = {};
                 }
+                bindProps[name] = newValue;
+            } catch (e) {
+                console.error(`failed to eval ${attr.name}`, { node, e });
             }
         }
-    })
-    for (const moreMorph of moreMorphs) {
-        moreMorph();
+    }
+    if ((node as any).$bindProps) {
+        applyBindProps(node);
+    }
+}
+
+async function applyBindProps(node: Element) {
+    await new Promise<void>(resolve => resolve());
+    const bindProps = (node as any).$bindProps;
+    if (!bindProps) {
+        return;
+    }
+    delete (node as any).$bindProps;
+    const { innerHtml, childNodes, ...otherBindProps } = bindProps;
+    if (Object.keys(otherBindProps).length > 0) {
+        morph(node, () => {
+            for (const [name, value] of Object.entries(otherBindProps)) {
+                setNodeProperty(node, name, value);
+            }
+        });
+    }
+    if (innerHtml) {
+        morphInnerHTML(node, innerHtml);
+    }
+    if (childNodes) {
+        morphChildNodes(node, Array.isArray(childNodes) ? childNodes : [childNodes]);
     }
 }
 
