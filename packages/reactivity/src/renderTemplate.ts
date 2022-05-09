@@ -10,19 +10,28 @@ morphChildNodes.morphProperties = (oldEl, newEl) => {
 }
 
 export function refreshNode(node: Element) {
+    const moreMorphs: (()=>void)[] = [];
     morph(node, () => {
         for (let i = 0; i < node.attributes.length; i++) {
             const attr = node.attributes[i];
             if (attr.name.startsWith('bind:')) {
+                const name = camelize(attr.name.substring('bind:'.length));
                 try {
                     const newValue = evalSync(attr.value, node);
-                    setNodeProperty(node, camelize(attr.name.substring('bind:'.length)), newValue);
+                    if (name === 'innerHtml' || name === 'childNodes') {
+                        moreMorphs.push(() => setNodeProperty(node, name, newValue))
+                    } else {
+                        setNodeProperty(node, name, newValue);
+                    }
                 } catch (e) {
                     console.error(`failed to eval ${attr.name}`, { node, e });
                 }
             }
         }
     })
+    for (const moreMorph of moreMorphs) {
+        moreMorph();
+    }
 }
 
 export function setNodeProperty(node: Element, name: string, value: any) {
@@ -84,7 +93,6 @@ export function renderTemplate(selector: string, props?: Record<string, any>) {
 }
 
 function renderNode(node: Element) {
-    refreshNode(node);
     if (node.hasAttribute('on:render')) {
         callEventHandler('render', node, node.getAttribute('on:render')!);
     }

@@ -19,14 +19,12 @@ export class Motion extends Feature<MotionProps> {
         this.visualElement.mount(this.element as HTMLElement);
         const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
         MeasureLayoutWithContext.componentDidMount(featureProps);
-        (this.element as any).$beforeRemove = () => {
-            return this.visualElement.animationState!.setActive(AnimationType.Exit, true)
-        }
         new VisualElementDragControls(this.visualElement).addListeners();
-        return () => {
+        return async () => {
             this.visualElement.unmount();
             const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
             MeasureLayoutWithContext.componentWillUnmount(featureProps);
+            await this.visualElement.animationState!.setActive(AnimationType.Exit, true);
         }
     })
     public _2 = this.onMount(() => {
@@ -57,7 +55,7 @@ export class Motion extends Feature<MotionProps> {
         MeasureLayoutWithContext.componentDidUpdate(featureProps);
     }
     public _8 = this.effect(() => {
-        if (!this.props.layout) {
+        if (!this.props.layout && !this.props.layoutId) {
             return;
         }
         const ancestors: HTMLElement[] = [];

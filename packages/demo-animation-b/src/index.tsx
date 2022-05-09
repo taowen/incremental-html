@@ -83,7 +83,7 @@ const Case5_Child = /*React.memo*/(() => {
 })
 
 function Case6() {
-    return <motion.div style={{ marginLeft: '100px', marginTop: '100px', width: 'fit-content'}} whileHover={{ scale: 1.2 }}>Hello World</motion.div>
+    return <motion.div style={{ marginLeft: '100px', marginTop: '100px', width: 'fit-content' }} whileHover={{ scale: 1.2 }}>Hello World</motion.div>
 }
 
 function Case7() {
@@ -101,37 +101,37 @@ const tabs = [{ icon: "🍅", label: "Tomato" }, { icon: "🥬", label: "Lettuce
 
 function Case9() {
     import('./case9.css');
-    const [selectedTab, setSelectedTab] = React.useState(tabs[0]);
+    const [selectedTab, setSelectedTab] = React.useState(tabs[2]);
 
-  return  <div className="window">
-      <nav>
-        <ul>
-          {tabs.map((item) => (
-            <li
-              key={item.label}
-              className={item === selectedTab ? "selected" : ""}
-              onClick={() => setSelectedTab(item)}
-            >
-              {`${item.icon} ${item.label}`}
-              {item === selectedTab ? (
-                <motion.div className="underline" layoutId="underline" />
-              ) : null}
-            </li>
-          ))}
-        </ul>
-      </nav>
-      <main>
-        <AnimatePresence exitBeforeEnter>
-          <motion.div
-            key={selectedTab ? selectedTab.label : "empty"}
-            animate={{ opacity: 1, y: 0 }}
-            initial={{ opacity: 0, y: 20 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5 }}
-          >
-            {selectedTab ? selectedTab.icon : "😋"}
-          </motion.div>
-        </AnimatePresence>
-      </main>
+    return <div className="window">
+        <nav>
+            <ul>
+                {tabs.map((item) => (
+                    <li
+                        key={item.label}
+                        className={item === selectedTab ? "selected" : ""}
+                        onClick={() => setSelectedTab(item)}
+                    >
+                        {`${item.icon} ${item.label}`}
+                        {item === selectedTab ? (
+                            <motion.div className="underline" layoutId="underline" />
+                        ) : null}
+                    </li>
+                ))}
+            </ul>
+        </nav>
+        <main>
+            <AnimatePresence exitBeforeEnter>
+                <motion.div
+                    key={selectedTab ? selectedTab.label : "empty"}
+                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    {selectedTab ? selectedTab.icon : "😋"}
+                </motion.div>
+            </AnimatePresence>
+        </main>
     </div>
 }

@@ -1,3 +1,4 @@
+import { morphChildNodes } from '@incremental-html/morph';
 import { effect, isRef } from '@vue/reactivity';
 import { callEventHandler, evalEventHandler, evalSync } from './eval';
 import { Feature } from './Feature';
@@ -31,17 +32,32 @@ const mutationObserver = new MutationObserver((mutationList) => {
     }
 });
 
-function onUnmount(element: Element) {
+function onUnmount(element: Element): Promise<void> | void {
+    if ((element as any).$unmounted) {
+        return;
+    }
+    (element as any).$unmounted = true;
+    const promises = [];
     for (const feature of Object.values(element)) {
         if (feature instanceof Feature) {
             for (const v of Object.values(feature)) {
                 if (v?.onStop) {
-                    v.onStop();
+                    const promise = v.onStop();
+                    if (promise) {
+                        promises.push(promise);
+                    }
                 }
             }
         }
     }
+    if (promises.length === 0) {
+        return undefined;
+    } else {
+        return Promise.all(promises) as any;
+    }
 }
+
+morphChildNodes.beforeRemove = onUnmount;
 
 export function startDomObserver() {
     return mountNode(document.body);
