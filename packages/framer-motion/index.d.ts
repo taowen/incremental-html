@@ -49,3 +49,7 @@ export function useHoverGesture(props: FeatureProps): () => void;
 export function useTapGesture(props: FeatureProps): () => void;
 export function useFocusGesture(props: FeatureProps): () => void;
 export function useViewport(props: FeatureProps): () => void;
+
+import { MotionConfigContext } from './motion/packages/framer-motion/types/context/MotionConfigContext';
+
+export function usePanGesture(props: FeatureProps, { transformPagePoint }: MotionConfigContext): () => void;

@@ -1407,6 +1407,32 @@ declare interface MotionAdvancedProps {
     inherit?: boolean;
 }
 
+/**
+ * @public
+ */
+declare interface MotionConfigContext {
+    /* Excluded from this release type: transformPagePoint */
+    /* Excluded from this release type: isStatic */
+    /**
+     * Defines a new default transition for the entire tree.
+     *
+     * @public
+     */
+    transition?: Transition;
+    /**
+     * If true, will respect the device prefersReducedMotion setting by switching
+     * transform animations off.
+     *
+     * @public
+     */
+    reducedMotion?: "always" | "never" | "user";
+}
+
+/**
+ * @public
+ */
+declare const MotionConfigContext: Context<MotionConfigContext>;
+
 declare interface MotionContextProps {
     visualElement?: VisualElement;
     initial?: false | string | string[];
@@ -2615,6 +2641,8 @@ declare type UpdateListener = (latest: ResolvedValues) => void;
 export declare function useFocusGesture(props: FeatureProps): () => void;
 
 export declare function useHoverGesture(props: FeatureProps): () => void;
+
+export declare function usePanGesture(props: FeatureProps, { transformPagePoint }: MotionConfigContext): () => void;
 
 export declare function useProjection(
 projectionId: number | undefined,

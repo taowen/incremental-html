@@ -543,3 +543,41 @@ function useMissingIntersectionObserver(
         visualElement.animationState?.setActive(AnimationType.InView, true)
     })
 }
+
+import { MotionConfigContext } from './motion/packages/framer-motion/src/context/MotionConfigContext';
+import { PanSession, PanInfo, AnyPointerEvent } from "./motion/packages/framer-motion/src/gestures/PanSession";
+
+export function usePanGesture({
+    onPan,
+    onPanStart,
+    onPanEnd,
+    onPanSessionStart,
+    visualElement,
+}: FeatureProps, { transformPagePoint }: MotionConfigContext) {
+    const hasPanEvents = onPan || onPanStart || onPanEnd || onPanSessionStart
+    let panSession: PanSession | null = null;
+    const handlers: any = {
+        onSessionStart: onPanSessionStart,
+        onStart: onPanStart,
+        onMove: onPan,
+        onEnd: (
+            event: MouseEvent | TouchEvent | PointerEvent,
+            info: PanInfo
+        ) => {
+            panSession = null
+            onPanEnd && onPanEnd(event, info)
+        },
+    }
+
+    function onPointerDown(event: AnyPointerEvent) {
+        panSession = new PanSession(event, handlers, {
+            transformPagePoint,
+        })
+    }
+
+    if (hasPanEvents) {
+        addPointerEvent(visualElement.getInstance(), "pointerdown", onPointerDown)
+    }
+
+    return () => panSession && panSession.end();
+}

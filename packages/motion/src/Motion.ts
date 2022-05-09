@@ -19,6 +19,9 @@ export class Motion extends Feature<MotionProps> {
         this.visualElement.mount(this.element as HTMLElement);
         const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
         MeasureLayoutWithContext.componentDidMount(featureProps);
+        (this.element as any).$beforeRemove = () => {
+            return this.visualElement.animationState!.setActive(AnimationType.Exit, true)
+        }
         return () => {
             this.visualElement.unmount();
             const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
@@ -41,11 +44,6 @@ export class Motion extends Feature<MotionProps> {
         this.visualElement.setProps(this.props);
         this.visualElement.animationState!.animateChanges();
     })
-    public _7 = this.effect(() => {
-        (this.element as any).$beforeRemove = () => {
-            return this.visualElement.animationState!.setActive(AnimationType.Exit, true)
-        }
-    })
     private beforeMorph = () => {
         const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
         MeasureLayoutWithContext.getSnapshotBeforeUpdate(featureProps, featureProps);
@@ -54,7 +52,7 @@ export class Motion extends Feature<MotionProps> {
         const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
         MeasureLayoutWithContext.componentDidUpdate(featureProps);
     }
-    public _8 = this.effect(() => {
+    public _7 = this.effect(() => {
         if (!this.props.layout) {
             return;
         }

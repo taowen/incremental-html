@@ -557,7 +557,7 @@ function getCurrent(visualElement2) {
   visualElement2.forEachValue((value, key) => current[key] = value.get());
   return current;
 }
-function getVelocity(visualElement2) {
+function getVelocity$1(visualElement2) {
   const velocity = {};
   visualElement2.forEachValue((value, key) => velocity[key] = value.getVelocity());
   return velocity;
@@ -577,7 +577,7 @@ function resolveVariantFromProps(props, definition, custom, currentValues = {}, 
 }
 function resolveVariant(visualElement2, definition, custom) {
   const props = visualElement2.getProps();
-  return resolveVariantFromProps(props, definition, custom != null ? custom : props.custom, getCurrent(visualElement2), getVelocity(visualElement2));
+  return resolveVariantFromProps(props, definition, custom != null ? custom : props.custom, getCurrent(visualElement2), getVelocity$1(visualElement2));
 }
 function checkIfControllingVariants(props) {
   var _a;
@@ -1583,11 +1583,11 @@ function convertBoundingBoxToBox({
     y: { min: top, max: bottom }
   };
 }
-function transformBoxPoints(point, transformPoint) {
-  if (!transformPoint)
+function transformBoxPoints(point, transformPoint2) {
+  if (!transformPoint2)
     return point;
-  const topLeft = transformPoint({ x: point.left, y: point.top });
-  const bottomRight = transformPoint({ x: point.right, y: point.bottom });
+  const topLeft = transformPoint2({ x: point.left, y: point.top });
+  const bottomRight = transformPoint2({ x: point.right, y: point.bottom });
   return {
     top: topLeft.y,
     left: topLeft.x,
@@ -1667,8 +1667,8 @@ function transformBox(box, transform) {
   transformAxis(box.x, transform, xKeys$1);
   transformAxis(box.y, transform, yKeys$1);
 }
-function measureViewportBox(instance, transformPoint) {
-  return convertBoundingBoxToBox(transformBoxPoints(instance.getBoundingClientRect(), transformPoint));
+function measureViewportBox(instance, transformPoint2) {
+  return convertBoundingBoxToBox(transformBoxPoints(instance.getBoundingClientRect(), transformPoint2));
 }
 function getComputedStyle$1(element) {
   return window.getComputedStyle(element);
@@ -3552,6 +3552,122 @@ function observeIntersection(element, options, callback) {
     rootInteresectionObserver.unobserve(element);
   };
 }
+class PanSession {
+  constructor(event, handlers, { transformPagePoint } = {}) {
+    this.startEvent = null;
+    this.lastMoveEvent = null;
+    this.lastMoveEventInfo = null;
+    this.handlers = {};
+    this.updatePoint = () => {
+      if (!(this.lastMoveEvent && this.lastMoveEventInfo))
+        return;
+      const info2 = getPanInfo(this.lastMoveEventInfo, this.history);
+      const isPanStarted = this.startEvent !== null;
+      const isDistancePastThreshold = popmotion.distance(info2.offset, { x: 0, y: 0 }) >= 3;
+      if (!isPanStarted && !isDistancePastThreshold)
+        return;
+      const { point: point2 } = info2;
+      const { timestamp: timestamp2 } = sync.getFrameData();
+      this.history.push(__spreadProps(__spreadValues({}, point2), { timestamp: timestamp2 }));
+      const { onStart, onMove } = this.handlers;
+      if (!isPanStarted) {
+        onStart && onStart(this.lastMoveEvent, info2);
+        this.startEvent = this.lastMoveEvent;
+      }
+      onMove && onMove(this.lastMoveEvent, info2);
+    };
+    this.handlePointerMove = (event2, info2) => {
+      this.lastMoveEvent = event2;
+      this.lastMoveEventInfo = transformPoint(info2, this.transformPagePoint);
+      if (isMouseEvent(event2) && event2.buttons === 0) {
+        this.handlePointerUp(event2, info2);
+        return;
+      }
+      sync__default["default"].update(this.updatePoint, true);
+    };
+    this.handlePointerUp = (event2, info2) => {
+      this.end();
+      const { onEnd, onSessionEnd } = this.handlers;
+      const panInfo = getPanInfo(transformPoint(info2, this.transformPagePoint), this.history);
+      if (this.startEvent && onEnd) {
+        onEnd(event2, panInfo);
+      }
+      onSessionEnd && onSessionEnd(event2, panInfo);
+    };
+    if (isTouchEvent(event) && event.touches.length > 1)
+      return;
+    this.handlers = handlers;
+    this.transformPagePoint = transformPagePoint;
+    const info = extractEventInfo(event);
+    const initialInfo = transformPoint(info, this.transformPagePoint);
+    const { point } = initialInfo;
+    const { timestamp } = sync.getFrameData();
+    this.history = [__spreadProps(__spreadValues({}, point), { timestamp })];
+    const { onSessionStart } = handlers;
+    onSessionStart && onSessionStart(event, getPanInfo(initialInfo, this.history));
+    this.removeListeners = popmotion.pipe(addPointerEvent(window, "pointermove", this.handlePointerMove), addPointerEvent(window, "pointerup", this.handlePointerUp), addPointerEvent(window, "pointercancel", this.handlePointerUp));
+  }
+  updateHandlers(handlers) {
+    this.handlers = handlers;
+  }
+  end() {
+    this.removeListeners && this.removeListeners();
+    sync.cancelSync.update(this.updatePoint);
+  }
+}
+function transformPoint(info, transformPagePoint) {
+  return transformPagePoint ? { point: transformPagePoint(info.point) } : info;
+}
+function subtractPoint(a, b) {
+  return { x: a.x - b.x, y: a.y - b.y };
+}
+function getPanInfo({ point }, history) {
+  return {
+    point,
+    delta: subtractPoint(point, lastDevicePoint(history)),
+    offset: subtractPoint(point, startDevicePoint(history)),
+    velocity: getVelocity(history, 0.1)
+  };
+}
+function startDevicePoint(history) {
+  return history[0];
+}
+function lastDevicePoint(history) {
+  return history[history.length - 1];
+}
+function getVelocity(history, timeDelta) {
+  if (history.length < 2) {
+    return { x: 0, y: 0 };
+  }
+  let i = history.length - 1;
+  let timestampedPoint = null;
+  const lastPoint = lastDevicePoint(history);
+  while (i >= 0) {
+    timestampedPoint = history[i];
+    if (lastPoint.timestamp - timestampedPoint.timestamp > secondsToMilliseconds(timeDelta)) {
+      break;
+    }
+    i--;
+  }
+  if (!timestampedPoint) {
+    return { x: 0, y: 0 };
+  }
+  const time = (lastPoint.timestamp - timestampedPoint.timestamp) / 1e3;
+  if (time === 0) {
+    return { x: 0, y: 0 };
+  }
+  const currentVelocity = {
+    x: (lastPoint.x - timestampedPoint.x) / time,
+    y: (lastPoint.y - timestampedPoint.y) / time
+  };
+  if (currentVelocity.x === Infinity) {
+    currentVelocity.x = 0;
+  }
+  if (currentVelocity.y === Infinity) {
+    currentVelocity.y = 0;
+  }
+  return currentVelocity;
+}
 function makeVisualState(props, context, presenceContext) {
   const renderState = createHtmlRenderState();
   const state = {
@@ -3843,6 +3959,34 @@ function useMissingIntersectionObserver(shouldObserve, state, visualElement2, { 
     (_a = visualElement2.animationState) == null ? void 0 : _a.setActive(AnimationType.InView, true);
   });
 }
+function usePanGesture({
+  onPan,
+  onPanStart,
+  onPanEnd,
+  onPanSessionStart,
+  visualElement: visualElement2
+}, { transformPagePoint }) {
+  const hasPanEvents = onPan || onPanStart || onPanEnd || onPanSessionStart;
+  let panSession = null;
+  const handlers = {
+    onSessionStart: onPanSessionStart,
+    onStart: onPanStart,
+    onMove: onPan,
+    onEnd: (event, info) => {
+      panSession = null;
+      onPanEnd && onPanEnd(event, info);
+    }
+  };
+  function onPointerDown(event) {
+    panSession = new PanSession(event, handlers, {
+      transformPagePoint
+    });
+  }
+  if (hasPanEvents) {
+    addPointerEvent(visualElement2.getInstance(), "pointerdown", onPointerDown);
+  }
+  return () => panSession && panSession.end();
+}
 exports.AnimationType = AnimationType;
 exports.HTMLProjectionNode = HTMLProjectionNode;
 exports.MeasureLayoutWithContext = MeasureLayoutWithContext;
@@ -3853,6 +3997,7 @@ exports.htmlVisualElement = htmlVisualElement;
 exports.makeVisualState = makeVisualState;
 exports.useFocusGesture = useFocusGesture;
 exports.useHoverGesture = useHoverGesture;
+exports.usePanGesture = usePanGesture;
 exports.useProjection = useProjection;
 exports.useTapGesture = useTapGesture;
 exports.useViewport = useViewport;
