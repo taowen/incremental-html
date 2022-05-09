@@ -18,6 +18,7 @@ root.render(
                 <li><Link to="case6">Case6</Link></li>
                 <li><Link to="case7">Case7</Link></li>
                 <li><Link to="case8">Case8</Link></li>
+                <li><Link to="case9">Case9</Link></li>
             </ul>} />
             <Route path='case1' element={<Case1 />} />
             <Route path='case2' element={<Case2 />} />
@@ -27,6 +28,7 @@ root.render(
             <Route path='case6' element={<Case6 />} />
             <Route path='case7' element={<Case7 />} />
             <Route path='case8' element={<Case8 />} />
+            <Route path='case9' element={<Case9 />} />
         </Routes>
     </BrowserRouter>)
 
@@ -93,4 +95,43 @@ function Case7() {
 
 function Case8() {
     return <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ duration: 2 }} style={{ marginTop: '120vh', width: '50px', height: '20px', backgroundColor: 'red' }}></motion.div>
+}
+
+const tabs = [{ icon: "🍅", label: "Tomato" }, { icon: "🥬", label: "Lettuce" }, { icon: "🧀", label: "Cheese" }];
+
+function Case9() {
+    import('./case9.css');
+    const [selectedTab, setSelectedTab] = React.useState(tabs[0]);
+
+  return  <div className="window">
+      <nav>
+        <ul>
+          {tabs.map((item) => (
+            <li
+              key={item.label}
+              className={item === selectedTab ? "selected" : ""}
+              onClick={() => setSelectedTab(item)}
+            >
+              {`${item.icon} ${item.label}`}
+              {item === selectedTab ? (
+                <motion.div className="underline" layoutId="underline" />
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      </nav>
+      <main>
+        <AnimatePresence exitBeforeEnter>
+          <motion.div
+            key={selectedTab ? selectedTab.label : "empty"}
+            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5 }}
+          >
+            {selectedTab ? selectedTab.icon : "😋"}
+          </motion.div>
+        </AnimatePresence>
+      </main>
+    </div>
 }

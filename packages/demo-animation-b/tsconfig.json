@@ -3,6 +3,7 @@
         "target": "esnext",
         "useDefineForClassFields": true,
         "declaration": true,
+        "module": "ESNext",
         "moduleResolution": "node",
         "incremental": true,
         "strict": true,
@@ -10,8 +11,6 @@
         "jsx": "react",
         "skipLibCheck": true,
         "sourceMap": true,
-        "resolveJsonModule": true,
-        "esModuleInterop": true,
         "strictPropertyInitialization": false,
         "types": ["react", "react-dom"],
         "lib": [
