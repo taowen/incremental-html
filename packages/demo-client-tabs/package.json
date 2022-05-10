@@ -1,5 +1,5 @@
 {
-    "name": "demo-tabs",
+    "name": "demo-client-tabs",
     "private": true,
     "version": "1.0.0",
     "dependencies": {
