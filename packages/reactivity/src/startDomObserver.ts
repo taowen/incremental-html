@@ -51,14 +51,17 @@ function onUnmount(element: Element): Promise<void> | void {
     if ((element as any).$features) {
         for (const feature of (element as any).$features.values()) {
             for (const v of Object.values(feature)) {
-                if ((v as any)?.onStop) {
-                    const promise = (v as any)?.onStop();
+                if ((v as any)?.stop) {
+                    const promise = (v as any)?.stop();
                     if (promise) {
                         promises.push(promise);
                     }
                 }
             }
         }
+    }
+    if ((element as any).$refreshNode) {
+        (element as any).$refreshNode.stop();
     }
     if (promises.length === 0) {
         return undefined;
@@ -129,7 +132,7 @@ function mountNode(node: Element) {
             })()
         }
     }
-    (node as any).$binds = effect(() => {
+    (node as any).$refreshNode = effect(() => {
         refreshNode(node);
     }).effect;
     for (let i = 0; i < node.children.length; i++) {
