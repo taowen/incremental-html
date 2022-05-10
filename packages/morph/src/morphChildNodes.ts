@@ -6,13 +6,13 @@ export async function morphChildNodes(oldEl: Element, newEl: Element | Node[]) {
     try {
         removeIncompatibleChildNodes(removeProgress, oldEl, newEl);
     } finally {
-        if (removeProgress.length === 0) {
+        // if (removeProgress.length === 0) {
             commitNewChildNodes(oldEl);
             oldEl.dispatchEvent(new Event('afterMorph'));
             return;
-        } else {
-            oldEl.dispatchEvent(new Event('afterMorph'));
-        }
+        // } else {
+            // oldEl.dispatchEvent(new Event('afterMorph'));
+        // }
     }
     await Promise.all(removeProgress);
     // ensure exit animation completes

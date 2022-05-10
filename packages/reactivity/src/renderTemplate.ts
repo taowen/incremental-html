@@ -1,58 +1,5 @@
-import { morph, morphChildNodes, morphInnerHTML } from '@incremental-html/morph';
-import { callEventHandler, evalSync } from './eval';
-import { camelize } from './naming';
-
-morphChildNodes.morphProperties = (oldEl, newEl) => {
-    // renderTemplate set $props to new element
-    // if old element reused, we need to propagate $props to old element
-    (oldEl as any).$props = (newEl as any).$props;
-    refreshNode(oldEl);
-}
-
-export function refreshNode(node: Element) {
-    for (let i = 0; i < node.attributes.length; i++) {
-        const attr = node.attributes[i];
-        if (attr.name.startsWith('bind:')) {
-            const name = camelize(attr.name.substring('bind:'.length));
-            try {
-                const newValue = evalSync(attr.value, node);
-                let bindProps = (node as any).$bindProps;
-                if (!bindProps) {
-                    (node as any).$bindProps = bindProps = {};
-                }
-                bindProps[name] = newValue;
-            } catch (e) {
-                console.error(`failed to eval ${attr.name}`, { node, e });
-            }
-        }
-    }
-    if ((node as any).$bindProps) {
-        applyBindProps(node);
-    }
-}
-
-async function applyBindProps(node: Element) {
-    await new Promise<void>(resolve => resolve());
-    const bindProps = (node as any).$bindProps;
-    if (!bindProps) {
-        return;
-    }
-    delete (node as any).$bindProps;
-    const { innerHtml, childNodes, ...otherBindProps } = bindProps;
-    if (Object.keys(otherBindProps).length > 0) {
-        morph(node, () => {
-            for (const [name, value] of Object.entries(otherBindProps)) {
-                setNodeProperty(node, name, value);
-            }
-        });
-    }
-    if (innerHtml) {
-        morphInnerHTML(node, innerHtml);
-    }
-    if (childNodes) {
-        morphChildNodes(node, Array.isArray(childNodes) ? childNodes : [childNodes]);
-    }
-}
+import { morphChildNodes, morphInnerHTML } from '@incremental-html/morph';
+import { callEventHandlerSync } from './eval';
 
 export function setNodeProperty(node: Element, name: string, value: any) {
     if (name.startsWith('style.')) {
@@ -114,7 +61,8 @@ export function renderTemplate(selector: string, props?: Record<string, any>) {
 
 function renderNode(node: Element) {
     if (node.hasAttribute('on:render')) {
-        callEventHandler('render', node, node.getAttribute('on:render')!);
+        callEventHandlerSync(node, 'render');
+        node.removeAttribute('on:render');
     }
     for (let i = 0; i < node.children.length; i++) {
         renderNode(node.children[i])

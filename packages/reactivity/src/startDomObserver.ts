@@ -1,14 +1,24 @@
-import { morphChildNodes } from '@incremental-html/morph';
+import { morph, morphChildNodes, morphInnerHTML } from '@incremental-html/morph';
 import { effect, isRef } from '@vue/reactivity';
-import { callEventHandler, evalEventHandler, evalSync } from './eval';
+import { callEventHandlerAsync, evalExpr } from './eval';
 import { Feature } from './Feature';
 import { camelize } from './naming';
-import { refreshNode, setNodeProperty } from './renderTemplate';
+import { setNodeProperty } from './renderTemplate';
 import { notifyNodeSubscribers } from './subscribeNode';
 
 let nextId = 1;
 
-const mutationObserver = new MutationObserver((mutationList) => {
+morphChildNodes.morphProperties = (oldEl, newEl) => {
+    // renderTemplate set $props to new element
+    // if old element reused, we need to propagate $props to old element
+    (oldEl as any).$props = (newEl as any).$props;
+};
+
+morphChildNodes.beforeRemove = (el) => {
+    return onUnmount(el);
+};
+
+export const mutationObserver = new MutationObserver((mutationList) => {
     for (const mutation of mutationList) {
         if (mutation.attributeName === 'style') {
             // avoid animation trigger observer recompute
@@ -38,11 +48,11 @@ function onUnmount(element: Element): Promise<void> | void {
     }
     (element as any).$unmounted = true;
     const promises = [];
-    for (const feature of Object.values(element)) {
-        if (feature instanceof Feature) {
+    if ((element as any).$features) {
+        for (const feature of (element as any).$features.values()) {
             for (const v of Object.values(feature)) {
-                if (v?.onStop) {
-                    const promise = v.onStop();
+                if ((v as any)?.onStop) {
+                    const promise = (v as any)?.onStop();
                     if (promise) {
                         promises.push(promise);
                     }
@@ -57,18 +67,7 @@ function onUnmount(element: Element): Promise<void> | void {
     }
 }
 
-morphChildNodes.beforeRemove = onUnmount;
-
-export function startDomObserver() {
-    return mountNode(document.body);
-}
-
-export function stopDomObserver() {
-    mutationObserver.disconnect();
-    delete (document.body as any).$xid;
-}
-
-async function mountNode(node: Element) {
+function mountNode(node: Element) {
     if ((node as any).$xid) {
         return (node as any).$xid;
     }
@@ -109,30 +108,32 @@ async function mountNode(node: Element) {
                 const [event] = args;
                 event.preventDefault();
                 event.stopPropagation();
-                callEventHandler(eventName, node, attr.value, ...args);
+                callEventHandlerAsync(node, eventName, attr.value, ...args);
             })
         } else if (attr.name.startsWith('prop:')) {
             const propName = camelize(attr.name.substring('prop:'.length));
             let value = undefined;
             try {
-                value = evalSync(attr.value, node);
-            } catch(e) {
+                value = evalExpr(attr.value, node);
+            } catch (e) {
                 console.error(`failed to eval ${attr.name} of `, node, e);
                 continue;
             }
             setNodeProperty(node, propName, value);
         } else if (attr.name.startsWith('use:')) {
-            let featureClass = evalSync(attr.value, node);
+            let featureClass = evalExpr(attr.value, node);
             const featureName = attr.name.substring('use:'.length);
-            const feature = await createFeature(featureClass, node, `${featureName}:`);
-            setNodeProperty(node, camelize(featureName), feature);
+            (async () => {
+                const feature = await createFeature(featureClass, node, `${featureName}:`);
+                setNodeProperty(node, camelize(featureName), feature);
+            })()
         }
     }
-    effect(() => {
+    (node as any).$binds = effect(() => {
         refreshNode(node);
-    })
+    }).effect;
     for (let i = 0; i < node.children.length; i++) {
-        await mountNode(node.children[i])
+        mountNode(node.children[i])
     }
     mutationObserver.observe(node, {
         attributes: true,
@@ -151,6 +152,60 @@ async function createFeature(featureClass: any, element: Element, prefix: string
     if (isSubclassOfFeature) {
         return new featureClass(element, prefix);
     }
-    const { default: lazyLoadedFeatureClass } = await(featureClass());
+    const { default: lazyLoadedFeatureClass } = await (featureClass());
     return new lazyLoadedFeatureClass(element);
+}
+
+function refreshNode(node: Element) {
+    for (let i = 0; i < node.attributes.length; i++) {
+        const attr = node.attributes[i];
+        if (attr.name.startsWith('bind:')) {
+            const name = camelize(attr.name.substring('bind:'.length));
+            try {
+                const newValue = evalExpr(attr.value, node);
+                let bindProps = (node as any).$bindProps;
+                if (!bindProps) {
+                    (node as any).$bindProps = bindProps = {};
+                }
+                bindProps[name] = newValue;
+            } catch (e) {
+                console.error(`failed to eval ${attr.name}`, { node, e });
+            }
+        }
+    }
+    if ((node as any).$bindProps) {
+        applyBindProps(node);
+    }
+}
+
+async function applyBindProps(node: Element) {
+    await new Promise<void>(resolve => resolve());
+    const bindProps = (node as any).$bindProps;
+    if (!bindProps) {
+        return;
+    }
+    delete (node as any).$bindProps;
+    const { innerHtml, childNodes, ...otherBindProps } = bindProps;
+    if (Object.keys(otherBindProps).length > 0) {
+        morph(node, () => {
+            for (const [name, value] of Object.entries(otherBindProps)) {
+                setNodeProperty(node, name, value);
+            }
+        });
+    }
+    if (innerHtml) {
+        morphInnerHTML(node, innerHtml);
+    }
+    if (childNodes) {
+        morphChildNodes(node, Array.isArray(childNodes) ? childNodes : [childNodes]);
+    }
+}
+
+export function startDomObserver() {
+    return mountNode(document.body);
+}
+
+export function stopDomObserver() {
+    mutationObserver.disconnect();
+    delete (document.body as any).$xid;
 }
