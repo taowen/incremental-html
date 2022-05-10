@@ -15,7 +15,7 @@ export async function createElement(tag: string, props: Record<string, any>, ...
                     }
                 } else {
                     parts.push(' ');
-                    parts.push(k === 'className' ? 'class' : k);
+                    parts.push(k);
                     parts.push('="');
                     parts.push(`${v}`);
                     parts.push('"');

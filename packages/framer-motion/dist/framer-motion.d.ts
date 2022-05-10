@@ -1,5 +1,3 @@
-/// <reference types="react" />
-
 import { Context } from 'react';
 import { CSSProperties } from 'react';
 import { Process } from 'framesync';

@@ -1,12 +1,3 @@
-/// <reference types="react" />
-
-import { Context } from 'react';
-import { CSSProperties } from 'react';
-import { Process } from 'framesync';
-import * as React_2 from 'react';
-import { RefObject } from 'react';
-import { SVGAttributes } from 'react';
-
 export declare function addPointerEvent(target: EventTarget, eventName: string, handler: EventListenerWithPointInfo, options?: AddEventListenerOptions): () => void;
 
 declare type AnimationCompleteListener = (definition: AnimationDefinition) => void;

@@ -14,14 +14,14 @@ server.get('/', async (req, resp) => {
         icon: '🧀', label: 'Cheese'
     }];
     const jsx = <>
-        <div className="window">
+        <div class="window">
             <nav>
                 <ul>
                     {tabs.map(({ label, icon }) =>
-                        <li className={label === selectedTab ? 'selected' : ''}
+                        <li class={label === selectedTab ? 'selected' : ''}
                             on:click={`$navigator.replace('/?tab=${label}')`}>
                             <span>{icon}{label}</span>
-                            {label === selectedTab ? <div className="underline" use:motion="$Motion" motion:layout-id="'underline'"></div> : undefined}
+                            {label === selectedTab ? <div class="underline" use:motion="$Motion" motion:layout-id="'underline'"></div> : undefined}
                         </li>)}
                 </ul>
             </nav>

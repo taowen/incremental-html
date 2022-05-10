@@ -6,7 +6,6 @@
         "moduleResolution": "node",
         "incremental": true,
         "strict": true,
-        "allowJs": true,
         "noImplicitThis": true,
         "jsx": "react",
         "jsxFactory": "jsxToHtml.createElement",
