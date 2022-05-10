@@ -21,7 +21,7 @@ async function main() {
     app.all('/(.*)', async (req, resp) => {
         req.url = req.originalUrl;
         console.log(req.method, req.url);
-        const { default: handle, config } = await vite.ssrLoadModule('./server/server.ts');
+        const { default: handle, config } = await vite.ssrLoadModule('./server/server.tsx');
         config.indexHtml = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf-8');
         config.indexHtml = await vite.transformIndexHtml(req.url, config.indexHtml);
         handle(req, resp, (e) => {
