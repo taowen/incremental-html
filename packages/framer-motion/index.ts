@@ -1,28 +1,49 @@
-export { htmlVisualElement } from './motion/packages/framer-motion/src/render/html/visual-element'
-export { createAnimationState } from './motion/packages/framer-motion/src/render/utils/animation-state';
 export { animationControls } from './motion/packages/framer-motion/src/animation/animation-controls';
-export { AnimationType } from './motion/packages/framer-motion/src/render/utils/types'
-export { HTMLProjectionNode } from './motion/packages/framer-motion/src/projection/node/HTMLProjectionNode';
 export { addPointerEvent } from './motion/packages/framer-motion/src/events/use-pointer-event';
 export { VisualElementDragControls } from './motion/packages/framer-motion/src/gestures/drag/VisualElementDragControls';
+export { HTMLProjectionNode } from './motion/packages/framer-motion/src/projection/node/HTMLProjectionNode';
+export { htmlVisualElement } from './motion/packages/framer-motion/src/render/html/visual-element';
+export { createAnimationState } from './motion/packages/framer-motion/src/render/utils/animation-state';
+export { AnimationType } from './motion/packages/framer-motion/src/render/utils/types';
 
-import { scrapeMotionValuesFromProps } from './motion/packages/framer-motion/src/render/html/utils/scrape-motion-values'
-import { createHtmlRenderState } from './motion/packages/framer-motion/src/render/html/utils/create-render-state'
+import sync from "framesync";
+import { pipe } from "popmotion";
 import { isAnimationControls } from './motion/packages/framer-motion/src/animation/utils/is-animation-controls';
-import { ResolvedValues } from './motion/packages/framer-motion/src/render/types'
-import { resolveMotionValue } from './motion/packages/framer-motion/src/value/utils/resolve-motion-value'
+import { LayoutGroupContextProps } from './motion/packages/framer-motion/src/context/LayoutGroupContext';
+import { MotionConfigContext } from './motion/packages/framer-motion/src/context/MotionConfigContext';
+import { MotionContextProps } from "./motion/packages/framer-motion/src/context/MotionContext";
+import {
+    PresenceContextProps
+} from "./motion/packages/framer-motion/src/context/PresenceContext";
+import { SwitchLayoutGroupContext } from './motion/packages/framer-motion/src/context/SwitchLayoutGroupContext';
+import { EventInfo } from './motion/packages/framer-motion/src/events/types';
+import { addDomEvent } from './motion/packages/framer-motion/src/events/use-dom-event';
+import { addPointerEvent } from './motion/packages/framer-motion/src/events/use-pointer-event';
+import { isDragActive } from './motion/packages/framer-motion/src/gestures/drag/utils/lock';
+import { AnyPointerEvent, PanInfo, PanSession } from "./motion/packages/framer-motion/src/gestures/PanSession";
+import { isMouseEvent } from './motion/packages/framer-motion/src/gestures/utils/event-type';
+import { isNodeOrChild } from "./motion/packages/framer-motion/src/gestures/utils/is-node-or-child";
+import { FeatureProps } from './motion/packages/framer-motion/src/motion/features/types';
+import { observeIntersection } from './motion/packages/framer-motion/src/motion/features/viewport/observers';
+import { ViewportOptions, ViewportState } from './motion/packages/framer-motion/src/motion/features/viewport/types';
+import { MotionProps } from "./motion/packages/framer-motion/src/motion/types";
+import { VisualState } from './motion/packages/framer-motion/src/motion/utils/use-visual-state';
+import { globalProjectionState } from './motion/packages/framer-motion/src/projection/node/create-projection-node';
+import { IProjectionNode } from './motion/packages/framer-motion/src/projection/node/types';
+import { correctBorderRadius } from './motion/packages/framer-motion/src/projection/styles/scale-border-radius';
+import { correctBoxShadow } from './motion/packages/framer-motion/src/projection/styles/scale-box-shadow';
+import { addScaleCorrector } from './motion/packages/framer-motion/src/projection/styles/scale-correction';
+import { createHtmlRenderState } from './motion/packages/framer-motion/src/render/html/utils/create-render-state';
+import { scrapeMotionValuesFromProps } from './motion/packages/framer-motion/src/render/html/utils/scrape-motion-values';
+import { ResolvedValues, VisualElement } from './motion/packages/framer-motion/src/render/types';
+import { AnimationType } from './motion/packages/framer-motion/src/render/utils/types';
 import {
     checkIfControllingVariants,
     checkIfVariantNode,
-    resolveVariantFromProps,
-} from "./motion/packages/framer-motion/src/render/utils/variants"
-import { MotionContext, MotionContextProps } from "./motion/packages/framer-motion/src/context/MotionContext"
-import { MotionProps } from "./motion/packages/framer-motion/src/motion/types"
-import {
-    PresenceContext,
-    PresenceContextProps,
-} from "./motion/packages/framer-motion/src/context/PresenceContext"
-import { VisualState } from './motion/packages/framer-motion/src/motion/utils/use-visual-state';
+    resolveVariantFromProps
+} from "./motion/packages/framer-motion/src/render/utils/variants";
+import { warnOnce } from './motion/packages/framer-motion/src/utils/warn-once';
+import { resolveMotionValue } from './motion/packages/framer-motion/src/value/utils/resolve-motion-value';
 
 export function makeVisualState(
     props: MotionProps,
@@ -107,14 +128,6 @@ function makeLatestValues(
     return values
 }
 
-import { LayoutGroupContextProps } from './motion/packages/framer-motion/src/context/LayoutGroupContext'
-import { SwitchLayoutGroupContext } from './motion/packages/framer-motion/src/context/SwitchLayoutGroupContext'
-import { FeatureProps } from './motion/packages/framer-motion/src/motion/features/types'
-import { addScaleCorrector } from './motion/packages/framer-motion/src/projection/styles/scale-correction'
-import { globalProjectionState } from './motion/packages/framer-motion/src/projection/node/create-projection-node'
-import { correctBorderRadius } from './motion/packages/framer-motion/src/projection/styles/scale-border-radius'
-import { correctBoxShadow } from './motion/packages/framer-motion/src/projection/styles/scale-box-shadow'
-import sync from "framesync"
 
 interface MeasureContextProps {
     layoutGroup?: LayoutGroupContextProps
@@ -249,8 +262,6 @@ const defaultScaleCorrectors = {
     boxShadow: correctBoxShadow,
 }
 
-import { VisualElement } from './motion/packages/framer-motion/src/render/types'
-import { IProjectionNode } from './motion/packages/framer-motion/src/projection/node/types'
 
 export function useProjection(
     projectionId: number | undefined,
@@ -292,10 +303,6 @@ export function useProjection(
     })
 }
 
-import { EventInfo } from './motion/packages/framer-motion/src/events/types'
-import { isMouseEvent } from './motion/packages/framer-motion/src/gestures/utils/event-type'
-import { isDragActive } from './motion/packages/framer-motion/src/gestures/drag/utils/lock'
-import { AnimationType } from './motion/packages/framer-motion/src/render/utils/types'
 
 function createHoverEvent(
     visualElement: VisualElement,
@@ -314,7 +321,7 @@ function createHoverEvent(
 }
 
 export function useHoverGesture({ visualElement, onHoverStart, whileHover, onHoverEnd }: FeatureProps) {
-    if(onHoverStart || whileHover) {
+    if (onHoverStart || whileHover) {
         addPointerEvent(visualElement.getInstance(), 'pointerenter', createHoverEvent(visualElement, true, onHoverStart));
     }
     if (onHoverEnd || whileHover) {
@@ -322,9 +329,6 @@ export function useHoverGesture({ visualElement, onHoverStart, whileHover, onHov
     }
 }
 
-import { isNodeOrChild } from "./motion/packages/framer-motion/src/gestures/utils/is-node-or-child"
-import { pipe } from "popmotion"
-import { addPointerEvent } from './motion/packages/framer-motion/src/events/use-pointer-event';
 
 export function useTapGesture({
     onTap,
@@ -338,7 +342,7 @@ export function useTapGesture({
     let cancelPointerEndListeners: Function | null = null;
 
     function removePointerEndListener() {
-        if(cancelPointerEndListeners) {
+        if (cancelPointerEndListeners) {
             cancelPointerEndListeners();
         }
         cancelPointerEndListeners = null;
@@ -399,7 +403,6 @@ export function useTapGesture({
     return removePointerEndListener;
 }
 
-import { addDomEvent } from './motion/packages/framer-motion/src/events/use-dom-event';
 
 export function useFocusGesture({ whileFocus, visualElement }: FeatureProps) {
     const onFocus = () => {
@@ -416,9 +419,6 @@ export function useFocusGesture({ whileFocus, visualElement }: FeatureProps) {
     }
 }
 
-import { ViewportState, ViewportOptions } from './motion/packages/framer-motion/src/motion/features/viewport/types';
-import { observeIntersection } from './motion/packages/framer-motion/src/motion/features/viewport/observers';
-import { warnOnce } from './motion/packages/framer-motion/src/utils/warn-once';
 
 export function useViewport({
     visualElement,
@@ -545,8 +545,6 @@ function useMissingIntersectionObserver(
     })
 }
 
-import { MotionConfigContext } from './motion/packages/framer-motion/src/context/MotionConfigContext';
-import { PanSession, PanInfo, AnyPointerEvent } from "./motion/packages/framer-motion/src/gestures/PanSession";
 
 export function usePanGesture({
     onPan,

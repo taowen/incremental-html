@@ -11,7 +11,10 @@ export default defineConfig({
         },
         minify: false,
         rollupOptions: {
-            external: [...Object.keys(pkg.dependencies), ...Object.keys(pkg.devDependencies)]
+            external: [
+                ...Object.keys(pkg.dependencies), 
+                ...Object.keys(pkg.devDependencies),
+            ]
         }
     },
 })

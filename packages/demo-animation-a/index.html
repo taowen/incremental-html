@@ -92,8 +92,9 @@
 
 <body prop:selected="$ref(1)">
     <template id="accordion">
-        <header bind:style="this.$props.index === document.body.selected.value ? 'background-color: rgb(255, 0, 136);' : 'background-color: rgb(0, 85, 255);'"
-        on:click="document.body.selected.value = this.$props.index"></header>
+        <header use:motion="$Motion" motion:initial="false" 
+            motion:animate="{ backgroundColor: this.$props.index === document.body.selected.value ? '#FF0088' : '#0055FF'}"
+            on:click="document.body.selected.value = this.$props.index"></header>
         <section style="opacity: 1; height: auto;" on:render="if (this.$props.index !== document.body.selected.value) { this.parentNode.removeChild(this); }">
             <div class="content-placeholder" style="transform: none;">
                 <div class="paragraph">

@@ -12,7 +12,6 @@ export class Motion extends Feature<MotionProps> {
         });
         visualElement.animationState = createAnimationState(visualElement);
         useProjection(nextProjectionId++, this.props, {}, visualElement, HTMLProjectionNode);
-        visualElement.syncRender();
         return visualElement;
     })
     public _1 = this.onMount(() => {
@@ -20,6 +19,8 @@ export class Motion extends Feature<MotionProps> {
         const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
         MeasureLayoutWithContext.componentDidMount(featureProps);
         new VisualElementDragControls(this.visualElement).addListeners();
+        // when initial animation is disabled, we need to render the styles
+        this.visualElement.syncRender();
         const unmount = () => {
             this.visualElement.unmount();
             const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
