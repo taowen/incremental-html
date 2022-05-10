@@ -18,8 +18,7 @@ server.get('/', async (req, resp) => {
             <nav>
                 <ul>
                     {tabs.map(({ label, icon }) =>
-                        <li class={label === selectedTab ? 'selected' : ''}
-                            on:click={`$navigator.replace('/?tab=${label}')`}>
+                        <li class={label === selectedTab ? 'selected' : ''} data-label={label} on:click="$navigator.replace('/?tab=' + this.dataset.label)">
                             <span>{icon}{label}</span>
                             {label === selectedTab ? <div class="underline" use:motion="$Motion" motion:layout-id="'underline'"></div> : undefined}
                         </li>)}
@@ -27,8 +26,8 @@ server.get('/', async (req, resp) => {
             </nav>
             <main>
                 <div id={selectedTab}
-                    use:motion="$Motion" motion:initial="{ opacity: 0, y: 20 }" motion:animate="{ opacity: 1, y: 0 }" motion:exit="{ opacity: 0, y: -20 }"
-                    motion:transition="{ duration: 0.5 }">
+                    use:motion="$Motion" motion:initial="{ opacity: 0, y: 20 }" motion:animate="{ opacity: 1, y: 0 }" 
+                    motion:exit="{ opacity: 0, y: -20 }" motion:transition="{ duration: 0.5 }">
                     {{
                         Tomato: '🍅',
                         Lettuce: '🥬',
