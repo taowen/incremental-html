@@ -1,41 +1,40 @@
 import { jsxToHtml } from '@incremental-html/jsx-to-html';
-import bodyParser from 'body-parser';
 import express, { Response } from 'express';
 
 export const config = { indexHtml: '' }
 const server = express.Router();
-server.use(bodyParser.urlencoded({ extended: false }));
-server.use(bodyParser.json());
 
 server.get('/', async (req, resp) => {
+    const selectedTab = req.query.tab as string || 'Tomato';
+    const tabs = [{
+        icon: '🍅', label: 'Tomato', selected: true
+    }, {
+        icon: '🥬', label: 'Lettuce'
+    }, {
+        icon: '🧀', label: 'Cheese'
+    }];
     const jsx = <>
-        <template id="tab-item">
-            <li bind:class="this.$props.selected ? 'selected' : ''"
-                on:click="
-    document.body.tabs.forEach(tab => tab.selected = (tab.label === this.$props.label));
-    ">
-                <span bind:text-content="`${this.$props.icon} ${this.$props.label}`"></span>
-                <div class="underline" on:render="if(!this.$props.selected) { this.parentNode.removeChild(this) }"
-                    use:motion="$Motion" motion:layout-id="'underline'"></div>
-            </li>
-        </template>
-        <template id="tab-panel">
-            <div on:render="this.id = this.$props.label" bind:text-content="this.$props.icon"
-                use:motion="$Motion" motion:initial="{ opacity: 0, y: 20 }" motion:animate="{ opacity: 1, y: 0 }" motion:exit="{ opacity: 0, y: -20 }"
-                motion:transition="{ duration: 0.5 }"></div>
-        </template>
         <div class="window">
             <nav>
-                <ul bind:inner-html="document.body.tabs.map(tab => $renderTemplate('#tab-item', {...tab}))"></ul>
+                <ul>
+                    {tabs.map(({ label, icon }) =>
+                        <li class={label === selectedTab ? 'selected' : ''}
+                            on:click={`$navigator.replace('/?tab=${label}')`}>
+                            <span>{icon}{label}</span>
+                            {label === selectedTab ? <div class="underline" use:motion="$Motion" motion:layout-id="'underline'"></div> : undefined}
+                        </li>)}
+                </ul>
             </nav>
             <main>
-                <div bind:inner-html="(() => {
-            for (const tab of document.body.tabs) {
-                if (tab.selected) {
-                    return [$renderTemplate('#tab-panel', tab)];
-                }
-            }
-        })()"></div>
+                <div id={selectedTab}
+                    use:motion="$Motion" motion:initial="{ opacity: 0, y: 20 }" motion:animate="{ opacity: 1, y: 0 }" motion:exit="{ opacity: 0, y: -20 }"
+                    motion:transition="{ duration: 0.5 }">
+                    {{
+                        Tomato: '🍅',
+                        Lettuce: '🥬',
+                        Cheese: '🧀'
+                    }[selectedTab]}
+                </div>
             </main>
         </div>
     </>
