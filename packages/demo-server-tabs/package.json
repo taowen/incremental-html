@@ -6,6 +6,8 @@
         "body-parser": "^1.20.0",
         "express": "^5.0.0-beta.1",
         "@incremental-html/navigator": "workspace:*",
+        "@incremental-html/reactivity": "workspace:*",
+        "@incremental-html/motion": "workspace:*",
         "@incremental-html/jsx-to-html": "workspace:*"
     },
     "devDependencies": {

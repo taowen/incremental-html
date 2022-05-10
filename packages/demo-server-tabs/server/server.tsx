@@ -9,10 +9,35 @@ server.use(bodyParser.json());
 
 server.get('/', async (req, resp) => {
     const jsx = <>
-        <header>
-            <h1>HTML5 Example Page</h1>
-        </header>
-        <main></main>
+        <template id="tab-item">
+            <li bind:class="this.$props.selected ? 'selected' : ''"
+                on:click="
+    document.body.tabs.forEach(tab => tab.selected = (tab.label === this.$props.label));
+    ">
+                <span bind:text-content="`${this.$props.icon} ${this.$props.label}`"></span>
+                <div class="underline" on:render="if(!this.$props.selected) { this.parentNode.removeChild(this) }"
+                    use:motion="$Motion" motion:layout-id="'underline'"></div>
+            </li>
+        </template>
+        <template id="tab-panel">
+            <div on:render="this.id = this.$props.label" bind:text-content="this.$props.icon"
+                use:motion="$Motion" motion:initial="{ opacity: 0, y: 20 }" motion:animate="{ opacity: 1, y: 0 }" motion:exit="{ opacity: 0, y: -20 }"
+                motion:transition="{ duration: 0.5 }"></div>
+        </template>
+        <div class="window">
+            <nav>
+                <ul bind:inner-html="document.body.tabs.map(tab => $renderTemplate('#tab-item', {...tab}))"></ul>
+            </nav>
+            <main>
+                <div bind:inner-html="(() => {
+            for (const tab of document.body.tabs) {
+                if (tab.selected) {
+                    return [$renderTemplate('#tab-panel', tab)];
+                }
+            }
+        })()"></div>
+            </main>
+        </div>
     </>
     await sendHtml(resp, jsx);
 })
