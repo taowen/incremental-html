@@ -162,12 +162,12 @@
         document.body.tabs.forEach(tab => tab.selected = (tab.label === this.$props.label));
         ">
             <span bind:text-content="`${this.$props.icon} ${this.$props.label}`"></span>
-            <div class="underline" on:render="if(!this.$props.selected) { this.parentNode.removeChild(this) }"
+            <div class="underline" render:if="this.$props.selected"
                 use:motion="$Motion" motion:layout-id="'underline'"></div>
         </li>
     </template>
     <template id="tab-panel">
-        <div on:render="this.id = this.$props.label" bind:text-content="this.$props.icon"
+        <div render:id="this.$props.label" bind:text-content="this.$props.icon"
             use:motion="$Motion" motion:initial="{ opacity: 0, y: 20 }" motion:animate="{ opacity: 1, y: 0 }" motion:exit="{ opacity: 0, y: -20 }"
             motion:transition="{ duration: 0.5 }"></div>
     </template>

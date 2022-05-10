@@ -4,8 +4,8 @@ export async function morphChildNodes(oldEl: Element, newEl: Element | Node[]) {
     oldEl.dispatchEvent(new Event('beforeMorph'));
     try {
         removeIncompatibleChildNodes(oldEl, newEl);
-    } finally {
         commitNewChildNodes(oldEl);
+    } finally {
         oldEl.dispatchEvent(new Event('afterMorph'));
     }
 }

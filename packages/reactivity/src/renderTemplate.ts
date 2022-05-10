@@ -1,5 +1,6 @@
 import { morphChildNodes, morphInnerHTML } from '@incremental-html/morph';
-import { callEventHandlerSync } from './eval';
+import { callEventHandlerSync, evalExpr } from './eval';
+import { camelize } from './naming';
 
 export function setNodeProperty(node: Element, name: string, value: any) {
     if (name.startsWith('style.')) {
@@ -60,9 +61,35 @@ export function renderTemplate(selector: string, props?: Record<string, any>) {
 }
 
 function renderNode(node: Element) {
+    if (node.hasAttribute('render:if')) {
+        const shouldRender = evalExpr(node.getAttribute('render:if')!, node);
+        if (!shouldRender) {
+            node.parentElement?.removeChild(node);
+        }
+        node.removeAttribute('render:if');
+    }
     if (node.hasAttribute('on:render')) {
         callEventHandlerSync(node, 'render');
         node.removeAttribute('on:render');
+    }
+    const toRemove = [];
+    for (let i = 0; i < node.attributes.length; i++) {
+        const attr = node.attributes[i];
+        if (attr.name.startsWith('render:')) {
+            toRemove.push(attr.name);
+            const propName = camelize(attr.name.substring('render:'.length));
+            let value = undefined;
+            try {
+                value = evalExpr(attr.value, node);
+            } catch (e) {
+                console.error(`failed to eval ${attr.name} of `, node, e);
+                continue;
+            }
+            setNodeProperty(node, propName, value);
+        }
+    }
+    for (const attr of toRemove) {
+        node.removeAttribute(attr);
     }
     for (let i = 0; i < node.children.length; i++) {
         renderNode(node.children[i])

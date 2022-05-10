@@ -92,13 +92,13 @@
 
 <body prop:selected="$ref(1)">
     <template id="accordion">
-        <div on:render="this.id = 'pane-' + this.$props.index">
+        <div render:id="'pane-' + this.$props.index">
             <header use:motion="$Motion" motion:initial="false"
                 motion:animate="{ backgroundColor: this.$props.index === document.body.selected.value ? '#FF0088' : '#0055FF'}"
                 on:click="document.body.selected.value = this.$props.index"></header>
             <div>
                 <section
-                    on:render="if (this.$props.index !== document.body.selected.value) { this.parentNode.removeChild(this); }"
+                    render:if="this.$props.index === document.body.selected.value"
                     use:motion="$Motion" motion:initial="'collapsed'" motion:animate="'open'" motion:exit="'collapsed'" motion:variants="{
                     open: { opacity: 1, height: 'auto' },
                     collapsed: { opacity: 0, height: 0 }
