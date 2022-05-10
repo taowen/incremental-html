@@ -96,49 +96,51 @@
             <header use:motion="$Motion" motion:initial="false"
                 motion:animate="{ backgroundColor: this.$props.index === document.body.selected.value ? '#FF0088' : '#0055FF'}"
                 on:click="document.body.selected.value = this.$props.index"></header>
-            <section
-                on:render="if (this.$props.index !== document.body.selected.value) { this.parentNode.removeChild(this); }"
-                use:motion="$Motion" motion:animate="'open'" motion:exit="'collapsed'" motion:variants="{
-            open: { opacity: 1, height: 'auto' },
-            collapsed: { opacity: 0, height: 0 }
-            }" motion:transition="{ duration: 0.8, ease: [0.04, 0.62, 0.23, 0.98] }">
-                <div class="content-placeholder" style="transform: none;">
-                    <div class="paragraph">
-                        <div class="word" style="width: 75px;"></div>
-                        <div class="word" style="width: 61px;"></div>
-                        <div class="word" style="width: 31px;"></div>
-                        <div class="word" style="width: 46px;"></div>
-                        <div class="word" style="width: 44px;"></div>
+            <div>
+                <section
+                    on:render="if (this.$props.index !== document.body.selected.value) { this.parentNode.removeChild(this); }"
+                    use:motion="$Motion" motion:initial="'collapsed'" motion:animate="'open'" motion:exit="'collapsed'" motion:variants="{
+                    open: { opacity: 1, height: 'auto' },
+                    collapsed: { opacity: 0, height: 0 }
+                    }" motion:transition="{ duration: 0.8, ease: [0.04, 0.62, 0.23, 0.98] }">
+                    <div class="content-placeholder" style="transform: none;">
+                        <div class="paragraph">
+                            <div class="word" style="width: 75px;"></div>
+                            <div class="word" style="width: 61px;"></div>
+                            <div class="word" style="width: 31px;"></div>
+                            <div class="word" style="width: 46px;"></div>
+                            <div class="word" style="width: 44px;"></div>
+                        </div>
+                        <div class="paragraph">
+                            <div class="word" style="width: 54px;"></div>
+                            <div class="word" style="width: 60px;"></div>
+                            <div class="word" style="width: 43px;"></div>
+                            <div class="word" style="width: 78px;"></div>
+                            <div class="word" style="width: 69px;"></div>
+                            <div class="word" style="width: 23px;"></div>
+                            <div class="word" style="width: 41px;"></div>
+                            <div class="word" style="width: 93px;"></div>
+                            <div class="word" style="width: 37px;"></div>
+                            <div class="word" style="width: 48px;"></div>
+                            <div class="word" style="width: 32px;"></div>
+                            <div class="word" style="width: 68px;"></div>
+                            <div class="word" style="width: 40px;"></div>
+                            <div class="word" style="width: 92px;"></div>
+                            <div class="word" style="width: 96px;"></div>
+                            <div class="word" style="width: 70px;"></div>
+                            <div class="word" style="width: 23px;"></div>
+                        </div>
+                        <div class="paragraph">
+                            <div class="word" style="width: 28px;"></div>
+                            <div class="word" style="width: 78px;"></div>
+                            <div class="word" style="width: 81px;"></div>
+                            <div class="word" style="width: 61px;"></div>
+                            <div class="word" style="width: 65px;"></div>
+                            <div class="word" style="width: 24px;"></div>
+                        </div>
                     </div>
-                    <div class="paragraph">
-                        <div class="word" style="width: 54px;"></div>
-                        <div class="word" style="width: 60px;"></div>
-                        <div class="word" style="width: 43px;"></div>
-                        <div class="word" style="width: 78px;"></div>
-                        <div class="word" style="width: 69px;"></div>
-                        <div class="word" style="width: 23px;"></div>
-                        <div class="word" style="width: 41px;"></div>
-                        <div class="word" style="width: 93px;"></div>
-                        <div class="word" style="width: 37px;"></div>
-                        <div class="word" style="width: 48px;"></div>
-                        <div class="word" style="width: 32px;"></div>
-                        <div class="word" style="width: 68px;"></div>
-                        <div class="word" style="width: 40px;"></div>
-                        <div class="word" style="width: 92px;"></div>
-                        <div class="word" style="width: 96px;"></div>
-                        <div class="word" style="width: 70px;"></div>
-                        <div class="word" style="width: 23px;"></div>
-                    </div>
-                    <div class="paragraph">
-                        <div class="word" style="width: 28px;"></div>
-                        <div class="word" style="width: 78px;"></div>
-                        <div class="word" style="width: 81px;"></div>
-                        <div class="word" style="width: 61px;"></div>
-                        <div class="word" style="width: 65px;"></div>
-                        <div class="word" style="width: 24px;"></div>
-                    </div>
-                </div>
-            </section>
+                </section>
+            </div>
         </div>
     </template>
     <div bind:inner-html="
