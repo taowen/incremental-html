@@ -11,10 +11,18 @@ export class Motion extends Feature<MotionProps> {
         }
         const inheritedProps: MotionContextProps = {};
         if (!this.props.initial) {
-            inheritedProps.initial = parentMotion.mergedProps.initial;
+            const inherited = parentMotion.mergedProps.initial;
+            const isVariant = typeof inherited === 'string' || Array.isArray(inherited);
+            if (isVariant) {
+                inheritedProps.initial = inherited;
+            }
         }
         if (!this.props.animate) {
-            inheritedProps.animate = parentMotion.mergedProps.animate;
+            const inherited = parentMotion.mergedProps.animate;
+            const isVariant = typeof inherited === 'string' || Array.isArray(inherited);
+            if (isVariant) {
+                inheritedProps.animate = inherited;
+            }
         }
         return inheritedProps;
     })
