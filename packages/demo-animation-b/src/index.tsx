@@ -1,9 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom/client';
-import {
-    BrowserRouter, Link, Route, Routes
-} from "react-router-dom";
+import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(
@@ -19,6 +17,7 @@ root.render(
                 <li><Link to="case7">Case7</Link></li>
                 <li><Link to="case8">Case8</Link></li>
                 <li><Link to="case9">Case9</Link></li>
+                <li><Link to="case10">Case10</Link></li>
             </ul>} />
             <Route path='case1' element={<Case1 />} />
             <Route path='case2' element={<Case2 />} />
@@ -29,6 +28,7 @@ root.render(
             <Route path='case7' element={<Case7 />} />
             <Route path='case8' element={<Case8 />} />
             <Route path='case9' element={<Case9 />} />
+            <Route path='case10' element={<Case10 />} />
         </Routes>
     </BrowserRouter>)
 
@@ -97,10 +97,9 @@ function Case8() {
     return <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ duration: 2 }} style={{ marginTop: '120vh', width: '50px', height: '20px', backgroundColor: 'red' }}></motion.div>
 }
 
-const tabs = [{ icon: "🍅", label: "Tomato" }, { icon: "🥬", label: "Lettuce" }, { icon: "🧀", label: "Cheese" }];
-
 function Case9() {
     import('./case9.css');
+    const tabs = [{ icon: "🍅", label: "Tomato" }, { icon: "🥬", label: "Lettuce" }, { icon: "🧀", label: "Cheese" }];
     const [selectedTab, setSelectedTab] = React.useState(tabs[2]);
 
     return <div className="window">
@@ -135,3 +134,70 @@ function Case9() {
         </main>
     </div>
 }
+
+function Case10() {
+    import('./case10.css');
+    const [expanded, setExpanded] = React.useState<false | number>(0);
+    const accordionIds = [0, 1, 2, 3];
+    return <>{
+        accordionIds.map((i) => (
+            <React.Fragment key={i}>
+            <motion.header
+                initial={false}
+                animate={{ backgroundColor: i === expanded ? "#FF0088" : "#0055FF" }}
+                onClick={() => setExpanded(i === expanded ? false : i)}
+            />
+            <AnimatePresence initial={false}>
+                {i === expanded && (
+                <motion.section
+                    key="content"
+                    initial="collapsed"
+                    animate="open"
+                    exit="collapsed"
+                    variants={{
+                    open: { opacity: 1, height: "auto" },
+                    collapsed: { opacity: 0, height: 0 }
+                    }}
+                    transition={{ duration: 0.8, ease: [0.04, 0.62, 0.23, 0.98] }}
+                >
+                    <ContentPlaceholder />
+                </motion.section>
+                )}
+            </AnimatePresence>
+            </React.Fragment>
+          ))
+    }</>;
+}
+
+import { mix } from "@popmotion/popcorn";
+
+const randomInt = (min: number, max: number) => Math.round(mix(min, max, Math.random()));
+const generateParagraphLength = () => randomInt(5, 20);
+const generateWordLength = () => randomInt(20, 100);
+
+// Randomly generate some paragraphs of word lengths
+const paragraphs = [...Array(3)].map(() => {
+  return [...Array(generateParagraphLength())].map(generateWordLength);
+});
+
+const Word = ({ width }: any) => <div className="word" style={{ width }} />;
+
+const Paragraph = ({ words }: any) => (
+  <div className="paragraph">
+    {words.map((width: any, i: any) => (
+      <Word key={i} width={width} />
+    ))}
+  </div>
+);
+
+const ContentPlaceholder = () => (
+  <motion.div
+    variants={{ collapsed: { scale: 0.8 }, open: { scale: 1 } }}
+    transition={{ duration: 0.8 }}
+    className="content-placeholder"
+  >
+    {paragraphs.map((words, i) => (
+      <Paragraph key={i} words={words} />
+    ))}
+  </motion.div>
+);

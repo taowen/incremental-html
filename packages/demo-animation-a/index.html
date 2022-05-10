@@ -158,9 +158,7 @@
 }])">
     <template id="tab-item">
         <li bind:class="this.$props.selected ? 'selected' : ''" 
-        on:click="
-        document.body.tabs.forEach(tab => tab.selected = (tab.label === this.$props.label));
-        ">
+        on:click="document.body.tabs.forEach(tab => tab.selected = (tab.label === this.$props.label));">
             <span bind:text-content="`${this.$props.icon} ${this.$props.label}`"></span>
             <div class="underline" on:render="if(!this.$props.selected) { this.parentNode.removeChild(this) }"
                 use:motion="$Motion" motion:layout-id="'underline'"></div>
