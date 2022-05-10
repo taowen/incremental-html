@@ -126,10 +126,7 @@ function mountNode(node: Element) {
         } else if (attr.name.startsWith('use:')) {
             let featureClass = evalExpr(attr.value, node);
             const featureName = attr.name.substring('use:'.length);
-            (async () => {
-                const feature = await createFeature(featureClass, node, `${featureName}:`);
-                setNodeProperty(node, camelize(featureName), feature);
-            })()
+            createFeature(featureClass, node, featureName);
         }
     }
     (node as any).$refreshNode = effect(() => {
@@ -147,16 +144,22 @@ function mountNode(node: Element) {
     return xid;
 }
 
-async function createFeature(featureClass: any, element: Element, prefix: string) {
+function createFeature(featureClass: any, element: Element, featureName: string) {
+    const prefix = `${featureName}:`;
     if (typeof featureClass !== 'function') {
         throw new Error(`invalid feature class: ${featureClass}`);
     }
     const isSubclassOfFeature = featureClass.prototype.__proto__ === Feature.prototype;
     if (isSubclassOfFeature) {
-        return new featureClass(element, prefix);
+        const feature = new featureClass(element, prefix);
+        setNodeProperty(element, camelize(featureName), feature);
+        return;
     }
-    const { default: lazyLoadedFeatureClass } = await (featureClass());
-    return new lazyLoadedFeatureClass(element);
+    return (async () => {
+        const { default: lazyLoadedFeatureClass } = await (featureClass());
+        const feature = new lazyLoadedFeatureClass(element);
+        setNodeProperty(element, camelize(featureName), feature);
+    })();
 }
 
 function refreshNode(node: Element) {

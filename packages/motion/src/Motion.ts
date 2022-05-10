@@ -1,11 +1,25 @@
-import { AnimationType, createAnimationState, HTMLProjectionNode, htmlVisualElement, makeVisualState, MeasureLayoutWithContext, MotionProps, useFocusGesture, useHoverGesture, usePanGesture, useProjection, useTapGesture, useViewport, VisualElementDragControls } from '@incremental-html/framer-motion';
-import { Feature } from '@incremental-html/reactivity';
+import { AnimationType, createAnimationState, HTMLProjectionNode, htmlVisualElement, makeVisualState, MeasureLayoutWithContext, MotionContextProps, MotionProps, useFocusGesture, useHoverGesture, usePanGesture, useProjection, useTapGesture, useViewport, VisualElementDragControls } from '@incremental-html/framer-motion';
+import { Feature, queryFeature } from '@incremental-html/reactivity';
 
 let nextProjectionId = 1;
 
 export class Motion extends Feature<MotionProps> {
+    private inheritedProps: MotionContextProps = this.create(() => {
+        const parentMotion = queryFeature(this.element, Motion);
+        if (!parentMotion) {
+            return {};
+        }
+        const inheritedProps: MotionContextProps = {};
+        if (!this.props.initial) {
+            inheritedProps.initial = parentMotion.mergedProps.initial;
+        }
+        if (!this.props.animate) {
+            inheritedProps.animate = parentMotion.mergedProps.animate;
+        }
+        return inheritedProps;
+    })
     private visualElement = this.create(() => {
-        const visualState = makeVisualState(this.props, {}, null);
+        const visualState = makeVisualState(this.props, this.inheritedProps, null);
         const visualElement = htmlVisualElement({
             visualState,
             props: this.props
@@ -14,6 +28,9 @@ export class Motion extends Feature<MotionProps> {
         useProjection(nextProjectionId++, this.props, {}, visualElement, HTMLProjectionNode);
         return visualElement;
     })
+    public get mergedProps(): any {
+        return { ...this.props, ...this.inheritedProps, visualElement: this.visualElement }
+    }
     public _1 = this.onMount(() => {
         this.visualElement.mount(this.element as HTMLElement);
         const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
@@ -39,31 +56,29 @@ export class Motion extends Feature<MotionProps> {
         }
     })
     public _2 = this.onMount(() => {
-        return useHoverGesture({ ...this.props, visualElement: this.visualElement });
+        return useHoverGesture(this.mergedProps);
     });
     public _3 = this.onMount(() => {
-        return useTapGesture({ ...this.props, visualElement: this.visualElement });
+        return useTapGesture(this.mergedProps);
     });
     public _4 = this.onMount(() => {
-        return useFocusGesture({ ...this.props, visualElement: this.visualElement });
+        return useFocusGesture(this.mergedProps);
     });
     public _5 = this.onMount(() => {
-        return useViewport({ ...this.props, visualElement: this.visualElement });
+        return useViewport(this.mergedProps);
     })
     public _6 = this.onMount(() => {
-        return usePanGesture({ ...this.props, visualElement: this.visualElement }, {});
+        return usePanGesture(this.mergedProps, {});
     })
     public _7 = this.effect(() => {
-        this.visualElement.setProps(this.props);
+        this.visualElement.setProps(this.mergedProps);
         this.visualElement.animationState!.animateChanges();
     })
     private beforeMorph = () => {
-        const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
-        MeasureLayoutWithContext.getSnapshotBeforeUpdate(featureProps, featureProps);
+        MeasureLayoutWithContext.getSnapshotBeforeUpdate(this.mergedProps, this.mergedProps);
     }
     private afterMorph = () => {
-        const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
-        MeasureLayoutWithContext.componentDidUpdate(featureProps);
+        MeasureLayoutWithContext.componentDidUpdate(this.mergedProps);
     }
     public _8 = this.effect(() => {
         if (!this.props.layout && !this.props.layoutId) {

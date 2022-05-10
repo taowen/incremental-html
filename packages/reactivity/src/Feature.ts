@@ -78,17 +78,21 @@ export class Feature<Props extends Record<string, any>> {
     }
 }
 
-export function queryFeature<T>(element: Element, featureClass: { new (element: Element): T; featureName: string }): T | undefined {
+export function queryFeature<T>(element: Element, featureClass: { new (element: Element, prefix: string): T; }): T | undefined {
+    return _queryFeature(element.parentElement!, featureClass);
+}
+
+function _queryFeature<T>(element: Element, featureClass: { new (element: Element, prefix: string): T; }): T | undefined {
     if (!element) {
         return undefined;
     }
-    const features = (element as any).features;
+    const features = (element as any).$features;
     if (!features) {
-        return queryFeature(element.parentElement!, featureClass);
+        return _queryFeature(element.parentElement!, featureClass);
     }
     const feature = features.get(featureClass)
     if (!feature) {
-        return queryFeature(element.parentElement!, featureClass);
+        return _queryFeature(element.parentElement!, featureClass);
     }
     return feature;
 }

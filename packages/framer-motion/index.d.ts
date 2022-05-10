@@ -2,6 +2,7 @@ export { htmlVisualElement } from './motion/packages/framer-motion/types/render/
 export { createAnimationState } from './motion/packages/framer-motion/types/render/utils/animation-state';
 export { animationControls } from './motion/packages/framer-motion/types/animation/animation-controls';
 export { MotionProps } from "./motion/packages/framer-motion/types/motion/types"
+export { MotionContextProps } from "./motion/packages/framer-motion/types/context/MotionContext"
 export { AnimationType } from './motion/packages/framer-motion/types/render/utils/types'
 export { HTMLProjectionNode } from './motion/packages/framer-motion/types/projection/node/HTMLProjectionNode';
 export { addPointerEvent } from './motion/packages/framer-motion/types/events/use-pointer-event';

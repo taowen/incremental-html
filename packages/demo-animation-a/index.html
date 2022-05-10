@@ -103,7 +103,8 @@
                     open: { opacity: 1, height: 'auto' },
                     collapsed: { opacity: 0, height: 0 }
                     }" motion:transition="{ duration: 0.8, ease: [0.04, 0.62, 0.23, 0.98] }">
-                    <div class="content-placeholder" style="transform: none;">
+                    <div class="content-placeholder" use:motion="$Motion" motion:variants="{ collapsed: { scale: 0.8 }, open: { scale: 1 } }"
+                    motion:transition="{ duration: 0.8 }">
                         <div class="paragraph">
                             <div class="word" style="width: 75px;"></div>
                             <div class="word" style="width: 61px;"></div>

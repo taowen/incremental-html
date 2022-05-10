@@ -1433,7 +1433,7 @@ declare interface MotionConfigContext {
  */
 declare const MotionConfigContext: Context<MotionConfigContext>;
 
-declare interface MotionContextProps {
+export declare interface MotionContextProps {
     visualElement?: VisualElement;
     initial?: false | string | string[];
     animate?: string | string[];
