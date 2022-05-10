@@ -1,0 +1,161 @@
+<!-- index.html -->
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Demo</title>
+    <link rel="shortcut icon" href="#" />
+    <style>
+        body {
+            background-repeat: no-repeat;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+        }
+
+        .example-container {
+            width: 320px;
+            padding: 20px;
+        }
+
+        .refresh {
+            padding: 10px;
+            position: absolute;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            width: 20px;
+            height: 20px;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .content-placeholder {
+            padding: 20px;
+            transform-origin: top center;
+        }
+
+        header {
+            background: #0055ff;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            height: 40px;
+            margin-bottom: 20px;
+        }
+
+        .word {
+            height: 18px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-bottom: 8px;
+            margin-right: 8px;
+            background: #0055ff;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .paragraph {
+            margin-bottom: 20px;
+        }
+
+        section {
+            overflow: hidden;
+        }
+
+        @media (max-width: 600px) {
+            .content-placeholder {
+                padding-left: 20px;
+            }
+
+            .header .word {
+                height: 30px;
+            }
+
+            .word {
+                height: 14px;
+                margin-bottom: 5px;
+                margin-right: 5px;
+            }
+
+            .paragraph {
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body prop:selected="$ref(1)">
+    <template id="accordion">
+        <div on:render="this.id = 'pane-' + this.$props.index">
+            <header use:motion="$Motion" motion:initial="false"
+                motion:animate="{ backgroundColor: this.$props.index === document.body.selected.value ? '#FF0088' : '#0055FF'}"
+                on:click="document.body.selected.value = this.$props.index"></header>
+            <div>
+                <section
+                    on:render="if (this.$props.index !== document.body.selected.value) { this.parentNode.removeChild(this); }"
+                    use:motion="$Motion" motion:initial="'collapsed'" motion:animate="'open'" motion:exit="'collapsed'" motion:variants="{
+                    open: { opacity: 1, height: 'auto' },
+                    collapsed: { opacity: 0, height: 0 }
+                    }" motion:transition="{ duration: 0.8, ease: [0.04, 0.62, 0.23, 0.98] }">
+                    <div class="content-placeholder" use:motion="$Motion" motion:variants="{ collapsed: { scale: 0.8 }, open: { scale: 1 } }"
+                    motion:transition="{ duration: 0.8 }">
+                        <div class="paragraph">
+                            <div class="word" style="width: 75px;"></div>
+                            <div class="word" style="width: 61px;"></div>
+                            <div class="word" style="width: 31px;"></div>
+                            <div class="word" style="width: 46px;"></div>
+                            <div class="word" style="width: 44px;"></div>
+                        </div>
+                        <div class="paragraph">
+                            <div class="word" style="width: 54px;"></div>
+                            <div class="word" style="width: 60px;"></div>
+                            <div class="word" style="width: 43px;"></div>
+                            <div class="word" style="width: 78px;"></div>
+                            <div class="word" style="width: 69px;"></div>
+                            <div class="word" style="width: 23px;"></div>
+                            <div class="word" style="width: 41px;"></div>
+                            <div class="word" style="width: 93px;"></div>
+                            <div class="word" style="width: 37px;"></div>
+                            <div class="word" style="width: 48px;"></div>
+                            <div class="word" style="width: 32px;"></div>
+                            <div class="word" style="width: 68px;"></div>
+                            <div class="word" style="width: 40px;"></div>
+                            <div class="word" style="width: 92px;"></div>
+                            <div class="word" style="width: 96px;"></div>
+                            <div class="word" style="width: 70px;"></div>
+                            <div class="word" style="width: 23px;"></div>
+                        </div>
+                        <div class="paragraph">
+                            <div class="word" style="width: 28px;"></div>
+                            <div class="word" style="width: 78px;"></div>
+                            <div class="word" style="width: 81px;"></div>
+                            <div class="word" style="width: 61px;"></div>
+                            <div class="word" style="width: 65px;"></div>
+                            <div class="word" style="width: 24px;"></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </template>
+    <div bind:inner-html="
+    [1,2,3,4].map(index => $renderTemplate('#accordion', { index }));
+    ">
+    </div>
+    <script type="module">
+        import { startDomObserver, setEvalGlobals, ref, reactive, renderTemplate } from '@incremental-html/reactivity';
+        import { morphInnerHTML, morph } from '@incremental-html/morph';
+        import { Motion } from '@incremental-html/motion';
+        setEvalGlobals({ Motion, morphInnerHTML, morph, reactive, ref, renderTemplate });
+        // for properties like bind:xxx or on:xxx
+        startDomObserver();
+    </script>
+</body>
+
+</html>

@@ -2,32 +2,28 @@ import { morphAttributes } from "./morphAttributes";
 
 export async function morphChildNodes(oldEl: Element, newEl: Element | Node[]) {
     oldEl.dispatchEvent(new Event('beforeMorph'));
-    const removeProgress: Promise<void>[] = [];
     try {
-        removeIncompatibleChildNodes(removeProgress, oldEl, newEl);
+        removeIncompatibleChildNodes(oldEl, newEl);
     } finally {
-        // if (removeProgress.length === 0) {
-            commitNewChildNodes(oldEl);
-            oldEl.dispatchEvent(new Event('afterMorph'));
-            return;
-        // } else {
-            // oldEl.dispatchEvent(new Event('afterMorph'));
-        // }
+        commitNewChildNodes(oldEl);
+        oldEl.dispatchEvent(new Event('afterMorph'));
     }
-    await Promise.all(removeProgress);
-    // ensure exit animation completes
-    await new Promise(resolve => setTimeout(resolve, 0));
-    commitNewChildNodes(oldEl);
 }
 
 function commitNewChildNodes(el: Element) {
     const newChildren = (el as any).$newChildNodes;
     if (newChildren !== undefined) {
-        for (let i = newChildren.length - 1; i >= 0; i--) {
-            const next = newChildren[i + 1];
-            el.insertBefore(newChildren[i]!, next as Node);
-        }
         delete (el as any).$newChildNodes;
+    }
+    const removeProgress = (el as any).$removeProgress;
+    if (removeProgress) {
+        Promise.all(removeProgress).finally(() => {
+            moveOrInsertNewChildren(el, newChildren);
+        });
+    } else {
+        moveOrInsertNewChildren(el, newChildren);
+    }
+    if (newChildren !== undefined) {
         for (const child of newChildren) {
             commitNewChildNodes(child);
         }
@@ -42,17 +38,28 @@ function commitNewChildNodes(el: Element) {
     }
 }
 
-function removeIncompatibleChildNodes(removeProgress: Promise<void>[], oldEl: Element, newEl: Element | Node[]) {
+function moveOrInsertNewChildren(el: Element, newChildren: Node[] | undefined) {
+    if (!newChildren) {
+        return;
+    }
+    for (let i = newChildren.length - 1; i >= 0; i--) {
+        const next = newChildren[i + 1];
+        el.insertBefore(newChildren[i]!, next as Node);
+    }
+}
+
+function removeIncompatibleChildNodes(oldEl: Element, newEl: Element | Node[]) {
     const oldChildren = indexOldChildren(oldEl);
     const newChildren = [];
+    const removeProgress: Promise<void>[] = [];
     // build the new nodes
     if (Array.isArray(newEl)) {
         for (let index = 0; index < newEl.length; index++) {
             const newChild = newEl[index];
             if ((newChild as Element).id) {
-                newChildren.push(tryReuse(removeProgress, oldChildren, (newChild as Element).id, newChild));
+                newChildren.push(tryReuse(oldChildren, (newChild as Element).id, newChild));
             } else {
-                newChildren.push(tryReuse(removeProgress, oldChildren, index, newChild));
+                newChildren.push(tryReuse(oldChildren, index, newChild));
             }
         }
     } else {
@@ -60,9 +67,9 @@ function removeIncompatibleChildNodes(removeProgress: Promise<void>[], oldEl: El
         let index = 0;
         while (newChild) {
             if ((newChild as Element).id) {
-                newChildren.push(tryReuse(removeProgress, oldChildren, (newChild as Element).id, newChild));
+                newChildren.push(tryReuse(oldChildren, (newChild as Element).id, newChild));
             } else {
-                newChildren.push(tryReuse(removeProgress, oldChildren, index, newChild));
+                newChildren.push(tryReuse(oldChildren, index, newChild));
             }
             index++;
             newChild = newChild.nextSibling;
@@ -88,12 +95,15 @@ function removeIncompatibleChildNodes(removeProgress: Promise<void>[], oldEl: El
             oldEl.removeChild(oldChild);
         }
     }
+    if (removeProgress.length > 0) {
+        (oldEl as any).$removeProgress = removeProgress;
+    }
 }
 
 morphChildNodes.beforeRemove = (el: Element): Promise<void> | void => { };
 morphChildNodes.morphProperties = (oldEl: Element, newEl: Element) => { };
 
-function tryReuse(removeProgress: Promise<void>[], oldChildren: Map<any, Node>, id: any, newNode: Node) {
+function tryReuse(oldChildren: Map<any, Node>, id: any, newNode: Node) {
     const oldNode = oldChildren.get(id);
     if (newNode.nodeType !== 1 || !oldNode || oldNode.nodeType !== newNode.nodeType
         || (oldNode as HTMLElement).tagName !== (newNode as HTMLElement).tagName) {
@@ -102,7 +112,7 @@ function tryReuse(removeProgress: Promise<void>[], oldChildren: Map<any, Node>, 
     oldChildren.delete(id);
     morphAttributes(oldNode as Element, newNode as Element);
     if ((oldNode as HTMLElement).tagName !== 'TEXTAREA') {
-        removeIncompatibleChildNodes(removeProgress, oldNode as Element, newNode as Element);
+        removeIncompatibleChildNodes(oldNode as Element, newNode as Element);
     }
     morphChildNodes.morphProperties(oldNode as Element, newNode as Element);
     return oldNode;

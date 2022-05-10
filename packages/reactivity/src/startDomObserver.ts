@@ -12,6 +12,7 @@ morphChildNodes.morphProperties = (oldEl, newEl) => {
     // renderTemplate set $props to new element
     // if old element reused, we need to propagate $props to old element
     (oldEl as any).$props = (newEl as any).$props;
+    refreshNode(oldEl);
 };
 
 morphChildNodes.beforeRemove = (el) => {
