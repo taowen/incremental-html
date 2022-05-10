@@ -7,187 +7,141 @@
     <link rel="shortcut icon" href="#" />
     <style>
         body {
-            --accent: #8855ff;
-            width: 100vw;
-            height: 100vh;
-            background: var(--accent);
-            overflow: hidden;
+            background-repeat: no-repeat;
             padding: 0;
             margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .window {
-            width: 480px;
-            height: 360px;
-            border-radius: 10px;
-            background: white;
-            overflow: hidden;
-            box-shadow: 0 1px 1px hsl(0deg 0% 0% / 0.075),
-                0 2px 2px hsl(0deg 0% 0% / 0.075), 0 4px 4px hsl(0deg 0% 0% / 0.075),
-                0 8px 8px hsl(0deg 0% 0% / 0.075), 0 16px 16px hsl(0deg 0% 0% / 0.075);
-            display: flex;
-            flex-direction: column;
-        }
-
-        nav {
-            background: #fdfdfd;
-            padding: 5px 5px 0;
-            border-radius: 10px;
-            border-bottom-left-radius: 0;
-            border-bottom-right-radius: 0;
-            border-bottom: 1px solid #eeeeee;
-            height: 44px;
-        }
-
-        .tabs {
-            flex-grow: 1;
             display: flex;
             justify-content: flex-start;
-            align-items: flex-end;
-            flex-wrap: nowrap;
-            width: 100%;
+            align-items: flex-start;
         }
 
-        main {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 128px;
-            flex-grow: 1;
-            user-select: none;
+        .example-container {
+            width: 320px;
+            padding: 20px;
         }
 
-        ul,
-        li {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            font-family: "Poppins", sans-serif;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        ul {
-            display: flex;
-            width: 100%;
-        }
-
-        li {
-            border-radius: 5px;
-            border-bottom-left-radius: 0;
-            border-bottom-right-radius: 0;
-            width: 100%;
-            padding: 10px 15px;
-            position: relative;
-            background: white;
-            cursor: pointer;
-            height: 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex: 1;
-            min-width: 0;
-            position: relative;
-            user-select: none;
-        }
-
-        .underline {
+        .refresh {
+            padding: 10px;
             position: absolute;
-            bottom: -1px;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: var(--accent);
-        }
-
-        li.selected {
-            background: #eee;
-        }
-
-        li button {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
             width: 20px;
             height: 20px;
-            border: 0;
-            background: #fff;
-            border-radius: 3px;
+            top: 10px;
+            right: 10px;
             display: flex;
             justify-content: center;
             align-items: center;
-            stroke: #000;
-            margin-left: 10px;
             cursor: pointer;
-            flex-shrink: 0;
         }
 
-        .background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            width: 300px;
-            background: #fff;
+        .content-placeholder {
+            padding: 20px;
+            transform-origin: top center;
         }
 
-        .add-item {
-            width: 30px;
-            height: 30px;
-            background: #eee;
-            border-radius: 50%;
-            border: 0;
+        header {
+            background: #0055ff;
+            border-radius: 10px;
+            color: white;
             cursor: pointer;
-            align-self: center;
+            height: 40px;
+            margin-bottom: 20px;
         }
 
-        .add-item:disabled {
-            opacity: 0.4;
-            cursor: default;
-            pointer-events: none;
+        .word {
+            height: 18px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-bottom: 8px;
+            margin-right: 8px;
+            background: #0055ff;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .paragraph {
+            margin-bottom: 20px;
+        }
+
+        section {
+            overflow: hidden;
+        }
+
+        @media (max-width: 600px) {
+            .content-placeholder {
+                padding-left: 20px;
+            }
+
+            .header .word {
+                height: 30px;
+            }
+
+            .word {
+                height: 14px;
+                margin-bottom: 5px;
+                margin-right: 5px;
+            }
+
+            .paragraph {
+                margin-bottom: 20px;
+            }
         }
     </style>
 </head>
 
-<body prop:tabs="$reactive([{
-    icon: '🍅', label: 'Tomato', selected: true
-}, {
-    icon: '🥬', label: 'Lettuce'
-}, {
-    icon: '🧀', label: 'Cheese'
-}])">
-    <template id="tab-item">
-        <li bind:class="this.$props.selected ? 'selected' : ''" 
-        on:click="document.body.tabs.forEach(tab => tab.selected = (tab.label === this.$props.label));">
-            <span bind:text-content="`${this.$props.icon} ${this.$props.label}`"></span>
-            <div class="underline" on:render="if(!this.$props.selected) { this.parentNode.removeChild(this) }"
-                use:motion="$Motion" motion:layout-id="'underline'"></div>
-        </li>
+<body prop:selected="$ref(1)">
+    <template id="accordion">
+        <header bind:style="this.$props.index === document.body.selected.value ? 'background-color: rgb(255, 0, 136);' : 'background-color: rgb(0, 85, 255);'"
+        on:click="document.body.selected.value = this.$props.index"></header>
+        <section style="opacity: 1; height: auto;" on:render="if (this.$props.index !== document.body.selected.value) { this.parentNode.removeChild(this); }">
+            <div class="content-placeholder" style="transform: none;">
+                <div class="paragraph">
+                    <div class="word" style="width: 75px;"></div>
+                    <div class="word" style="width: 61px;"></div>
+                    <div class="word" style="width: 31px;"></div>
+                    <div class="word" style="width: 46px;"></div>
+                    <div class="word" style="width: 44px;"></div>
+                </div>
+                <div class="paragraph">
+                    <div class="word" style="width: 54px;"></div>
+                    <div class="word" style="width: 60px;"></div>
+                    <div class="word" style="width: 43px;"></div>
+                    <div class="word" style="width: 78px;"></div>
+                    <div class="word" style="width: 69px;"></div>
+                    <div class="word" style="width: 23px;"></div>
+                    <div class="word" style="width: 41px;"></div>
+                    <div class="word" style="width: 93px;"></div>
+                    <div class="word" style="width: 37px;"></div>
+                    <div class="word" style="width: 48px;"></div>
+                    <div class="word" style="width: 32px;"></div>
+                    <div class="word" style="width: 68px;"></div>
+                    <div class="word" style="width: 40px;"></div>
+                    <div class="word" style="width: 92px;"></div>
+                    <div class="word" style="width: 96px;"></div>
+                    <div class="word" style="width: 70px;"></div>
+                    <div class="word" style="width: 23px;"></div>
+                </div>
+                <div class="paragraph">
+                    <div class="word" style="width: 28px;"></div>
+                    <div class="word" style="width: 78px;"></div>
+                    <div class="word" style="width: 81px;"></div>
+                    <div class="word" style="width: 61px;"></div>
+                    <div class="word" style="width: 65px;"></div>
+                    <div class="word" style="width: 24px;"></div>
+                </div>
+            </div>
+        </section>
     </template>
-    <template id="tab-panel">
-        <div bind:id="this.$props.label" bind:text-content="this.$props.icon"
-            use:motion="$Motion" motion:initial="{ opacity: 0, y: 20 }" motion:animate="{ opacity: 1, y: 0 }" motion:exit="{ opacity: 0, y: -20 }"
-            motion:transition="{ duration: 0.5 }"></div>
-    </template>
-    <div class="window">
-        <nav>
-            <ul bind:inner-html="document.body.tabs.map(tab => $renderTemplate('#tab-item', {...tab}))"></ul>
-        </nav>
-        <main>
-            <div bind:inner-html="(() => {
-                for (const tab of document.body.tabs) {
-                    if (tab.selected) {
-                        return [$renderTemplate('#tab-panel', tab)];
-                    }
-                }
-            })()"></div>
-        </main>
+    <div bind:inner-html="
+    [1,2,3,4].map(index => $renderTemplate('#accordion', { index }));
+    ">
     </div>
     <script type="module">
         import { startDomObserver, setEvalGlobals, ref, reactive, renderTemplate } from '@incremental-html/reactivity';
         import { morphInnerHTML, morph } from '@incremental-html/morph';
         import { Motion } from '@incremental-html/motion';
-        setEvalGlobals({ Motion, morphInnerHTML, morph, reactive, renderTemplate });
+        setEvalGlobals({ Motion, morphInnerHTML, morph, reactive, ref, renderTemplate });
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>
