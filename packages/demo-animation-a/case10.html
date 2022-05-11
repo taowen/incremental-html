@@ -145,14 +145,15 @@
         </div>
     </template>
     <div bind:inner-html="
-    [1,2,3,4].map(index => $renderTemplate('#accordion', { index }));
+    [1,2,3,4].map(index => $render('#accordion', { index }));
     ">
     </div>
     <script type="module">
-        import { startDomObserver, setEvalGlobals, ref, reactive, renderTemplate } from '@incremental-html/reactivity';
+        import { render } from '@incremental-html/template';
+        import { startDomObserver, setEvalGlobals, ref, reactive } from '@incremental-html/reactivity';
         import { morphInnerHTML, morph } from '@incremental-html/morph';
         import { Motion } from '@incremental-html/motion';
-        setEvalGlobals({ Motion, morphInnerHTML, morph, reactive, ref, renderTemplate });
+        setEvalGlobals({ Motion, morphInnerHTML, morph, reactive, ref, render });
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>
