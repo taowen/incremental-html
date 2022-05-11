@@ -7,17 +7,68 @@
     <link rel="shortcut icon" href="#" />
     <style>
         body {
-            background-repeat: no-repeat;
+            width: 100vw;
+            height: 100vh;
+            background: #ffaa00;
+            overflow: hidden;
             padding: 0;
             margin: 0;
             display: flex;
-            justify-content: flex-start;
-            align-items: flex-start;
+            justify-content: center;
+            align-items: center;
         }
 
-        .example-container {
-            width: 320px;
-            padding: 20px;
+        nav {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 300px;
+        }
+
+        ul,
+        li {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-family: "Poppins", sans-serif;
+            font-weight: 500;
+            font-size: 24px;
+        }
+
+        ul {
+            position: relative;
+            width: 300px;
+        }
+
+        li {
+            border-radius: 10px;
+            margin-bottom: 10px;
+            width: 100%;
+            padding: 15px 18px;
+            position: relative;
+            background: white;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            cursor: grab;
+        }
+
+        li svg {
+            width: 18px;
+            height: 18px;
+            cursor: grab;
+        }
+
+        .background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 300px;
+            background: #fff;
         }
 
         .refresh {
@@ -34,120 +85,24 @@
             align-items: center;
             cursor: pointer;
         }
-
-        .content-placeholder {
-            padding: 20px;
-            transform-origin: top center;
-        }
-
-        header {
-            background: #0055ff;
-            border-radius: 10px;
-            color: white;
-            cursor: pointer;
-            height: 40px;
-            margin-bottom: 20px;
-        }
-
-        .word {
-            height: 18px;
-            border-radius: 10px;
-            display: inline-block;
-            margin-bottom: 8px;
-            margin-right: 8px;
-            background: #0055ff;
-            border-radius: 10px;
-            display: inline-block;
-        }
-
-        .paragraph {
-            margin-bottom: 20px;
-        }
-
-        section {
-            overflow: hidden;
-        }
-
-        @media (max-width: 600px) {
-            .content-placeholder {
-                padding-left: 20px;
-            }
-
-            .header .word {
-                height: 30px;
-            }
-
-            .word {
-                height: 14px;
-                margin-bottom: 5px;
-                margin-right: 5px;
-            }
-
-            .paragraph {
-                margin-bottom: 20px;
-            }
-        }
     </style>
 </head>
 
-<body prop:selected="$ref(1)">
-    <template id="accordion">
-        <div render:id="'pane-' + this.$props.index">
-            <header use:motion="$Motion" motion:initial="false"
-                motion:animate="{ backgroundColor: this.$props.index === document.body.selected.value ? '#FF0088' : '#0055FF'}"
-                on:click="document.body.selected.value = this.$props.index"></header>
-            <div>
-                <section
-                    render:if="this.$props.index === document.body.selected.value"
-                    use:motion="$Motion" motion:initial="'collapsed'" motion:animate="'open'" motion:exit="'collapsed'" motion:variants="{
-                    open: { opacity: 1, height: 'auto' },
-                    collapsed: { opacity: 0, height: 0 }
-                    }" motion:transition="{ duration: 0.8, ease: [0.04, 0.62, 0.23, 0.98] }">
-                    <div class="content-placeholder" use:motion="$Motion" motion:variants="{ collapsed: { scale: 0.8 }, open: { scale: 1 } }"
-                    motion:transition="{ duration: 0.8 }">
-                        <div class="paragraph">
-                            <div class="word" style="width: 75px;"></div>
-                            <div class="word" style="width: 61px;"></div>
-                            <div class="word" style="width: 31px;"></div>
-                            <div class="word" style="width: 46px;"></div>
-                            <div class="word" style="width: 44px;"></div>
-                        </div>
-                        <div class="paragraph">
-                            <div class="word" style="width: 54px;"></div>
-                            <div class="word" style="width: 60px;"></div>
-                            <div class="word" style="width: 43px;"></div>
-                            <div class="word" style="width: 78px;"></div>
-                            <div class="word" style="width: 69px;"></div>
-                            <div class="word" style="width: 23px;"></div>
-                            <div class="word" style="width: 41px;"></div>
-                            <div class="word" style="width: 93px;"></div>
-                            <div class="word" style="width: 37px;"></div>
-                            <div class="word" style="width: 48px;"></div>
-                            <div class="word" style="width: 32px;"></div>
-                            <div class="word" style="width: 68px;"></div>
-                            <div class="word" style="width: 40px;"></div>
-                            <div class="word" style="width: 92px;"></div>
-                            <div class="word" style="width: 96px;"></div>
-                            <div class="word" style="width: 70px;"></div>
-                            <div class="word" style="width: 23px;"></div>
-                        </div>
-                        <div class="paragraph">
-                            <div class="word" style="width: 28px;"></div>
-                            <div class="word" style="width: 78px;"></div>
-                            <div class="word" style="width: 81px;"></div>
-                            <div class="word" style="width: 61px;"></div>
-                            <div class="word" style="width: 65px;"></div>
-                            <div class="word" style="width: 24px;"></div>
-                        </div>
-                    </div>
-                </section>
-            </div>
-        </div>
-    </template>
-    <div bind:inner-html="
-    [1,2,3,4].map(index => $render('#accordion', { index }));
-    ">
-    </div>
+<body>
+    <ul>
+        <li id="🍅 Tomato">
+            <span>🍅 Tomato</span>
+        </li>
+        <li id="🥒 Cucumber">
+            <span>🥒 Cucumber</span>
+        </li>
+        <li id="🧀 Cheese">
+            <span>🧀 Cheese</span>
+        </li>
+        <li id="🥬 Lettuce">
+            <span>🥬 Lettuce</span>
+        </li>
+    </ul>
     <script type="module">
         import { render } from '@incremental-html/template';
         import { startDomObserver, setEvalGlobals, ref, reactive } from '@incremental-html/reactivity';
