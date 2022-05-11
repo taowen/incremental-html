@@ -6,6 +6,9 @@
       "path": "./packages/submit-form/cjs.tsconfig.json"
     },
     {
+      "path": "./packages/template/cjs.tsconfig.json"
+    },
+    {
       "path": "./packages/reactivity/cjs.tsconfig.json"
     },
     {
