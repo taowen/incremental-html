@@ -8,7 +8,7 @@
 </head>
 <body prop:store="$reactive({ items: ['fix bike', 'buy tomato'] })">
     <template id="tpl-todo-item">
-        <!-- this.$props provided by renderTemplate -->
+        <!-- this.$props provided by @incremental-html/template -->
         <li>
             <span bind:text-content="this.$props.task"></span>
             <button on:click="
@@ -33,13 +33,14 @@
     </form>
     <ul bind:inner-html="
         document.body.store.items.map(
-            item => $renderTemplate('#tpl-todo-item', { task: item })
+            item => $render('#tpl-todo-item', { task: item })
         );" />
     <script type="module">
-        import { startDomObserver, reactive, renderTemplate, setEvalGlobals } from '@incremental-html/reactivity';
+        import { startDomObserver, reactive, setEvalGlobals } from '@incremental-html/reactivity';
+        import { render } from '@incremental-html/template';
         setEvalGlobals({
             reactive,
-            renderTemplate
+            render
         })
         // for properties like bind:xxx or on:xxx
         startDomObserver();

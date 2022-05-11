@@ -15,7 +15,7 @@ export function render(selector: string | HTMLTemplateElement, props?: Record<st
             rendered.length -= 1;
         }
     };
-    let child = template.content.firstChild;
+    let child = template.content.cloneNode(true).firstChild;
     while(child) {
         rendered.push(child);
         renderNode(fakeParentNode, child, props);

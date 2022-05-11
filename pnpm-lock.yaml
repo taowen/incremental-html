@@ -70,10 +70,12 @@ importers:
   packages/demo-client-todo:
     specifiers:
       '@incremental-html/reactivity': workspace:*
+      '@incremental-html/template': workspace:*
       typescript: ^4.5.5
       vite: ^2.9.1
     dependencies:
       '@incremental-html/reactivity': link:../reactivity
+      '@incremental-html/template': link:../template
     devDependencies:
       typescript: 4.6.3
       vite: 2.9.1

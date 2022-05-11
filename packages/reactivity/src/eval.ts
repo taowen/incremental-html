@@ -1,27 +1,27 @@
-let globalKeys: string[] = [];
-let globalValues: any[] = [];
+let evalGlobals = (window as any).$evalGlobals = (window as any).$evalGlobals || {
+    globalKeys: [] as string[],
+    globalValues: [] as any[]
+}
 
-export function setEvalGlobals(evalGlobals: Record<string, any>) {
-    globalKeys = [];
-    globalValues = [];
-    for (const [k, v] of Object.entries(evalGlobals)) {
+export function setEvalGlobals(kv: Record<string, any>) {
+    for (const [k, v] of Object.entries(kv)) {
         if (k.startsWith('$')) {
-            globalKeys.push(k);
+            evalGlobals.globalKeys.push(k);
         } else {
-            globalKeys.push(`$${k}`);
+            evalGlobals.globalKeys.push(`$${k}`);
         }
-        globalValues.push(v);
+        evalGlobals.globalValues.push(v);
     }
 }
 
 export function evalExpr(expr: string, theThis?: any, ...args: any[]) {
-    const syncEvaluator = Function.apply(null, [...globalKeys, 'expr', 'arguments', "return eval('expr = undefined;' + expr)"]);
-    return syncEvaluator.apply(theThis, [...globalValues, expr.includes(';') ? expr : `(${expr})`, args]);
+    const syncEvaluator = Function.apply(null, [...evalGlobals.globalKeys, 'expr', 'arguments', "return eval('expr = undefined;' + expr)"]);
+    return syncEvaluator.apply(theThis, [...evalGlobals.globalValues, expr.includes(';') ? expr : `(${expr})`, args]);
 }
 
 function evalAsync(expr: string, theThis?: any, ...args: any[]) {
-    const asyncEvaluator = Function.apply(null, [...globalKeys, 'expr', 'event', 'arguments', "return eval('expr = undefined; (async() => {' + expr + '})();')"]);
-    return asyncEvaluator.apply(theThis, [...globalValues, expr, args[0], args]);
+    const asyncEvaluator = Function.apply(null, [...evalGlobals.globalKeys, 'expr', 'event', 'arguments', "return eval('expr = undefined; (async() => {' + expr + '})();')"]);
+    return asyncEvaluator.apply(theThis, [...evalGlobals.globalValues, expr, args[0], args]);
 }
 
 export async function callEventHandlerAsync(node: Element, eventName: string, ...args: any[]) {
@@ -34,8 +34,8 @@ export async function callEventHandlerAsync(node: Element, eventName: string, ..
 }
 
 function evalSync(expr: string, theThis?: any, ...args: any[]) {
-    const syncEvaluator = Function.apply(null, [...globalKeys, 'expr', 'event', 'arguments', "return eval('expr = undefined;' + expr)"]);
-    return syncEvaluator.apply(theThis, [...globalValues, expr, args[0], args]);
+    const syncEvaluator = Function.apply(null, [...evalGlobals.globalKeys, 'expr', 'event', 'arguments', "return eval('expr = undefined;' + expr)"]);
+    return syncEvaluator.apply(theThis, [...evalGlobals.globalValues, expr, args[0], args]);
 }
 
 export function callEventHandlerSync(node: Element, eventName: string, ...args: any[]) {
