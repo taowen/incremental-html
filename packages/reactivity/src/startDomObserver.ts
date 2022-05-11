@@ -29,13 +29,17 @@ morphChildNodes.beforeRemove = (el) => {
 };
 
 export const mutationObserver = new MutationObserver((mutationList) => {
+    let toNotify: Set<string> | undefined;
     for (const mutation of mutationList) {
         if (mutation.attributeName === 'style') {
             // avoid animation trigger observer recompute
             continue;
         }
         if (mutation.attributeName) {
-            notifyNodeSubscribers((mutation.target as any).$xid);
+            if (!toNotify) {
+                toNotify = new Set();
+            }
+            toNotify.add((mutation.target as any).$xid)
         }
         for (let i = 0; i < mutation.addedNodes.length; i++) {
             const addedNode = mutation.addedNodes.item(i)!;
@@ -48,6 +52,11 @@ export const mutationObserver = new MutationObserver((mutationList) => {
             if (!removedNode.parentNode && removedNode.nodeType === 1) {
                 unmountNode(removedNode);
             }
+        }
+    }
+    if (toNotify) {
+        for (const xid of toNotify) {
+            notifyNodeSubscribers(xid);
         }
     }
 });

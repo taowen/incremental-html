@@ -40,6 +40,12 @@ export class Motion extends Feature<MotionProps> {
         return { ...this.props, ...this.inheritedProps, visualElement: this.visualElement }
     }
     public _1 = this.onMount(() => {
+        if (this.props.drag && this.props.dragListener !== false) {
+            Object.assign((this.element as HTMLElement).style, {
+                userSelect: 'none',
+                touchAction: this.props.drag === true ? 'none' : `pan-${this.props.drag === "x" ? "y" : "x"}`
+            })
+        }
         this.visualElement.mount(this.element as HTMLElement);
         const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
         MeasureLayoutWithContext.componentDidMount(featureProps);

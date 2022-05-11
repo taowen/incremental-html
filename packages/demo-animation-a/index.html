@@ -90,7 +90,7 @@
 
 <body>
     <ul>
-        <li id="🍅 Tomato">
+        <li id="🍅 Tomato" use:reorder="$Reorder">
             <span>🍅 Tomato</span>
         </li>
         <li id="🥒 Cucumber">
@@ -106,9 +106,8 @@
     <script type="module">
         import { render } from '@incremental-html/template';
         import { startDomObserver, setEvalGlobals, ref, reactive } from '@incremental-html/reactivity';
-        import { morphInnerHTML, morph } from '@incremental-html/morph';
-        import { Motion } from '@incremental-html/motion';
-        setEvalGlobals({ Motion, morphInnerHTML, morph, reactive, ref, render });
+        import { Reorder } from '@incremental-html/motion';
+        setEvalGlobals({ Reorder, reactive, ref, render });
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>

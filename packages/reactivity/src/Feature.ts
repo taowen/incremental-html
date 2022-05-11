@@ -5,7 +5,7 @@ import { subscribeNode } from "./subscribeNode";
 
 export class Feature<Props extends Record<string, any>> {
     private computedProps: { value: Record<string, any> }
-    constructor(public readonly element: Element, prefix: string) {
+    constructor(public readonly element: Element, protected readonly prefix: string) {
         let features = (element as any).$features;
         if (!features) {
             features = (element as any).$features = new Map();
