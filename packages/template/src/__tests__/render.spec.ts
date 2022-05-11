@@ -23,3 +23,18 @@ test('element child render:if', () => {
     expect(rendered.length).toBe(1);
     expect(rendered[0].childNodes.length).toBe(0)
 })
+
+test('render:if attribute should be removed', () => {
+    const template = document.createElement('template');
+    template.innerHTML = '<div render:if="true">a</div>';
+    const rendered = render(template) as HTMLElement[];
+    expect(rendered.length).toBe(1);
+    expect(rendered[0].getAttribute('render:if')).toBeNull();
+})
+
+test('render:inner-html should appendChild', () => {
+    const template = document.createElement('template');
+    template.innerHTML = `<div render:inner-html="[document.createElement('div')]"></div>`;
+    const rendered = render(template) as HTMLElement[];
+    expect(rendered[0].innerHTML).toBe('<div></div>');
+})
