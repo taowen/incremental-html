@@ -6,7 +6,9 @@
     "module": "dist/esm/index.js",
     "types": "dist/esm/index.d.ts",
     "dependencies": {
-        "@incremental-html/reactivity": "workspace:*"
+        "@incremental-html/reactivity": "workspace:*",
+        "@incremental-html/morph": "workspace:*",
+        "@incremental-html/template": "workspace:*"
     },
     "devDependencies": {
         "@types/jest": "27.4.1",

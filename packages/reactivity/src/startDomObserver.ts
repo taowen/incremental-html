@@ -86,6 +86,9 @@ function mountNode(node: Element) {
     }
     const xid = `n${nextId++}`;
     (node as any).$xid = xid;
+    if (node.tagName === 'TEMPLATE') {
+        return;
+    }
     const mergeWithSelector = node.getAttribute('merge-with');
     if (mergeWithSelector) {
         const template = document.querySelector(mergeWithSelector);

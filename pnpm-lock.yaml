@@ -263,13 +263,17 @@ importers:
 
   packages/headlessui:
     specifiers:
+      '@incremental-html/morph': workspace:*
       '@incremental-html/reactivity': workspace:*
+      '@incremental-html/template': workspace:*
       '@types/jest': 27.4.1
       jest: 27.5.1
       typedoc: ^0.22.15
       typescript: ^4.5.5
     dependencies:
+      '@incremental-html/morph': link:../morph
       '@incremental-html/reactivity': link:../reactivity
+      '@incremental-html/template': link:../template
     devDependencies:
       '@types/jest': 27.4.1
       jest: 27.5.1

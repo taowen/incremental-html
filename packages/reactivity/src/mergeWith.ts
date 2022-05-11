@@ -9,6 +9,7 @@ function mergeChildNodes(toNode: Element, fromNode: { firstChild: Node | null })
     let index = 0;
     while (newChild) {
         if (newChild.nodeType !== 1) {
+            newChild = newChild.nextSibling;
             continue;
         }
         const newChildEl = newChild as Element;
@@ -41,6 +42,7 @@ function indexOldChildren(oldEl: Element) {
     const oldChildren = new Map<any, Element>();
     while (oldChild) {
         if (oldChild.nodeType !== 1) {
+            oldChild = oldChild.nextSibling;
             continue;
         }
         const oldChildEl = oldChild as Element;
