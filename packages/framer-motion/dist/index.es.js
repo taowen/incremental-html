@@ -510,7 +510,7 @@ class MotionValue {
     this.stop();
   }
 }
-function motionValue(init) {
+function motionValue$1(init) {
   return new MotionValue(init);
 }
 const testValueType = (v2) => (type) => type.test(v2);
@@ -566,7 +566,7 @@ function setMotionValue(visualElement2, key, value) {
   if (visualElement2.hasValue(key)) {
     visualElement2.getValue(key).set(value);
   } else {
-    visualElement2.addValue(key, motionValue(value));
+    visualElement2.addValue(key, motionValue$1(value));
   }
 }
 function setTarget(visualElement2, definition) {
@@ -627,7 +627,7 @@ function checkTargetForNewValues(visualElement2, target, origin) {
     } else if (!findValueType(value) && complex.test(targetValue)) {
       value = getAnimatableNone(key, targetValue);
     }
-    visualElement2.addValue(key, motionValue(value));
+    visualElement2.addValue(key, motionValue$1(value));
     (_c = origin[key]) != null ? _c : origin[key] = value;
     visualElement2.setBaseTarget(key, value);
   }
@@ -1989,7 +1989,7 @@ const isMotionValue = (value) => {
   return Boolean(value !== null && typeof value === "object" && value.getVelocity);
 };
 function animate(from, to, transition = {}) {
-  const value = isMotionValue(from) ? from : motionValue(from);
+  const value = isMotionValue(from) ? from : motionValue$1(from);
   startAnimation("", value, to, transition);
   return {
     stop: () => value.stop(),
@@ -3344,13 +3344,13 @@ function updateMotionValuesFromProps(element, next, prev) {
     if (isMotionValue(nextValue)) {
       element.addValue(key, nextValue);
     } else if (isMotionValue(prevValue)) {
-      element.addValue(key, motionValue(nextValue));
+      element.addValue(key, motionValue$1(nextValue));
     } else if (prevValue !== nextValue) {
       if (element.hasValue(key)) {
         const existingValue = element.getValue(key);
         !existingValue.hasAnimated && existingValue.set(nextValue);
       } else {
-        element.addValue(key, motionValue((_a = element.getStaticValue(key)) != null ? _a : nextValue));
+        element.addValue(key, motionValue$1((_a = element.getStaticValue(key)) != null ? _a : nextValue));
       }
     }
   }
@@ -3508,7 +3508,7 @@ const visualElement = ({
     getValue(key, defaultValue) {
       let value = values.get(key);
       if (value === void 0 && defaultValue !== void 0) {
-        value = motionValue(defaultValue);
+        value = motionValue$1(defaultValue);
         element.addValue(key, value);
       }
       return value;
@@ -4081,6 +4081,9 @@ const createHtmlRenderState = () => ({
   transformOrigin: {},
   vars: {}
 });
+function motionValue(init) {
+  return new MotionValue(init);
+}
 function makeVisualState(props, context, presenceContext) {
   const renderState = createHtmlRenderState();
   const state = {
@@ -4400,4 +4403,4 @@ function usePanGesture({
   }
   return () => panSession && panSession.end();
 }
-export { AnimationType, HTMLProjectionNode, MeasureLayoutWithContext, VisualElementDragControls, addPointerEvent, animationControls, createAnimationState, htmlVisualElement, makeVisualState, useFocusGesture, useHoverGesture, usePanGesture, useProjection, useTapGesture, useViewport };
+export { AnimationType, HTMLProjectionNode, MeasureLayoutWithContext, VisualElementDragControls, addPointerEvent, animationControls, createAnimationState, htmlVisualElement, makeVisualState, motionValue, useFocusGesture, useHoverGesture, usePanGesture, useProjection, useTapGesture, useViewport };

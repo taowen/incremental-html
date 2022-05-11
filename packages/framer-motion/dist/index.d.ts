@@ -1,3 +1,5 @@
+import { Process } from 'framesync';
+
 export declare function addPointerEvent(target: EventTarget, eventName: string, handler: EventListenerWithPointInfo, options?: AddEventListenerOptions): () => void;
 
 declare type AnimationCompleteListener = (definition: AnimationDefinition) => void;
@@ -1637,6 +1639,8 @@ declare class MotionValue<V = any> {
      */
     destroy(): void;
 }
+
+export declare function motionValue<T>(init: T): MotionValue<T>;
 
 declare interface NodeGroup {
     add: (node: IProjectionNode) => void;

@@ -8,6 +8,9 @@ export { HTMLProjectionNode } from './motion/packages/framer-motion/types/projec
 export { addPointerEvent } from './motion/packages/framer-motion/types/events/use-pointer-event';
 export { EventListenerWithPointInfo } from './motion/packages/framer-motion/types/events/event-info';
 export { VisualElementDragControls } from './motion/packages/framer-motion/types/gestures/drag/VisualElementDragControls';
+import { MotionValue } from './motion/packages/framer-motion/types/value/index';
+
+export function motionValue<T>(init: T): MotionValue<T>;
 
 import { MotionProps } from "./motion/packages/framer-motion/types/motion/types"
 import { MotionContextProps } from "./motion/packages/framer-motion/types/context/MotionContext"

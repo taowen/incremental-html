@@ -1,3 +1,5 @@
+/// <reference types="react" />
+
 import { Context } from 'react';
 import { CSSProperties } from 'react';
 import { Process } from 'framesync';
@@ -1907,6 +1909,8 @@ declare class MotionValue<V = any> {
      */
     destroy(): void;
 }
+
+export declare function motionValue<T>(init: T): MotionValue<T>;
 
 declare interface NodeGroup {
     add: (node: IProjectionNode) => void;
