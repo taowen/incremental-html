@@ -1,4 +1,4 @@
-import { morphAttributes } from "../src/morphAttributes";
+import { morphAttributes } from "../morphAttributes";
 
 test('added attribute', () => {
     const oldEl = document.createElement('div');

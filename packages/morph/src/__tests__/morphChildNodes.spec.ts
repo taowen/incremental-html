@@ -1,4 +1,4 @@
-import { morphChildNodes } from "../src/morphChildNodes";
+import { morphChildNodes } from "../morphChildNodes";
 
 test('add child to tail', () => {
     const oldEl = document.createElement('div');
@@ -27,4 +27,11 @@ test('morph old node', () => {
     newEl.innerHTML = `<p>world</p>`
     morphChildNodes(oldEl, newEl);
     expect(oldEl.innerHTML).toEqual('<p>world</p>');
+})
+
+test('morph will flattern array', () => {
+    const oldEl = document.createElement('div');
+    oldEl.innerHTML = `<p>hello</p>`
+    morphChildNodes(oldEl, [[document.createElement('p')]] as any);
+    expect(oldEl.innerHTML).toEqual('<p></p>');
 })
