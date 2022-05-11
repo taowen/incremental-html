@@ -1,9 +1,9 @@
-export function mergeWith(toNode: HTMLElement, fromNode: HTMLTemplateElement) {
+export function mergeWith(toNode: Element, fromNode: HTMLTemplateElement) {
     mergeAttributes(toNode, fromNode);
     mergeChildNodes(toNode, fromNode.content.cloneNode(true));
 }
 
-function mergeChildNodes(toNode: HTMLElement, fromNode: { firstChild: Node | null }) {
+function mergeChildNodes(toNode: Element, fromNode: { firstChild: Node | null }) {
     const oldChildren = indexOldChildren(toNode);
     let newChild = fromNode.firstChild;
     let index = 0;
@@ -11,34 +11,40 @@ function mergeChildNodes(toNode: HTMLElement, fromNode: { firstChild: Node | nul
         if (newChild.nodeType !== 1) {
             continue;
         }
-        const newChildEl = newChild as HTMLElement;
-        const key = newChildEl.id || newChildEl.getAttribute('key') || index;
+        const newChildEl = newChild as Element;
+        const key = newChildEl.getAttribute('key') || index;
         const oldChildEl = oldChildren.get(key);
         if (oldChildEl) {
             mergeAttributes(oldChildEl, newChildEl);
+            mergeChildNodes(oldChildEl, newChildEl);
+        } else {
+            toNode.appendChild(newChild);
         }
         index++;
         newChild = newChild.nextSibling;
     }
 }
 
-function mergeAttributes(toNode: HTMLElement, fromNode: HTMLElement) {
+function mergeAttributes(toNode: Element, fromNode: Element) {
     for (let i = 0; i < fromNode.attributes.length; i++) {
         const attr = fromNode.attributes.item(i)!;
+        if (attr.name === 'id') {
+            continue;
+        }
         toNode.setAttribute(attr.name, attr.value);
     }
 }
 
-function indexOldChildren(oldEl: HTMLElement) {
+function indexOldChildren(oldEl: Element) {
     let oldChild = oldEl.firstChild;
     let index = 0;
-    const oldChildren = new Map<any, HTMLElement>();
+    const oldChildren = new Map<any, Element>();
     while (oldChild) {
         if (oldChild.nodeType !== 1) {
             continue;
         }
-        const oldChildEl = oldChild as HTMLElement;
-        const key = oldChildEl.id || oldChildEl.getAttribute('key')
+        const oldChildEl = oldChild as Element;
+        const key = oldChildEl.getAttribute('key')
         if (key) {
             oldChildren.set(key, oldChildEl);
         } else {
