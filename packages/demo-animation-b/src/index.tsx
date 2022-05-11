@@ -1,4 +1,5 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { mix } from "@popmotion/popcorn";
+import { animate, AnimatePresence, motion, MotionValue, Reorder, useMotionValue } from 'framer-motion';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom/client';
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
@@ -18,6 +19,7 @@ root.render(
                 <li><Link to="case8">Case8</Link></li>
                 <li><Link to="case9">Case9</Link></li>
                 <li><Link to="case10">Case10</Link></li>
+                <li><Link to="case11">Case11</Link></li>
             </ul>} />
             <Route path='case1' element={<Case1 />} />
             <Route path='case2' element={<Case2 />} />
@@ -29,6 +31,7 @@ root.render(
             <Route path='case8' element={<Case8 />} />
             <Route path='case9' element={<Case9 />} />
             <Route path='case10' element={<Case10 />} />
+            <Route path='case11' element={<Case11 />} />
         </Routes>
     </BrowserRouter>)
 
@@ -142,34 +145,33 @@ function Case10() {
     return <>{
         accordionIds.map((i) => (
             <React.Fragment key={i}>
-            <motion.header
-                initial={false}
-                animate={{ backgroundColor: i === expanded ? "#FF0088" : "#0055FF" }}
-                onClick={() => setExpanded(i === expanded ? false : i)}
-            />
-            <AnimatePresence initial={false}>
-                {i === expanded && (
-                <motion.section
-                    key="content"
-                    initial="collapsed"
-                    animate="open"
-                    exit="collapsed"
-                    variants={{
-                    open: { opacity: 1, height: "auto" },
-                    collapsed: { opacity: 0, height: 0 }
-                    }}
-                    transition={{ duration: 0.8, ease: [0.04, 0.62, 0.23, 0.98] }}
-                >
-                    <ContentPlaceholder />
-                </motion.section>
-                )}
-            </AnimatePresence>
+                <motion.header
+                    initial={false}
+                    animate={{ backgroundColor: i === expanded ? "#FF0088" : "#0055FF" }}
+                    onClick={() => setExpanded(i === expanded ? false : i)}
+                />
+                <AnimatePresence initial={false}>
+                    {i === expanded && (
+                        <motion.section
+                            key="content"
+                            initial="collapsed"
+                            animate="open"
+                            exit="collapsed"
+                            variants={{
+                                open: { opacity: 1, height: "auto" },
+                                collapsed: { opacity: 0, height: 0 }
+                            }}
+                            transition={{ duration: 0.8, ease: [0.04, 0.62, 0.23, 0.98] }}
+                        >
+                            <ContentPlaceholder />
+                        </motion.section>
+                    )}
+                </AnimatePresence>
             </React.Fragment>
-          ))
+        ))
     }</>;
 }
 
-import { mix } from "@popmotion/popcorn";
 
 const randomInt = (min: number, max: number) => Math.round(mix(min, max, Math.random()));
 const generateParagraphLength = () => randomInt(5, 20);
@@ -177,27 +179,79 @@ const generateWordLength = () => randomInt(20, 100);
 
 // Randomly generate some paragraphs of word lengths
 const paragraphs = [...Array(3)].map(() => {
-  return [...Array(generateParagraphLength())].map(generateWordLength);
+    return [...Array(generateParagraphLength())].map(generateWordLength);
 });
 
 const Word = ({ width }: any) => <div className="word" style={{ width }} />;
 
 const Paragraph = ({ words }: any) => (
-  <div className="paragraph">
-    {words.map((width: any, i: any) => (
-      <Word key={i} width={width} />
-    ))}
-  </div>
+    <div className="paragraph">
+        {words.map((width: any, i: any) => (
+            <Word key={i} width={width} />
+        ))}
+    </div>
 );
 
 const ContentPlaceholder = () => (
-  <motion.div
-    variants={{ collapsed: { scale: 0.8 }, open: { scale: 1 } }}
-    transition={{ duration: 0.8 }}
-    className="content-placeholder"
-  >
-    {paragraphs.map((words, i) => (
-      <Paragraph key={i} words={words} />
-    ))}
-  </motion.div>
+    <motion.div
+        variants={{ collapsed: { scale: 0.8 }, open: { scale: 1 } }}
+        transition={{ duration: 0.8 }}
+        className="content-placeholder"
+    >
+        {paragraphs.map((words, i) => (
+            <Paragraph key={i} words={words} />
+        ))}
+    </motion.div>
 );
+
+const initialItems = ["🍅 Tomato", "🥒 Cucumber", "🧀 Cheese", "🥬 Lettuce"];
+
+function Case11() {
+    import('./case11.css');
+    const [items, setItems] = React.useState(initialItems);
+
+    return (
+        <Reorder.Group axis="y" onReorder={setItems} values={items}>
+            {items.map((item) => (
+                <Item key={item} item={item} />
+            ))}
+        </Reorder.Group>
+    )
+}
+
+const Item = ({ item }: { item: string }) => {
+    const y = useMotionValue(0);
+    const boxShadow = useRaisedShadow(y);
+
+    return (
+        <Reorder.Item value={item} id={item} style={{ boxShadow, y }}>
+            <span>{item}</span>
+        </Reorder.Item>
+    );
+};
+
+const inactiveShadow = "0px 0px 0px rgba(0,0,0,0.8)";
+
+function useRaisedShadow(value: MotionValue<number>) {
+    const boxShadow = useMotionValue(inactiveShadow);
+
+    React.useEffect(() => {
+        let isActive = false;
+        value.onChange((latest) => {
+            const wasActive = isActive;
+            if (latest !== 0) {
+                isActive = true;
+                if (isActive !== wasActive) {
+                    animate(boxShadow, "5px 5px 10px rgba(0,0,0,0.3)");
+                }
+            } else {
+                isActive = false;
+                if (isActive !== wasActive) {
+                    animate(boxShadow, inactiveShadow);
+                }
+            }
+        });
+    }, [value, boxShadow]);
+
+    return boxShadow;
+}
