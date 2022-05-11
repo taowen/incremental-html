@@ -22,12 +22,10 @@
         </li>
     </template>
     <form on:submit="
-        const [e] = arguments;
-        e.preventDefault();
-        const formData = new FormData(e.target);
+        const formData = new FormData(this);
         if(formData.get('task')) {
             document.body.store.items.push(formData.get('task'));
-            e.target.reset();
+            this.reset();
         }
     ">
         <input type="text" name="task" />

@@ -112,7 +112,7 @@ function mountNode(node: Element) {
                 const [event] = args;
                 event.preventDefault();
                 event.stopPropagation();
-                callEventHandlerAsync(node, eventName, attr.value, ...args);
+                callEventHandlerAsync(node, eventName, ...args);
             })
         } else if (attr.name.startsWith('prop:')) {
             const propName = camelize(attr.name.substring('prop:'.length));
