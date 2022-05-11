@@ -1,0 +1,20 @@
+{
+    "name": "@incremental-html/template",
+    "version": "1.0.0",
+    "description": "render <template> to new dom nodes",
+    "main": "dist/cjs/index.js",
+    "module": "dist/esm/index.js",
+    "types": "dist/esm/index.d.ts",
+    "dependencies": {
+    },
+    "devDependencies": {
+      "typescript": "^4.5.5",
+      "jest": "27.5.1",
+      "typedoc": "^0.22.15",
+      "@types/jest": "27.4.1"
+    },
+    "files": ["dist/*", "README.md", "LICENSE"],
+    "scripts": {
+        "test": "pnpm tsc -p cjs.tsconfig.json && pnpm jest"
+    }
+  }
