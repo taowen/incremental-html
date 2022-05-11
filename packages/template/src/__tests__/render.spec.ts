@@ -59,3 +59,10 @@ test('render:id can set id', () => {
     const rendered = render(template) as HTMLElement[];
     expect(rendered[0].id).toBe('hello');
 })
+
+test('render with props', () => {
+    const template = document.createElement('template');
+    template.innerHTML = `<div render:id="this.$props.a"><span render:id="this.$props.b"></span></div>`;
+    const rendered = render(template, { a: 'hello', b: 'world' }) as HTMLElement[];
+    expect(rendered[0].outerHTML).toBe(`<div id="hello"><span id="world"></span></div>`);
+})

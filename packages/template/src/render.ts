@@ -1,6 +1,7 @@
 import { evalExpr } from "./eval";
 
 export function render(selector: string | HTMLTemplateElement, props?: Record<string, any>): Node[] {
+    props = props || {};
     const template = getTemplate(selector);
     if (!template) {
         throw new Error(`template ${selector} not found`);
@@ -23,10 +24,11 @@ export function render(selector: string | HTMLTemplateElement, props?: Record<st
     return rendered;
 }
 
-function renderNode(parentNode: { removeChild(node: Node): void }, node: Node, props?: Record<string, any>) {
+function renderNode(parentNode: { removeChild(node: Node): void }, node: Node, props: Record<string, any>) {
     if (node.nodeType !== 1) {
         return;
     }
+    (node as any).$props = props;
     const element = node as HTMLElement;
     const renderIf = element.getAttribute('render:if');
     if (renderIf) {
