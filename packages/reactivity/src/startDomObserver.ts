@@ -3,13 +3,21 @@ import { effect, isRef } from '@vue/reactivity';
 import { callEventHandlerAsync, evalExpr } from './eval';
 import { Feature } from './Feature';
 import { camelize } from './naming';
-import { setNodeProperty } from './renderTemplate';
 import { notifyNodeSubscribers } from './subscribeNode';
 
 let nextId = 1;
 
+export function startDomObserver() {
+    return mountNode(document.body);
+}
+
+export function stopDomObserver() {
+    mutationObserver.disconnect();
+    delete (document.body as any).$xid;
+}
+
 morphChildNodes.morphProperties = (oldEl, newEl) => {
-    // renderTemplate set $props to new element
+    // @incremental/template render will set $props to new element
     // if old element reused, we need to propagate $props to old element
     (oldEl as any).$props = (newEl as any).$props;
     refreshNode(oldEl);
@@ -208,11 +216,33 @@ async function applyBindProps(node: Element) {
     }
 }
 
-export function startDomObserver() {
-    return mountNode(document.body);
-}
-
-export function stopDomObserver() {
-    mutationObserver.disconnect();
-    delete (document.body as any).$xid;
+function setNodeProperty(node: Element, name: string, value: any) {
+    if (name.startsWith('style.')) {
+        Reflect.set((node as HTMLElement).style, name.substring('style.'.length), value)
+        return;
+    }
+    if (name === 'class') {
+        node.className = value;
+        return;
+    }
+    if (name.startsWith('class.')) {
+        value = ' ' + value;
+        const oldClass = Reflect.get(node, name);
+        Reflect.set(node, name, value);
+        if (oldClass) {
+            node.className = node.className.replace(oldClass, '') + value;
+        } else {
+            node.className = node.className + value;
+        }
+        return;
+    }
+    if (name === 'innerHtml') {
+        morphInnerHTML(node, value);
+        return;
+    }
+    if (name === 'childNodes') {
+        morphChildNodes(node, Array.isArray(value) ? value : [value]);
+        return;
+    }
+    Reflect.set(node, name, value);
 }
