@@ -10,10 +10,10 @@
 <body>
     <div use:motion="$Motion" motion:animate="{ opacity: 0.5 }" motion:transition="{ duration: 2 }">Hello World</div>
     <script type="module">
-        import { startDomObserver, setEvalGlobals, ref, renderTemplate } from '@incremental-html/reactivity';
+        import { startDomObserver, setEvalGlobals, ref } from '@incremental-html/reactivity';
         import { morphInnerHTML, morph } from '@incremental-html/morph';
         import { Motion } from '@incremental-html/motion';
-        setEvalGlobals({ Motion, morphInnerHTML, morph, ref, renderTemplate });
+        setEvalGlobals({ Motion, morphInnerHTML, morph, ref });
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>

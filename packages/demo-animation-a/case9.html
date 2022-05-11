@@ -162,34 +162,35 @@
         document.body.tabs.forEach(tab => tab.selected = (tab.label === this.$props.label));
         ">
             <span bind:text-content="`${this.$props.icon} ${this.$props.label}`"></span>
-            <div class="underline" on:render="if(!this.$props.selected) { this.parentNode.removeChild(this) }"
+            <div class="underline" render:if="this.$props.selected"
                 use:motion="$Motion" motion:layout-id="'underline'"></div>
         </li>
     </template>
     <template id="tab-panel">
-        <div on:render="this.id = this.$props.label" bind:text-content="this.$props.icon"
+        <div render:id="this.$props.label" bind:text-content="this.$props.icon"
             use:motion="$Motion" motion:initial="{ opacity: 0, y: 20 }" motion:animate="{ opacity: 1, y: 0 }" motion:exit="{ opacity: 0, y: -20 }"
             motion:transition="{ duration: 0.5 }"></div>
     </template>
     <div class="window">
         <nav>
-            <ul bind:inner-html="document.body.tabs.map(tab => $renderTemplate('#tab-item', {...tab}))"></ul>
+            <ul bind:inner-html="document.body.tabs.map(tab => $render('#tab-item', {...tab}))"></ul>
         </nav>
         <main>
             <div bind:inner-html="(() => {
                 for (const tab of document.body.tabs) {
                     if (tab.selected) {
-                        return [$renderTemplate('#tab-panel', tab)];
+                        return $render('#tab-panel', tab);
                     }
                 }
             })()"></div>
         </main>
     </div>
     <script type="module">
-        import { startDomObserver, setEvalGlobals, ref, reactive, renderTemplate } from '@incremental-html/reactivity';
+        import { render } from '@incremental-html/template';
+        import { startDomObserver, setEvalGlobals, ref, reactive } from '@incremental-html/reactivity';
         import { morphInnerHTML, morph } from '@incremental-html/morph';
         import { Motion } from '@incremental-html/motion';
-        setEvalGlobals({ Motion, morphInnerHTML, morph, reactive, renderTemplate });
+        setEvalGlobals({ Motion, morphInnerHTML, morph, reactive, render });
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>
