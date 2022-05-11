@@ -2,7 +2,7 @@ import { morph, morphChildNodes, morphInnerHTML } from '@incremental-html/morph'
 import { effect, isRef } from '@vue/reactivity';
 import { callEventHandlerAsync, evalExpr } from './eval';
 import { Feature } from './Feature';
-import { mergeWith } from './mergeWith';
+import { copyFrom } from './copyFrom';
 import { camelize } from './naming';
 import { notifyNodeSubscribers } from './subscribeNode';
 
@@ -89,14 +89,14 @@ function mountNode(node: Element) {
     if (node.tagName === 'TEMPLATE') {
         return;
     }
-    const mergeWithSelector = node.getAttribute('merge-with');
-    if (mergeWithSelector) {
-        const template = document.querySelector(mergeWithSelector);
+    const copyFromSelector = node.getAttribute('copy-from');
+    if (copyFromSelector) {
+        const template = document.querySelector(copyFromSelector);
         if (template) {
-            node.removeAttribute('merge-with');
-            mergeWith(node, template as HTMLTemplateElement);
+            node.removeAttribute('copy-from');
+            copyFrom(node, template as HTMLTemplateElement);
         } else {
-            console.error(`merge-with ${mergeWithSelector} not found`);
+            console.error(`copy-from ${copyFromSelector} not found`);
         }
     }
     if (node.tagName === 'INPUT') {

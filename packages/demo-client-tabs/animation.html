@@ -146,7 +146,7 @@
             cursor: default;
             pointer-events: none;
         }
-        [merge-with] {
+        [copy-from] {
             display: none;
         }
     </style>
@@ -160,13 +160,13 @@
                     <span></span>
                     <div class="underline" render:if="this.$props.selected" use:motion="$Motion" motion:layout-id="'underline'"></div>
                 </template>
-                <li merge-with="#my-tab">
+                <li copy-from="#my-tab">
                     <span>🍅 Tomato</span>
                 </li>
-                <li merge-with="#my-tab">
+                <li copy-from="#my-tab">
                     <span>🥬 Lettuce</span>
                 </li>
-                <li merge-with="#my-tab">
+                <li copy-from="#my-tab">
                     <span>🧀 Cheese</span>
                 </li>
             </ul>
@@ -176,9 +176,9 @@
             use:motion="$Motion" motion:initial="{ opacity: 0, y: 20 }" motion:animate="{ opacity: 1, y: 0 }" 
             motion:exit="{ opacity: 0, y: -20 }" motion:transition="{ duration: 0.5 }">
             </template>
-            <div merge-with="#my-tab-panel">🍅</div>
-            <div merge-with="#my-tab-panel">🥬</div>
-            <div merge-with="#my-tab-panel">🧀</div>
+            <div copy-from="#my-tab-panel">🍅</div>
+            <div copy-from="#my-tab-panel">🥬</div>
+            <div copy-from="#my-tab-panel">🧀</div>
         </main>
     </div>
     <script type="module">

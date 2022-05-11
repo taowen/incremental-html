@@ -17,7 +17,7 @@ test('set textContent', async () => {
 })
 
 test('merge with', async () => {
-    document.body.innerHTML = `<template id="tpl1" title="hello"></template><p merge-with="#tpl1"></p>`;
+    document.body.innerHTML = `<template id="tpl1" title="hello"></template><p copy-from="#tpl1"></p>`;
     await new Promise(resolve => setTimeout(resolve, 0));
     expect(document.querySelector('p')!.outerHTML).toBe('<p title="hello"></p>');
 })

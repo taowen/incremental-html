@@ -1,9 +1,9 @@
-export function mergeWith(toNode: Element, fromNode: HTMLTemplateElement) {
-    mergeAttributes(toNode, fromNode);
-    mergeChildNodes(toNode, fromNode.content.cloneNode(true));
+export function copyFrom(toNode: Element, fromNode: HTMLTemplateElement) {
+    copyAttributes(toNode, fromNode);
+    copyChildNodes(toNode, fromNode.content.cloneNode(true));
 }
 
-function mergeChildNodes(toNode: Element, fromNode: { firstChild: Node | null }) {
+function copyChildNodes(toNode: Element, fromNode: { firstChild: Node | null }) {
     const oldChildren = indexOldChildren(toNode);
     let newChild = fromNode.firstChild;
     let index = 0;
@@ -16,8 +16,8 @@ function mergeChildNodes(toNode: Element, fromNode: { firstChild: Node | null })
         const key = newChildEl.getAttribute('key') || index;
         const oldChildEl = oldChildren.get(key);
         if (oldChildEl) {
-            mergeAttributes(oldChildEl, newChildEl);
-            mergeChildNodes(oldChildEl, newChildEl);
+            copyAttributes(oldChildEl, newChildEl);
+            copyChildNodes(oldChildEl, newChildEl);
         } else {
             toNode.appendChild(newChild);
         }
@@ -26,7 +26,7 @@ function mergeChildNodes(toNode: Element, fromNode: { firstChild: Node | null })
     }
 }
 
-function mergeAttributes(toNode: Element, fromNode: Element) {
+function copyAttributes(toNode: Element, fromNode: Element) {
     for (let i = 0; i < fromNode.attributes.length; i++) {
         const attr = fromNode.attributes.item(i)!;
         if (attr.name === 'id') {
