@@ -38,3 +38,24 @@ test('render:inner-html should appendChild', () => {
     const rendered = render(template) as HTMLElement[];
     expect(rendered[0].innerHTML).toBe('<div></div>');
 })
+
+test('render:inner-html should flattern array', () => {
+    const template = document.createElement('template');
+    template.innerHTML = `<div render:inner-html="[[[document.createElement('div')]]]"></div>`;
+    const rendered = render(template) as HTMLElement[];
+    expect(rendered[0].innerHTML).toBe('<div></div>');
+})
+
+test('render:inner-html should support html', () => {
+    const template = document.createElement('template');
+    template.innerHTML = `<div render:inner-html="'<div></div>'"></div>`;
+    const rendered = render(template) as HTMLElement[];
+    expect(rendered[0].innerHTML).toBe('<div></div>');
+})
+
+test('render:id can set id', () => {
+    const template = document.createElement('template');
+    template.innerHTML = `<div render:id="'hello'"></div>`;
+    const rendered = render(template) as HTMLElement[];
+    expect(rendered[0].id).toBe('hello');
+})

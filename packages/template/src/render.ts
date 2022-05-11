@@ -104,10 +104,16 @@ function setNodeProperty(node: HTMLElement, name: string, value: any) {
         return;
     }
     if (name === 'innerHtml') {
-        appendChildNodes(node, value);
+        if (typeof value === 'string') {
+            node.innerHTML = value;
+        } else {
+            node.innerHTML = '';
+            appendChildNodes(node, value);
+        }
         return;
     }
     if (name === 'childNodes') {
+        node.innerHTML = '';
         appendChildNodes(node, value);
         return;
     }
@@ -115,7 +121,19 @@ function setNodeProperty(node: HTMLElement, name: string, value: any) {
 }
 
 function appendChildNodes(element: HTMLElement, childNodes: Node[]) {
-    for (const childNode of childNodes) {
+    const flatterned: Node[] = [];
+    flatternArray(flatterned, childNodes);
+    for (const childNode of flatterned) {
         element.appendChild(childNode);
+    }
+}
+
+function flatternArray(flatterned: Node[], childNodes: any) {
+    if (Array.isArray(childNodes)) {
+        for (const childNode of childNodes) {
+            flatternArray(flatterned, childNode);
+        }
+    } else {
+        flatterned.push(childNodes);
     }
 }
