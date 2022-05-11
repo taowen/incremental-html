@@ -4,13 +4,12 @@ import { Motion } from "./Motion";
 
 export class Reorder extends Feature<MotionProps> {
     private _ = this.onMount(() => {
-        if (!this.element.hasAttribute(`${this.prefix}drag`)) {
-            this.element.setAttribute(`${this.prefix}drag`, "'y'");
-        }
-        this.element.setAttribute(`${this.prefix}drag-snap-to-origin`, '');
-        const motion = new Motion(this.element, this.prefix);
+        const motion = new Motion(this.element, () => this.mergedProps);
         return () => {
             return motion.unmount();
         }
     })
+    private get mergedProps(): MotionProps {
+        return { drag: 'y', ...this.props, dragSnapToOrigin: true }
+    }
 }

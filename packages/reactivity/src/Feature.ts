@@ -5,13 +5,16 @@ import { subscribeNode } from "./subscribeNode";
 
 export class Feature<Props extends Record<string, any>> {
     private computedProps: { value: Record<string, any> }
-    constructor(public readonly element: Element, protected readonly prefix: string) {
+    constructor(public readonly element: Element, protected readonly prefix: string | (() => Props)) {
         let features = (element as any).$features;
         if (!features) {
             features = (element as any).$features = new Map();
         }
         features.set(this.constructor, this);
         this.computedProps = computed(() => {
+            if (typeof prefix !== 'string') {
+                return prefix();
+            }
             subscribeNode(element);
             const props: Record<string, any> = {};
             for (let i = 0; i < element.attributes.length; i++) {
