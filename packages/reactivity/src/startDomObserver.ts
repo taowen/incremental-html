@@ -25,7 +25,7 @@ morphChildNodes.morphProperties = (oldEl, newEl) => {
 };
 
 morphChildNodes.beforeRemove = (el) => {
-    return onUnmount(el);
+    return unmountNode(el);
 };
 
 export const mutationObserver = new MutationObserver((mutationList) => {
@@ -46,35 +46,33 @@ export const mutationObserver = new MutationObserver((mutationList) => {
         for (let i = 0; i < mutation.removedNodes.length; i++) {
             const removedNode = mutation.removedNodes.item(i) as Element;
             if (!removedNode.parentNode && removedNode.nodeType === 1) {
-                onUnmount(removedNode);
+                unmountNode(removedNode);
             }
         }
     }
 });
 
-function onUnmount(element: Element): Promise<void> | void {
+function unmountNode(element: Element): Promise<void> | void {
     if ((element as any).$unmounted) {
         return;
     }
     (element as any).$unmounted = true;
-    const promises = [];
-    if ((element as any).$features) {
-        for (const feature of (element as any).$features.values()) {
-            for (const v of Object.values(feature)) {
-                if ((v as any)?.stop) {
-                    const promise = (v as any)?.stop();
-                    if (promise) {
-                        promises.push(promise);
-                    }
-                }
-            }
-        }
-    }
     if ((element as any).$refreshNode) {
         (element as any).$refreshNode.stop();
     }
+    const promises = [];
+    if ((element as any).$features) {
+        for (const feature of (element as any).$features.values()) {
+            const promise = feature.unmount();
+            if (promise) {
+                promises.push(promise);
+            }
+        }
+    }
     if (promises.length === 0) {
         return undefined;
+    } else if (promises.length === 1) {
+        return promises[0];
     } else {
         return Promise.all(promises) as any;
     }

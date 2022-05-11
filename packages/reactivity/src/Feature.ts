@@ -76,6 +76,25 @@ export class Feature<Props extends Record<string, any>> {
     protected create<T>(fn: () => T): T {
         return fn();
     }
+
+    public unmount() {
+        const promises = [];
+        for (const v of Object.values(this)) {
+            if ((v as any)?.stop) {
+                const promise = (v as any)?.stop();
+                if (promise) {
+                    promises.push(promise);
+                }
+            }
+        }
+        if (promises.length === 0) {
+            return undefined;
+        } else if (promises.length === 1) {
+            return promises[0]
+        } else {
+            return Promise.all(promises);
+        }
+    }
 }
 
 export function queryFeature<T>(element: Element, featureClass: { new (element: Element, prefix: string): T; }): T | undefined {
