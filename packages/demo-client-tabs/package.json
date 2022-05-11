@@ -4,6 +4,8 @@
     "version": "1.0.0",
     "dependencies": {
         "@incremental-html/reactivity": "workspace:*",
+        "@incremental-html/template": "workspace:*",
+        "@incremental-html/motion": "workspace:*",
         "@incremental-html/headlessui": "workspace:*"
     },
     "devDependencies": {

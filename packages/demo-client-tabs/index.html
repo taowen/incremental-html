@@ -4,128 +4,193 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Demo</title>
+    <link rel="shortcut icon" href="#" />
     <style>
-        @tailwind base;
-        @tailwind components;
-        @tailwind utilities;
+        body {
+            --accent: #8855ff;
+            width: 100vw;
+            height: 100vh;
+            background: var(--accent);
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .window {
+            width: 480px;
+            height: 360px;
+            border-radius: 10px;
+            background: white;
+            overflow: hidden;
+            box-shadow: 0 1px 1px hsl(0deg 0% 0% / 0.075),
+                0 2px 2px hsl(0deg 0% 0% / 0.075), 0 4px 4px hsl(0deg 0% 0% / 0.075),
+                0 8px 8px hsl(0deg 0% 0% / 0.075), 0 16px 16px hsl(0deg 0% 0% / 0.075);
+            display: flex;
+            flex-direction: column;
+        }
+
+        nav {
+            background: #fdfdfd;
+            padding: 5px 5px 0;
+            border-radius: 10px;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            border-bottom: 1px solid #eeeeee;
+            height: 44px;
+        }
+
+        .tabs {
+            flex-grow: 1;
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-end;
+            flex-wrap: nowrap;
+            width: 100%;
+        }
+
+        main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 128px;
+            flex-grow: 1;
+            user-select: none;
+        }
+
+        ul,
+        li {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-family: "Poppins", sans-serif;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        ul {
+            display: flex;
+            width: 100%;
+        }
+
+        li {
+            border-radius: 5px;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            width: 100%;
+            padding: 10px 15px;
+            position: relative;
+            background: white;
+            cursor: pointer;
+            height: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex: 1;
+            min-width: 0;
+            position: relative;
+            user-select: none;
+        }
+
+        .underline {
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--accent);
+        }
+
+        li.selected {
+            background: #eee;
+        }
+
+        li button {
+            width: 20px;
+            height: 20px;
+            border: 0;
+            background: #fff;
+            border-radius: 3px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            stroke: #000;
+            margin-left: 10px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 300px;
+            background: #fff;
+        }
+
+        .add-item {
+            width: 30px;
+            height: 30px;
+            background: #eee;
+            border-radius: 50%;
+            border: 0;
+            cursor: pointer;
+            align-self: center;
+        }
+
+        .add-item:disabled {
+            opacity: 0.4;
+            cursor: default;
+            pointer-events: none;
+        }
     </style>
 </head>
 
-<body>
-    <div class="flex flex-col items-center justify-center w-full h-screen bg-gradient-to-r from-sky-400 to-blue-600">
-        <div use:tab-group="$Tab.Group" tab-group:selected-index="1" class="w-full max-w-md px-2 py-16 sm:px-0">
-            <div use:tab-list="$Tab.List" class="flex p-1 space-x-1 bg-blue-900/20 rounded-xl">
-                <button use:tab="$Tab"
-                    bind:class.selection="this.tab.selected ? 'bg-white shadow' : 'text-blue-100 hover:bg-white/[0.12] hover:text-white'"
-                    class="w-full py-2.5 text-sm leading-5 font-medium text-blue-700 rounded-lg focus:outline-none focus:ring-2 ring-offset-2 ring-offset-blue-400 ring-white ring-opacity-60"
-                    id="headlessui-tabs-tab-1" type="button" aria-selected="true" tabindex="0"
-                    aria-controls="headlessui-tabs-panel-4">Recent</button>
-                <button use:tab="$Tab"
-                    bind:class.selection="this.tab.selected ? 'bg-white shadow' : 'text-blue-100 hover:bg-white/[0.12] hover:text-white'"
-                    class="w-full py-2.5 text-sm leading-5 font-medium text-blue-700 rounded-lg focus:outline-none focus:ring-2 ring-offset-2 ring-offset-blue-400 ring-white ring-opacity-60"
-                    id="headlessui-tabs-tab-2" type="button" aria-selected="false" tabindex="-1">Popular</button>
-                <button use:tab="$Tab"
-                    bind:class.selection="this.tab.selected ? 'bg-white shadow' : 'text-blue-100 hover:bg-white/[0.12] hover:text-white'"
-                    class="w-full py-2.5 text-sm leading-5 font-medium text-blue-700 rounded-lg focus:outline-none focus:ring-2 ring-offset-2 ring-offset-blue-400 ring-white ring-opacity-60"
-                    id="headlessui-tabs-tab-3" type="button" aria-selected="false" tabindex="-1">Trending</button>
-            </div>
-            <div class="mt-2">
-                <div use:tab-panel="$Tab.Panel"
-                    class="bg-white rounded-xl p-3 focus:outline-none focus:ring-2 ring-offset-2 ring-offset-blue-400 ring-white ring-opacity-60"
-                    id="headlessui-tabs-panel-4" role="tabpanel" aria-labelledby="headlessui-tabs-tab-1" tabindex="0">
-                    <ul>
-                        <li class="relative p-3 rounded-md hover:bg-coolGray-100">
-                            <h3 class="text-sm font-medium leading-5">Does drinking coffee make you smarter?</h3>
-                            <ul class="flex mt-1 space-x-1 text-xs font-normal leading-4 text-coolGray-500">
-                                <li>5h ago</li>
-                                <li>·</li>
-                                <li>5 comments</li>
-                                <li>·</li>
-                                <li>2 shares</li>
-                            </ul><a href="#"
-                                class="absolute inset-0 rounded-md focus:z-10 focus:outline-none focus:ring-2 ring-blue-400"></a>
-                        </li>
-                        <li class="relative p-3 rounded-md hover:bg-coolGray-100">
-                            <h3 class="text-sm font-medium leading-5">So you've bought coffee... now what?</h3>
-                            <ul class="flex mt-1 space-x-1 text-xs font-normal leading-4 text-coolGray-500">
-                                <li>2h ago</li>
-                                <li>·</li>
-                                <li>3 comments</li>
-                                <li>·</li>
-                                <li>2 shares</li>
-                            </ul><a href="#"
-                                class="absolute inset-0 rounded-md focus:z-10 focus:outline-none focus:ring-2 ring-blue-400"></a>
-                        </li>
-                    </ul>
-                </div>
-                <div use:tab-panel="$Tab.Panel"
-                    class="bg-white rounded-xl p-3 focus:outline-none focus:ring-2 ring-offset-2 ring-offset-blue-400 ring-white ring-opacity-60"
-                    id="headlessui-tabs-panel-5" role="tabpanel" aria-labelledby="headlessui-tabs-tab-2" tabindex="0">
-                    <ul>
-                        <li class="relative p-3 rounded-md hover:bg-coolGray-100">
-                            <h3 class="text-sm font-medium leading-5">Is tech making coffee better or worse?</h3>
-                            <ul class="flex mt-1 space-x-1 text-xs font-normal leading-4 text-coolGray-500">
-                                <li>Jan 7</li>
-                                <li>·</li>
-                                <li>29 comments</li>
-                                <li>·</li>
-                                <li>16 shares</li>
-                            </ul><a href="#"
-                                class="absolute inset-0 rounded-md focus:z-10 focus:outline-none focus:ring-2 ring-blue-400"></a>
-                        </li>
-                        <li class="relative p-3 rounded-md hover:bg-coolGray-100">
-                            <h3 class="text-sm font-medium leading-5">The most innovative things happening in coffee
-                            </h3>
-                            <ul class="flex mt-1 space-x-1 text-xs font-normal leading-4 text-coolGray-500">
-                                <li>Mar 19</li>
-                                <li>·</li>
-                                <li>24 comments</li>
-                                <li>·</li>
-                                <li>12 shares</li>
-                            </ul><a href="#"
-                                class="absolute inset-0 rounded-md focus:z-10 focus:outline-none focus:ring-2 ring-blue-400"></a>
-                        </li>
-                    </ul>
-                </div>
-                <div use:tab-panel="$Tab.Panel"
-                    class="bg-white rounded-xl p-3 focus:outline-none focus:ring-2 ring-offset-2 ring-offset-blue-400 ring-white ring-opacity-60"
-                    id="headlessui-tabs-panel-6" role="tabpanel" aria-labelledby="headlessui-tabs-tab-3" tabindex="0">
-                    <ul>
-                        <li class="relative p-3 rounded-md hover:bg-coolGray-100">
-                            <h3 class="text-sm font-medium leading-5">Ask Me Anything: 10 answers to your questions
-                                about coffee</h3>
-                            <ul class="flex mt-1 space-x-1 text-xs font-normal leading-4 text-coolGray-500">
-                                <li>2d ago</li>
-                                <li>·</li>
-                                <li>9 comments</li>
-                                <li>·</li>
-                                <li>5 shares</li>
-                            </ul><a href="#"
-                                class="absolute inset-0 rounded-md focus:z-10 focus:outline-none focus:ring-2 ring-blue-400"></a>
-                        </li>
-                        <li class="relative p-3 rounded-md hover:bg-coolGray-100">
-                            <h3 class="text-sm font-medium leading-5">The worst advice we've ever heard about coffee
-                            </h3>
-                            <ul class="flex mt-1 space-x-1 text-xs font-normal leading-4 text-coolGray-500">
-                                <li>4d ago</li>
-                                <li>·</li>
-                                <li>1 comments</li>
-                                <li>·</li>
-                                <li>2 shares</li>
-                            </ul><a href="#"
-                                class="absolute inset-0 rounded-md focus:z-10 focus:outline-none focus:ring-2 ring-blue-400"></a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+<body prop:tabs="$reactive([{
+    icon: '🍅', label: 'Tomato', selected: true
+}, {
+    icon: '🥬', label: 'Lettuce'
+}, {
+    icon: '🧀', label: 'Cheese'
+}])">
+    <template id="tab-item">
+        <li bind:class="this.$props.selected ? 'selected' : ''" 
+        on:click="
+        document.body.tabs.forEach(tab => tab.selected = (tab.label === this.$props.label));
+        ">
+            <span bind:text-content="`${this.$props.icon} ${this.$props.label}`"></span>
+            <div class="underline" render:if="this.$props.selected"
+                use:motion="$Motion" motion:layout-id="'underline'"></div>
+        </li>
+    </template>
+    <template id="tab-panel">
+        <div render:id="this.$props.label" bind:text-content="this.$props.icon"
+            use:motion="$Motion" motion:initial="{ opacity: 0, y: 20 }" motion:animate="{ opacity: 1, y: 0 }" motion:exit="{ opacity: 0, y: -20 }"
+            motion:transition="{ duration: 0.5 }"></div>
+    </template>
+    <div class="window">
+        <nav>
+            <ul bind:inner-html="document.body.tabs.map(tab => $render('#tab-item', {...tab}))"></ul>
+        </nav>
+        <main>
+            <div bind:inner-html="(() => {
+                for (const tab of document.body.tabs) {
+                    if (tab.selected) {
+                        return $render('#tab-panel', tab);
+                    }
+                }
+            })()"></div>
+        </main>
     </div>
     <script type="module">
-        import { startDomObserver, setEvalGlobals } from '@incremental-html/reactivity';
-        import { Tab } from '@incremental-html/headlessui';
-        setEvalGlobals({
-            Tab
-        })
+        import { render } from '@incremental-html/template';
+        import { startDomObserver, setEvalGlobals, ref, reactive } from '@incremental-html/reactivity';
+        import { Motion } from '@incremental-html/motion';
+        setEvalGlobals({ Motion, reactive, render });
+        // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>
 </body>

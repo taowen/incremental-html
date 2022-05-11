@@ -53,7 +53,9 @@ importers:
   packages/demo-client-tabs:
     specifiers:
       '@incremental-html/headlessui': workspace:*
+      '@incremental-html/motion': workspace:*
       '@incremental-html/reactivity': workspace:*
+      '@incremental-html/template': workspace:*
       autoprefixer: ^10.4.5
       postcss: ^8.4.12
       tailwindcss: ^3.0.24
@@ -61,7 +63,9 @@ importers:
       vite: ^2.9.1
     dependencies:
       '@incremental-html/headlessui': link:../headlessui
+      '@incremental-html/motion': link:../motion
       '@incremental-html/reactivity': link:../reactivity
+      '@incremental-html/template': link:../template
     devDependencies:
       autoprefixer: 10.4.5_postcss@8.4.12
       postcss: 8.4.12
