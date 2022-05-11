@@ -1,4 +1,4 @@
-import { startDomObserver, stopDomObserver } from "../src/startDomObserver"
+import { startDomObserver, stopDomObserver } from "../startDomObserver"
 
 beforeEach(() => {
     document.documentElement.innerHTML = '';
@@ -11,7 +11,7 @@ afterEach(() => {
 })
 
 test('set textContent', async () => {
-    document.body.innerHTML = `<p id="abc" prop:textContent="'hello'"></p>`;
+    document.body.innerHTML = `<p id="abc" prop:text-content="'hello'"></p>`;
     await new Promise(resolve => setTimeout(resolve, 0));
     expect(document.getElementById('abc')!.textContent).toBe('hello');
 })

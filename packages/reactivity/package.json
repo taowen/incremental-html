@@ -2,9 +2,9 @@
   "name": "@incremental-html/reactivity",
   "version": "1.0.0",
   "description": "make DOM interactive via computed property",
-  "main": "dist/cjs/src/index.js",
-  "module": "dist/esm/src/index.js",
-  "types": "dist/esm/src/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
   "dependencies": {
     "@incremental-html/morph": "workspace: *",
     "@vue/reactivity": "^3.2.32"

@@ -146,50 +146,46 @@
             cursor: default;
             pointer-events: none;
         }
+        [merge-with] {
+            display: none;
+        }
     </style>
 </head>
 
-<body prop:tabs="$reactive([{
-    icon: '🍅', label: 'Tomato', selected: true
-}, {
-    icon: '🥬', label: 'Lettuce'
-}, {
-    icon: '🧀', label: 'Cheese'
-}])">
-    <template id="tab-item">
-        <li bind:class="this.$props.selected ? 'selected' : ''" 
-        on:click="
-        document.body.tabs.forEach(tab => tab.selected = (tab.label === this.$props.label));
-        ">
-            <span bind:text-content="`${this.$props.icon} ${this.$props.label}`"></span>
-            <div class="underline" render:if="this.$props.selected"
-                use:motion="$Motion" motion:layout-id="'underline'"></div>
-        </li>
-    </template>
-    <template id="tab-panel">
-        <div render:id="this.$props.label" bind:text-content="this.$props.icon"
-            use:motion="$Motion" motion:initial="{ opacity: 0, y: 20 }" motion:animate="{ opacity: 1, y: 0 }" motion:exit="{ opacity: 0, y: -20 }"
-            motion:transition="{ duration: 0.5 }"></div>
-    </template>
-    <div class="window">
+<body>
+    <div class="window" use:tab="$Tab.Group">
         <nav>
-            <ul bind:inner-html="document.body.tabs.map(tab => $render('#tab-item', {...tab}))"></ul>
+            <ul use:tab-list="$Tab.List">
+                <template id="my-tab" use:tab="$Tab" render:class="this.$props.selected ? 'selected' : ''">
+                    <span></span>
+                    <div class="underline" render:if="this.$props.selected" use:motion="$Motion" motion:layout-id="'underline'"></div>
+                </template>
+                <li merge-with="#my-tab">
+                    <span>🍅 Tomato</span>
+                </li>
+                <li merge-with="#my-tab">
+                    <span>🥬 Lettuce</span>
+                </li>
+                <li merge-with="#my-tab">
+                    <span>🧀 Cheese</span>
+                </li>
+            </ul>
         </nav>
         <main>
-            <div bind:inner-html="(() => {
-                for (const tab of document.body.tabs) {
-                    if (tab.selected) {
-                        return $render('#tab-panel', tab);
-                    }
-                }
-            })()"></div>
+            <template id="my-tab-panel" use:tab-panel="$Tab.Panel" render:if="this.$props.selected"
+            use:motion="$Motion" motion:initial="{ opacity: 0, y: 20 }" motion:animate="{ opacity: 1, y: 0 }" 
+            motion:exit="{ opacity: 0, y: -20 }" motion:transition="{ duration: 0.5 }">
+            </template>
+            <div merge-with="#my-tab-panel">🍅</div>
+            <div merge-with="#my-tab-panel">🥬</div>
+            <div merge-with="#my-tab-panel">🧀</div>
         </main>
     </div>
     <script type="module">
-        import { render } from '@incremental-html/template';
-        import { startDomObserver, setEvalGlobals, ref, reactive } from '@incremental-html/reactivity';
+        import { startDomObserver, setEvalGlobals } from '@incremental-html/reactivity';
         import { Motion } from '@incremental-html/motion';
-        setEvalGlobals({ Motion, reactive, render });
+        import { Tab } from '@incremental-html/headlessui';
+        setEvalGlobals({ Motion, Tab });
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>
