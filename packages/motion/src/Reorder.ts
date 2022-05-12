@@ -1,4 +1,4 @@
-import { animate, Axis, isMotionValue, MotionProps, motionValue, useTransform } from "@incremental-html/framer-motion";
+import { animate, Axis, isMotionValue, MotionProps, motionValue, useTransform, animationControls } from "@incremental-html/framer-motion";
 import { morph } from "@incremental-html/morph";
 import { Feature, queryFeature, ref } from "@incremental-html/reactivity";
 import { Motion } from "./Motion";
@@ -9,7 +9,7 @@ function useDefaultMotionValue(value: any, defaultValue: number = 0) {
 
 const mix = (from: number, to: number, progress: number) => -progress * from + progress * to + from;
 
-export class Reorder extends Feature<MotionProps> {
+export class Reorder extends Feature<MotionProps & { whileNotAtOrigin?: string }> {
     public static Group = class extends Feature<{ axis: 'x' | 'y' }> {
     } as any;
     private point = {
@@ -28,25 +28,26 @@ export class Reorder extends Feature<MotionProps> {
         }
         return group.props.axis;
     });
-    private boxShadow = this.create(() => {
-        const inactiveShadow = "0px 0px 0px rgba(0,0,0,0.8)";
-        const boxShadow = motionValue(inactiveShadow);
+    private _1 = this.onMount(() => {
         let isActive = false;
-        (boxShadow as any).unmount = this.point[this.axis].onChange((latest: number) => {
+        return this.point[this.axis].onChange((latest: number) => {
             const wasActive = isActive;
             if (latest !== 0) {
                 isActive = true;
                 if (isActive !== wasActive) {
-                    animate(boxShadow, "5px 5px 10px rgba(0,0,0,0.3)");
+                    if (this.props.whileNotAtOrigin) {
+                        this.animateControls.start(this.props.whileNotAtOrigin);
+                    }
                 }
             } else {
                 isActive = false;
                 if (isActive !== wasActive) {
-                    animate(boxShadow, inactiveShadow);
+                    if (typeof this.props.initial === 'string') {
+                        this.animateControls.start(this.props.initial);
+                    }
                 }
             }
         });
-        return boxShadow;
     });
     private isReording = this.create(() => {
         let isReording = (this.element.parentElement as any).$isReording;
@@ -95,7 +96,6 @@ export class Reorder extends Feature<MotionProps> {
             return;
         }
         const offset = this.point[this.axis].get();
-        // console.log(this.point[this.axis].get(), velocity[this.axis]);
         if (velocity[this.axis] > 0) {
             const item = this.nextItem;
             if (!item?.layout) {
@@ -130,53 +130,24 @@ export class Reorder extends Feature<MotionProps> {
     private onLayoutMeasure: MotionProps['onLayoutMeasure'] = (measured) => {
         this.layout = measured[this.axis];
     }
+    private animateControls = animationControls();
     private get mergedProps(): MotionProps {
         const layout = this.props.layout === undefined ? true : this.props.layout;
         return {
             drag: this.axis,
+            animate: this.animateControls,
             ...this.props,
             dragSnapToOrigin: true,
             layout,
-            style: { ...this.props.style, x: this.point.x, y: this.point.y, zIndex: this.zIndex, boxShadow: this.boxShadow },
+            style: { ...this.props.style, x: this.point.x, y: this.point.y, zIndex: this.zIndex },
             onDrag: this.onDrag,
             onLayoutMeasure: this.onLayoutMeasure
         }
     }
-    private _ = this.onMount(() => {
+    private _2 = this.onMount(() => {
         const motion = new Motion(this.element, () => this.mergedProps);
         return () => {
             return motion.unmount();
         }
     })
 }
-
-// export function checkReorder<T>(
-//     order: ItemData<T>[],
-//     value: T,
-//     offset: number,
-//     velocity: number
-// ): ItemData<T>[] {
-//     if (!velocity) return order
-
-//     const index = order.findIndex((item) => item.value === value)
-
-//     if (index === -1) return order
-
-//     const nextOffset = velocity > 0 ? 1 : -1
-//     const nextItem = order[index + nextOffset]
-
-//     if (!nextItem) return order
-
-//     const item = order[index]
-//     const nextLayout = nextItem.layout
-//     const nextItemCenter = mix(nextLayout.min, nextLayout.max, 0.5)
-
-//     if (
-//         (nextOffset === 1 && item.layout.max + offset > nextItemCenter) ||
-//         (nextOffset === -1 && item.layout.min + offset < nextItemCenter)
-//     ) {
-//         return moveItem(order, index, index + nextOffset)
-//     }
-
-//     return order
-// }

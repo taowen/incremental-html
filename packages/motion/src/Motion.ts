@@ -82,7 +82,15 @@ export class Motion extends Feature<MotionProps> {
     public _6 = this.onMount(() => {
         return usePanGesture(this.mergedProps, {});
     })
-    public _7 = this.effect(() => {
+    public _7 = this.onMount(() => {
+        const animateControls = this.mergedProps.animate;
+        if (!(animateControls as any).subscribe) {
+            return;
+        }
+        (animateControls as any).subscribe(this.visualElement);
+        return (animateControls as any).mount();
+    })
+    public _8 = this.effect(() => {
         this.visualElement.setProps(this.mergedProps);
         this.visualElement.animationState!.animateChanges();
     })
@@ -92,7 +100,7 @@ export class Motion extends Feature<MotionProps> {
     private afterMorph = () => {
         MeasureLayoutWithContext.componentDidUpdate(this.mergedProps);
     }
-    public _8 = this.effect(() => {
+    public _9 = this.effect(() => {
         if (!this.mergedProps.layout && !this.mergedProps.layoutId) {
             return;
         }

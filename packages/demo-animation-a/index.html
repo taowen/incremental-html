@@ -90,16 +90,20 @@
 
 <body>
     <ul>
-        <li id="🍅 Tomato" use:reorder="$Reorder">
+        <template id="list-item" use:reorder="$Reorder" reorder:initial="'initial'" reorder:while-not-at-origin="'drag'" reorder:variants="{ 
+            initial: { boxShadow: '0px 0px 0px rgba(0,0,0,0.8)' },
+            drag: { boxShadow: '5px 5px 10px rgba(0,0,0,0.3)' }
+         }"></template>
+        <li id="🍅 Tomato" copy-from="#list-item">
             <span>🍅 Tomato</span>
         </li>
-        <li id="🥒 Cucumber" use:reorder="$Reorder">
+        <li id="🥒 Cucumber" copy-from="#list-item">
             <span>🥒 Cucumber</span>
         </li>
-        <li id="🧀 Cheese" use:reorder="$Reorder">
+        <li id="🧀 Cheese" copy-from="#list-item">
             <span>🧀 Cheese</span>
         </li>
-        <li id="🥬 Lettuce" use:reorder="$Reorder">
+        <li id="🥬 Lettuce" copy-from="#list-item">
             <span>🥬 Lettuce</span>
         </li>
     </ul>
