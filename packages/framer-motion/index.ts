@@ -5,6 +5,7 @@ export { HTMLProjectionNode } from './motion/packages/framer-motion/src/projecti
 export { htmlVisualElement } from './motion/packages/framer-motion/src/render/html/visual-element';
 export { createAnimationState } from './motion/packages/framer-motion/src/render/utils/animation-state';
 export { AnimationType } from './motion/packages/framer-motion/src/render/utils/types';
+export * from './transform';
 
 import sync from "framesync";
 import { pipe } from "popmotion";
@@ -43,12 +44,8 @@ import {
     resolveVariantFromProps
 } from "./motion/packages/framer-motion/src/render/utils/variants";
 import { warnOnce } from './motion/packages/framer-motion/src/utils/warn-once';
-import { MotionValue } from './motion/packages/framer-motion/src/value/index';
 import { resolveMotionValue } from './motion/packages/framer-motion/src/value/utils/resolve-motion-value';
 
-export function motionValue<T>(init: T): MotionValue<T> {
-    return new MotionValue<T>(init);
-}
 
 export function makeVisualState(
     props: MotionProps,
@@ -585,3 +582,4 @@ export function usePanGesture({
 
     return () => panSession && panSession.end();
 }
+

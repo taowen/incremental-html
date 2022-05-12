@@ -1,3 +1,4 @@
+import { Easing as Easing_2 } from 'popmotion';
 import { Process } from 'framesync';
 
 export declare function addPointerEvent(target: EventTarget, eventName: string, handler: EventListenerWithPointInfo, options?: AddEventListenerOptions): () => void;
@@ -1105,6 +1106,8 @@ declare type InitialPromotionConfig = {
     shouldPreserveFollowOpacity?: (member: IProjectionNode) => boolean;
 };
 
+declare type InputRange = number[];
+
 declare interface IProjectionNode<I = unknown> {
     id: number | undefined;
     parent?: IProjectionNode;
@@ -1192,6 +1195,8 @@ declare interface IProjectionNode<I = unknown> {
     hasListeners(name: LayoutEvents): boolean;
     preserveOpacity?: boolean;
 }
+
+export declare const isMotionValue: (value: any) => value is MotionValue<any>;
 
 /* Excluded from this release type: Just */
 
@@ -1510,7 +1515,7 @@ declare type MotionTransform = MakeMotion<TransformProperties>;
  *
  * @public
  */
-declare class MotionValue<V = any> {
+export declare class MotionValue<V = any> {
     /* Excluded from this release type: current */
     /* Excluded from this release type: prev */
     /* Excluded from this release type: timeDelta */
@@ -1641,6 +1646,8 @@ declare class MotionValue<V = any> {
 }
 
 export declare function motionValue<T>(init: T): MotionValue<T>;
+
+declare type MultiTransformer<I, O> = (input: I[]) => O;
 
 declare interface NodeGroup {
     add: (node: IProjectionNode) => void;
@@ -2146,6 +2153,8 @@ declare type SetAxisTargetListener = () => void;
  */
 declare type SingleTarget = ResolvedSingleTarget | CustomValueType;
 
+declare type SingleTransformer<I, O> = (input: I) => O;
+
 declare interface Snapshot {
     measured: Box;
     layout: Box;
@@ -2477,6 +2486,27 @@ declare type TargetResolver = (custom: any, current: Target, velocity: Target) =
  */
 declare type TargetWithKeyframes = MakeKeyframes<Target>;
 
+/**
+ * @public
+ */
+declare interface TransformOptions<T> {
+    /**
+     * Clamp values to within the given range. Defaults to `true`
+     *
+     * @public
+     */
+    clamp?: boolean;
+    /**
+     * Easing functions to use on the interpolations between each value in the input and output ranges.
+     *
+     * If provided as an array, the array must be one item shorter than the input and output ranges, as the easings apply to the transition **between** each.
+     *
+     * @public
+     */
+    ease?: Easing_2 | Easing_2[];
+    /* Excluded from this release type: mixer */
+}
+
 declare type TransformPoint = (point: Point) => Point;
 
 declare interface TransformProperties {
@@ -2648,6 +2678,96 @@ ProjectionNodeConstructor?: any
 ): void
 
 export declare function useTapGesture(props: FeatureProps): () => void;
+
+/**
+ * Create a `MotionValue` that transforms the output of another `MotionValue` by mapping it from one range of values into another.
+ *
+ * @remarks
+ *
+ * Given an input range of `[-200, -100, 100, 200]` and an output range of
+ * `[0, 1, 1, 0]`, the returned `MotionValue` will:
+ *
+ * - When provided a value between `-200` and `-100`, will return a value between `0` and  `1`.
+ * - When provided a value between `-100` and `100`, will return `1`.
+ * - When provided a value between `100` and `200`, will return a value between `1` and  `0`
+ *
+ *
+ * The input range must be a linear series of numbers. The output range
+ * can be any value type supported by Framer Motion: numbers, colors, shadows, etc.
+ *
+ * Every value in the output range must be of the same type and in the same format.
+ *
+ * ```jsx
+ * export const MyComponent = () => {
+ *   const x = useMotionValue(0)
+ *   const xRange = [-200, -100, 100, 200]
+ *   const opacityRange = [0, 1, 1, 0]
+ *   const opacity = useTransform(x, xRange, opacityRange)
+ *
+ *   return (
+ *     <motion.div
+ *       animate={{ x: 200 }}
+ *       style={{ opacity, x }}
+ *     />
+ *   )
+ * }
+ * ```
+ *
+ * @param inputValue - `MotionValue`
+ * @param inputRange - A linear series of numbers (either all increasing or decreasing)
+ * @param outputRange - A series of numbers, colors or strings. Must be the same length as `inputRange`.
+ * @param options -
+ *
+ *  - clamp: boolean. Clamp values to within the given range. Defaults to `true`
+ *  - ease: EasingFunction[]. Easing functions to use on the interpolations between each value in the input and output ranges. If provided as an array, the array must be one item shorter than the input and output ranges, as the easings apply to the transition between each.
+ *
+ * @returns `MotionValue`
+ *
+ * @public
+ */
+export declare function useTransform<I, O>(value: MotionValue<number>, inputRange: InputRange, outputRange: O[], options?: TransformOptions<O>): MotionValue<O>;
+
+/**
+ * Create a `MotionValue` that transforms the output of another `MotionValue` through a function.
+ * In this example, `y` will always be double `x`.
+ *
+ * ```jsx
+ * export const MyComponent = () => {
+ *   const x = useMotionValue(10)
+ *   const y = useTransform(x, value => value * 2)
+ *
+ *   return <motion.div style={{ x, y }} />
+ * }
+ * ```
+ *
+ * @param input - A `MotionValue` that will pass its latest value through `transform` to update the returned `MotionValue`.
+ * @param transform - A function that accepts the latest value from `input` and returns a new value.
+ * @returns `MotionValue`
+ *
+ * @public
+ */
+export declare function useTransform<I, O>(input: MotionValue<I>, transformer: SingleTransformer<I, O>): MotionValue<O>;
+
+/**
+ * Pass an array of `MotionValue`s and a function to combine them. In this example, `z` will be the `x` multiplied by `y`.
+ *
+ * ```jsx
+ * export const MyComponent = () => {
+ *   const x = useMotionValue(0)
+ *   const y = useMotionValue(0)
+ *   const z = useTransform([x, y], [latestX, latestY] => latestX * latestY)
+ *
+ *   return <motion.div style={{ x, y, z }} />
+ * }
+ * ```
+ *
+ * @param input - An array of `MotionValue`s that will pass their latest values through `transform` to update the returned `MotionValue`.
+ * @param transform - A function that accepts the latest values from `input` and returns a new value.
+ * @returns `MotionValue`
+ *
+ * @public
+ */
+export declare function useTransform<I, O>(input: MotionValue<string>[] | MotionValue<number>[] | MotionValue<string | number>[], transformer: MultiTransformer<I, O>): MotionValue<O>;
 
 export declare function useViewport(props: FeatureProps): () => void;
 

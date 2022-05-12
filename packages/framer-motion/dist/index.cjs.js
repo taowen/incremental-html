@@ -1648,9 +1648,9 @@ function transformAxis(axis, transforms, [key, scaleKey, originKey]) {
 }
 const xKeys$1 = ["x", "scaleX", "originX"];
 const yKeys$1 = ["y", "scaleY", "originY"];
-function transformBox(box, transform) {
-  transformAxis(box.x, transform, xKeys$1);
-  transformAxis(box.y, transform, yKeys$1);
+function transformBox(box, transform2) {
+  transformAxis(box.x, transform2, xKeys$1);
+  transformAxis(box.y, transform2, yKeys$1);
 }
 function measureViewportBox(instance, transformPoint2) {
   return convertBoundingBoxToBox(transformBoxPoints(instance.getBoundingClientRect(), transformPoint2));
@@ -2193,18 +2193,18 @@ const identityProjection = "translate3d(0px, 0px, 0) scale(1, 1)";
 function buildProjectionTransform(delta, treeScale, latestTransform) {
   const xTranslate = delta.x.translate / treeScale.x;
   const yTranslate = delta.y.translate / treeScale.y;
-  let transform = `translate3d(${xTranslate}px, ${yTranslate}px, 0) `;
+  let transform2 = `translate3d(${xTranslate}px, ${yTranslate}px, 0) `;
   if (latestTransform) {
     const { rotate, rotateX, rotateY } = latestTransform;
     if (rotate)
-      transform += `rotate(${rotate}deg) `;
+      transform2 += `rotate(${rotate}deg) `;
     if (rotateX)
-      transform += `rotateX(${rotateX}deg) `;
+      transform2 += `rotateX(${rotateX}deg) `;
     if (rotateY)
-      transform += `rotateY(${rotateY}deg) `;
+      transform2 += `rotateY(${rotateY}deg) `;
   }
-  transform += `scale(${delta.x.scale}, ${delta.y.scale})`;
-  return transform === identityProjection ? "none" : transform;
+  transform2 += `scale(${delta.x.scale}, ${delta.y.scale})`;
+  return transform2 === identityProjection ? "none" : transform2;
 }
 const compareByDepth = (a, b) => a.depth - b.depth;
 class FlatTree {
@@ -3592,7 +3592,7 @@ const translateAlias = {
   z: "translateZ",
   transformPerspective: "perspective"
 };
-function buildTransform({ transform, transformKeys: transformKeys2 }, {
+function buildTransform({ transform: transform2, transformKeys: transformKeys2 }, {
   enableHardwareAcceleration = true,
   allowTransformNone = true
 }, transformIsDefault, transformTemplate) {
@@ -3602,7 +3602,7 @@ function buildTransform({ transform, transformKeys: transformKeys2 }, {
   const numTransformKeys = transformKeys2.length;
   for (let i = 0; i < numTransformKeys; i++) {
     const key = transformKeys2[i];
-    transformString += `${translateAlias[key] || key}(${transform[key]}) `;
+    transformString += `${translateAlias[key] || key}(${transform2[key]}) `;
     if (key === "z")
       transformHasZ = true;
   }
@@ -3612,7 +3612,7 @@ function buildTransform({ transform, transformKeys: transformKeys2 }, {
     transformString = transformString.trim();
   }
   if (transformTemplate) {
-    transformString = transformTemplate(transform, transformIsDefault ? "" : transformString);
+    transformString = transformTemplate(transform2, transformIsDefault ? "" : transformString);
   } else if (allowTransformNone && transformIsDefault) {
     transformString = "none";
   }
@@ -3633,7 +3633,7 @@ const getValueAsType = (value, type) => {
 };
 function buildHTMLStyles(state, latestValues, options, transformTemplate) {
   var _a;
-  const { style, vars, transform, transformKeys: transformKeys2, transformOrigin } = state;
+  const { style, vars, transform: transform2, transformKeys: transformKeys2, transformOrigin } = state;
   transformKeys2.length = 0;
   let hasTransform2 = false;
   let hasTransformOrigin = false;
@@ -3648,7 +3648,7 @@ function buildHTMLStyles(state, latestValues, options, transformTemplate) {
     const valueAsType = getValueAsType(value, valueType);
     if (isTransformProp(key)) {
       hasTransform2 = true;
-      transform[key] = valueAsType;
+      transform2[key] = valueAsType;
       transformKeys2.push(key);
       if (!transformIsNone)
         continue;
@@ -3748,14 +3748,14 @@ const setAndResetVelocity = (value, to) => {
 };
 const isNumOrPxType = (v2) => v2 === styleValueTypes.number || v2 === styleValueTypes.px;
 const getPosFromMatrix = (matrix, pos) => parseFloat(matrix.split(", ")[pos]);
-const getTranslateFromMatrix = (pos2, pos3) => (_bbox, { transform }) => {
-  if (transform === "none" || !transform)
+const getTranslateFromMatrix = (pos2, pos3) => (_bbox, { transform: transform2 }) => {
+  if (transform2 === "none" || !transform2)
     return 0;
-  const matrix3d = transform.match(/^matrix3d\((.+)\)$/);
+  const matrix3d = transform2.match(/^matrix3d\((.+)\)$/);
   if (matrix3d) {
     return getPosFromMatrix(matrix3d[1], pos3);
   } else {
-    const matrix = transform.match(/^matrix\((.+)\)$/);
+    const matrix = transform2.match(/^matrix\((.+)\)$/);
     if (matrix) {
       return getPosFromMatrix(matrix[1], pos2);
     } else {
@@ -3977,6 +3977,49 @@ const htmlConfig = {
   render: renderHTML
 };
 const htmlVisualElement = visualElement(htmlConfig);
+const isCustomValueType = (v2) => {
+  return typeof v2 === "object" && v2.mix;
+};
+const getMixer = (v2) => isCustomValueType(v2) ? v2.mix : void 0;
+function transform(...args) {
+  const useImmediate = !Array.isArray(args[0]);
+  const argOffset = useImmediate ? 0 : -1;
+  const inputValue = args[0 + argOffset];
+  const inputRange = args[1 + argOffset];
+  const outputRange = args[2 + argOffset];
+  const options = args[3 + argOffset];
+  const interpolator = popmotion.interpolate(inputRange, outputRange, __spreadValues({
+    mixer: getMixer(outputRange[0])
+  }, options));
+  return useImmediate ? interpolator(inputValue) : interpolator;
+}
+function motionValue(init) {
+  return new MotionValue(init);
+}
+function useTransform(input, inputRangeOrTransformer, outputRange, options) {
+  const transformer = typeof inputRangeOrTransformer === "function" ? inputRangeOrTransformer : transform(inputRangeOrTransformer, outputRange, options);
+  return Array.isArray(input) ? useListTransform(input, transformer) : useListTransform([input], ([latest]) => transformer(latest));
+}
+function useListTransform(values, transformer) {
+  const latest = [];
+  return useCombineMotionValues(values, () => {
+    latest.length = 0;
+    const numValues = values.length;
+    for (let i = 0; i < numValues; i++) {
+      latest[i] = values[i].get();
+    }
+    return transformer(latest);
+  });
+}
+function useCombineMotionValues(values, combineValues) {
+  const value = motionValue(combineValues());
+  const updateValue = () => value.set(combineValues());
+  updateValue();
+  const handler = () => sync__default["default"].update(updateValue, false, true);
+  const subscriptions = values.map((value2) => value2.onChange(handler));
+  value.stop = () => subscriptions.forEach((unsubscribe) => unsubscribe());
+  return value;
+}
 const isNodeOrChild = (parent, child) => {
   if (!child) {
     return false;
@@ -4087,9 +4130,6 @@ const createHtmlRenderState = () => ({
   transformOrigin: {},
   vars: {}
 });
-function motionValue(init) {
-  return new MotionValue(init);
-}
 function makeVisualState(props, context, presenceContext) {
   const renderState = createHtmlRenderState();
   const state = {
@@ -4412,16 +4452,20 @@ function usePanGesture({
 exports.AnimationType = AnimationType;
 exports.HTMLProjectionNode = HTMLProjectionNode;
 exports.MeasureLayoutWithContext = MeasureLayoutWithContext;
+exports.MotionValue = MotionValue;
 exports.VisualElementDragControls = VisualElementDragControls;
 exports.addPointerEvent = addPointerEvent;
 exports.animationControls = animationControls;
 exports.createAnimationState = createAnimationState;
 exports.htmlVisualElement = htmlVisualElement;
+exports.isMotionValue = isMotionValue;
 exports.makeVisualState = makeVisualState;
 exports.motionValue = motionValue;
+exports.useCombineMotionValues = useCombineMotionValues;
 exports.useFocusGesture = useFocusGesture;
 exports.useHoverGesture = useHoverGesture;
 exports.usePanGesture = usePanGesture;
 exports.useProjection = useProjection;
 exports.useTapGesture = useTapGesture;
+exports.useTransform = useTransform;
 exports.useViewport = useViewport;

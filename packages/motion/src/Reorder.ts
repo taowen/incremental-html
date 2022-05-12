@@ -1,16 +1,21 @@
-import { MotionProps, motionValue } from "@incremental-html/framer-motion";
+import { isMotionValue, MotionProps, motionValue, useTransform } from "@incremental-html/framer-motion";
 import { Feature, queryFeature } from "@incremental-html/reactivity";
 import { Motion } from "./Motion";
+
+function useDefaultMotionValue(value: any, defaultValue: number = 0) {
+    return isMotionValue(value) ? value : motionValue(defaultValue)
+}
 
 export class Reorder extends Feature<MotionProps> {
     public static Group = class extends Feature<{ axis: 'x' | 'y' }> {
     } as any;
-    private point = this.create(() => {
-        return {
-            x: this.props.style?.x || motionValue(0),
-            y: this.props.style?.y || motionValue(0)
-        };
-    })
+    private point = {
+        x: useDefaultMotionValue(this.props.style?.x),
+        y: useDefaultMotionValue(this.props.style?.y)
+    }
+    // useTransform returns a MotionValue with stop hook, 
+    // need to save to member field to be called at unmount
+    private zIndex = useTransform([this.point.x, this.point.y], ([latestX, latestY]) => latestX || latestY ? 1 : "unset");
     private axis = this.create(() => {
         const group: any = queryFeature(this.element, Reorder.Group);
         if (!group) {
@@ -20,7 +25,7 @@ export class Reorder extends Feature<MotionProps> {
     })
     private onDrag: MotionProps['onDrag'] = (event, { velocity }) => {
         if (velocity[this.axis]) {
-            console.log(this.point[this.axis].get(), velocity[this.axis]);
+            // console.log(this.point[this.axis].get(), velocity[this.axis]);
         }
     }
     private onLayoutMeasure: MotionProps['onLayoutMeasure'] = (measured) => {
@@ -32,7 +37,7 @@ export class Reorder extends Feature<MotionProps> {
             ...this.props,
             dragSnapToOrigin: true,
             layout,
-            style: { ...this.props.style, x: this.point.x, y: this.point.y },
+            style: { ...this.props.style, x: this.point.x, y: this.point.y, zIndex: this.zIndex },
             onDrag: this.onDrag,
             onLayoutMeasure: this.onLayoutMeasure
         }
