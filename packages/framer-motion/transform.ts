@@ -196,7 +196,7 @@ export function useCombineMotionValues<R>(
      * schedule an update.
      */
     const handler = () => sync.update(updateValue, false, true);
-    const subscriptions = values.map((value) => value.onChange(handler))
-    value.stop = () => subscriptions.forEach((unsubscribe) => unsubscribe());
+    const subscriptions = values.map((value) => value.onChange(handler));
+    (value as any).unmount = () => subscriptions.forEach((unsubscribe) => unsubscribe());
     return value
 }

@@ -4011,7 +4011,7 @@ function useCombineMotionValues(values, combineValues) {
   updateValue();
   const handler = () => sync.update(updateValue, false, true);
   const subscriptions = values.map((value2) => value2.onChange(handler));
-  value.stop = () => subscriptions.forEach((unsubscribe) => unsubscribe());
+  value.unmount = () => subscriptions.forEach((unsubscribe) => unsubscribe());
   return value;
 }
 const isNodeOrChild = (parent, child) => {
@@ -4443,4 +4443,4 @@ function usePanGesture({
   }
   return () => panSession && panSession.end();
 }
-export { AnimationType, HTMLProjectionNode, MeasureLayoutWithContext, MotionValue, VisualElementDragControls, addPointerEvent, animationControls, createAnimationState, htmlVisualElement, isMotionValue, makeVisualState, motionValue, useCombineMotionValues, useFocusGesture, useHoverGesture, usePanGesture, useProjection, useTapGesture, useTransform, useViewport };
+export { AnimationType, HTMLProjectionNode, MeasureLayoutWithContext, MotionValue, VisualElementDragControls, addPointerEvent, animate, animationControls, createAnimationState, htmlVisualElement, isMotionValue, makeVisualState, motionValue, useCombineMotionValues, useFocusGesture, useHoverGesture, usePanGesture, useProjection, useTapGesture, useTransform, useViewport };

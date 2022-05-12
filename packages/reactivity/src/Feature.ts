@@ -73,8 +73,8 @@ export class Feature<Props extends Record<string, any>> {
     }
 
     protected onMount(fn: () => void | (() => void)) {
-        const stop = fn();
-        return { stop }
+        const unmount = fn();
+        return { unmount }
     }
 
     protected create<T>(fn: () => T): T {
@@ -84,8 +84,9 @@ export class Feature<Props extends Record<string, any>> {
     public unmount() {
         const promises = [];
         for (const v of Object.values(this)) {
-            if ((v as any)?.stop) {
-                const promise = (v as any)?.stop();
+            const unmount = (v as any)?.unmount || (v as any)?.stop;
+            if (unmount) {
+                const promise = unmount.call(v);
                 if (promise) {
                     promises.push(promise);
                 }

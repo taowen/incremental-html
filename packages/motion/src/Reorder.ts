@@ -1,4 +1,4 @@
-import { Axis, isMotionValue, MotionProps, motionValue, useTransform } from "@incremental-html/framer-motion";
+import { animate, Axis, isMotionValue, MotionProps, motionValue, useTransform } from "@incremental-html/framer-motion";
 import { morph } from "@incremental-html/morph";
 import { Feature, queryFeature, ref } from "@incremental-html/reactivity";
 import { Motion } from "./Motion";
@@ -18,14 +18,36 @@ export class Reorder extends Feature<MotionProps> {
     }
     // useTransform returns a MotionValue with stop hook, 
     // need to save to member field to be called at unmount
-    private zIndex = useTransform([this.point.x, this.point.y], ([latestX, latestY]) => latestX || latestY ? 1 : "unset");
+    private zIndex = useTransform([this.point.x, this.point.y], ([latestX, latestY]) => {
+        return latestX || latestY ? 1 : "unset";
+    });
     private axis = this.create(() => {
         const group: any = queryFeature(this.element, Reorder.Group);
         if (!group) {
             return 'y';
         }
         return group.props.axis;
-    })
+    });
+    private boxShadow = this.create(() => {
+        const inactiveShadow = "0px 0px 0px rgba(0,0,0,0.8)";
+        const boxShadow = motionValue(inactiveShadow);
+        let isActive = false;
+        (boxShadow as any).unmount = this.point[this.axis].onChange((latest: number) => {
+            const wasActive = isActive;
+            if (latest !== 0) {
+                isActive = true;
+                if (isActive !== wasActive) {
+                    animate(boxShadow, "5px 5px 10px rgba(0,0,0,0.3)");
+                }
+            } else {
+                isActive = false;
+                if (isActive !== wasActive) {
+                    animate(boxShadow, inactiveShadow);
+                }
+            }
+        });
+        return boxShadow;
+    });
     private isReording = this.create(() => {
         let isReording = (this.element.parentElement as any).$isReording;
         if (!isReording) {
@@ -115,7 +137,7 @@ export class Reorder extends Feature<MotionProps> {
             ...this.props,
             dragSnapToOrigin: true,
             layout,
-            style: { ...this.props.style, x: this.point.x, y: this.point.y, zIndex: this.zIndex },
+            style: { ...this.props.style, x: this.point.x, y: this.point.y, zIndex: this.zIndex, boxShadow: this.boxShadow },
             onDrag: this.onDrag,
             onLayoutMeasure: this.onLayoutMeasure
         }

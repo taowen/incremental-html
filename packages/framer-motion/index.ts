@@ -6,6 +6,7 @@ export { htmlVisualElement } from './motion/packages/framer-motion/src/render/ht
 export { createAnimationState } from './motion/packages/framer-motion/src/render/utils/animation-state';
 export { AnimationType } from './motion/packages/framer-motion/src/render/utils/types';
 export * from './transform';
+export { animate } from './motion/packages/framer-motion/src/animation/animate';
 
 import sync from "framesync";
 import { pipe } from "popmotion";

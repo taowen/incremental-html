@@ -4017,7 +4017,7 @@ function useCombineMotionValues(values, combineValues) {
   updateValue();
   const handler = () => sync__default["default"].update(updateValue, false, true);
   const subscriptions = values.map((value2) => value2.onChange(handler));
-  value.stop = () => subscriptions.forEach((unsubscribe) => unsubscribe());
+  value.unmount = () => subscriptions.forEach((unsubscribe) => unsubscribe());
   return value;
 }
 const isNodeOrChild = (parent, child) => {
@@ -4455,6 +4455,7 @@ exports.MeasureLayoutWithContext = MeasureLayoutWithContext;
 exports.MotionValue = MotionValue;
 exports.VisualElementDragControls = VisualElementDragControls;
 exports.addPointerEvent = addPointerEvent;
+exports.animate = animate;
 exports.animationControls = animationControls;
 exports.createAnimationState = createAnimationState;
 exports.htmlVisualElement = htmlVisualElement;
