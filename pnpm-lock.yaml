@@ -319,6 +319,7 @@ importers:
   packages/motion:
     specifiers:
       '@incremental-html/framer-motion': workspace:*
+      '@incremental-html/morph': workspace:*
       '@incremental-html/reactivity': workspace:*
       '@types/jest': 27.4.1
       jest: 27.5.1
@@ -326,6 +327,7 @@ importers:
       typescript: ^4.5.5
     dependencies:
       '@incremental-html/framer-motion': link:../framer-motion
+      '@incremental-html/morph': link:../morph
       '@incremental-html/reactivity': link:../reactivity
     devDependencies:
       '@types/jest': 27.4.1

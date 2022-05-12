@@ -1,5 +1,6 @@
-import { isMotionValue, MotionProps, motionValue, useTransform, Axis } from "@incremental-html/framer-motion";
-import { Feature, queryFeature } from "@incremental-html/reactivity";
+import { Axis, isMotionValue, MotionProps, motionValue, useTransform } from "@incremental-html/framer-motion";
+import { morph } from "@incremental-html/morph";
+import { Feature, queryFeature, ref } from "@incremental-html/reactivity";
 import { Motion } from "./Motion";
 
 function useDefaultMotionValue(value: any, defaultValue: number = 0) {
@@ -25,7 +26,17 @@ export class Reorder extends Feature<MotionProps> {
         }
         return group.props.axis;
     })
+    private isReording = this.create(() => {
+        let isReording = (this.element.parentElement as any).$isReording;
+        if (!isReording) {
+            (this.element.parentElement as any).$isReording = isReording = ref(false)
+        }
+        return isReording;
+    });
     private get nextItem(): Reorder | undefined {
+        if (this.isReording.value) {
+            return undefined;
+        }
         let item = this.element.nextSibling;
         while (item) {
             if (item.nodeType === 1) {
@@ -38,7 +49,26 @@ export class Reorder extends Feature<MotionProps> {
         }
         return undefined;
     }
+    private get previousItem(): Reorder | undefined {
+        if (this.isReording.value) {
+            return undefined;
+        }
+        let item = this.element.previousSibling;
+        while (item) {
+            if (item.nodeType === 1) {
+                const reorder = queryFeature(item as Element, Reorder);
+                if (reorder) {
+                    return reorder;
+                }
+            }
+            item = item.previousSibling;
+        }
+        return undefined;
+    }
     private onDrag: MotionProps['onDrag'] = (event, { velocity }) => {
+        if (this.isReording.value) {
+            return;
+        }
         if (!velocity[this.axis]) {
             return;
         }
@@ -51,10 +81,27 @@ export class Reorder extends Feature<MotionProps> {
             }
             const itemCenter = mix(item.layout.min, item.layout.max, 0.5);
             if (this.layout.max + offset > itemCenter) {
-                this.element.parentElement!.insertBefore(item.element, this.element);
+                const parent = this.element.parentElement!;
+                this.isReording.value = true;
+                morph(parent, () => {
+                    parent.insertBefore(this.element, item.element.nextSibling);
+                })
+                setTimeout(() => { this.isReording.value = false }, 0);
             }
         } else {
-
+            const item = this.previousItem;
+            if (!item?.layout) {
+                return;
+            }
+            const itemCenter = mix(item.layout.min, item.layout.max, 0.5);
+            if (this.layout.min + offset < itemCenter) {
+                const parent = this.element.parentElement!;
+                this.isReording.value = true;
+                morph(parent, () => {
+                    parent.insertBefore(this.element, item.element);
+                })
+                setTimeout(() => { this.isReording.value = false }, 0);
+            }
         }
     }
     private layout: Axis;
