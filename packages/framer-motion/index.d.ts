@@ -12,7 +12,7 @@ export { useTransform } from './motion/packages/framer-motion/types/value/use-tr
 export { MotionValue } from './motion/packages/framer-motion/types/value/index';
 import { MotionValue } from './motion/packages/framer-motion/types/value/index';
 export { isMotionValue } from './motion/packages/framer-motion/types/value/utils/is-motion-value';
-
+export * from './motion/packages/framer-motion/types/projection/geometry/types'
 export function motionValue<T>(init: T): MotionValue<T>;
 
 import { MotionProps } from "./motion/packages/framer-motion/types/motion/types"

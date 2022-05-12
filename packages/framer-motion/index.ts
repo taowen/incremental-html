@@ -289,7 +289,7 @@ export function useProjection(
     visualElement.projection.setOptions({
         layoutId,
         layout,
-        alwaysMeasureLayout: false,
+        alwaysMeasureLayout: Boolean(drag),
         visualElement,
         scheduleRender: () => visualElement.scheduleRender(),
         /**

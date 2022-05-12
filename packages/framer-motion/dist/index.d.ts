@@ -290,12 +290,12 @@ declare interface AnimationTypeState {
 
 declare type AnyPointerEvent = MouseEvent | TouchEvent | PointerEvent;
 
-declare interface Axis {
+export declare interface Axis {
     min: number;
     max: number;
 }
 
-declare interface AxisDelta {
+export declare interface AxisDelta {
     translate: number;
     scale: number;
     origin: number;
@@ -304,14 +304,14 @@ declare interface AxisDelta {
 
 declare type BeforeLayoutMeasureListener = () => void;
 
-declare interface BoundingBox {
+export declare interface BoundingBox {
     top: number;
     right: number;
     bottom: number;
     left: number;
 }
 
-declare interface Box {
+export declare interface Box {
     x: Axis;
     y: Axis;
 }
@@ -344,7 +344,7 @@ declare interface CustomValueType {
     toValue: () => number | string;
 }
 
-declare interface Delta {
+export declare interface Delta {
     x: AxisDelta;
     y: AxisDelta;
 }
@@ -2035,7 +2035,7 @@ declare type PermissiveTransitionDefinition = {
     [key: string]: any;
 };
 
-declare interface Point {
+export declare interface Point {
     x: number;
     y: number;
 }
@@ -2507,7 +2507,7 @@ declare interface TransformOptions<T> {
     /* Excluded from this release type: mixer */
 }
 
-declare type TransformPoint = (point: Point) => Point;
+export declare type TransformPoint = (point: Point) => Point;
 
 declare interface TransformProperties {
     x?: string | number;

@@ -4276,7 +4276,7 @@ function useProjection(projectionId, { layoutId, layout, drag, dragConstraints, 
   visualElement2.projection.setOptions({
     layoutId,
     layout,
-    alwaysMeasureLayout: false,
+    alwaysMeasureLayout: Boolean(drag),
     visualElement: visualElement2,
     scheduleRender: () => visualElement2.scheduleRender(),
     animationType: typeof layout === "string" ? layout : "both",

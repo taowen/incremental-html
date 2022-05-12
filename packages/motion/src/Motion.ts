@@ -5,7 +5,7 @@ let nextProjectionId = 1;
 
 export class Motion extends Feature<MotionProps> {
     private inheritedProps: MotionContextProps = this.create(() => {
-        const parentMotion = queryFeature(this.element, Motion);
+        const parentMotion = queryFeature(this.element.parentElement, Motion);
         if (!parentMotion) {
             return {};
         }
@@ -40,25 +40,23 @@ export class Motion extends Feature<MotionProps> {
         return { ...this.props, ...this.inheritedProps, visualElement: this.visualElement }
     }
     public _1 = this.onMount(() => {
-        if (this.props.drag && this.props.dragListener !== false) {
+        if (this.mergedProps.drag && this.mergedProps.dragListener !== false) {
             Object.assign((this.element as HTMLElement).style, {
                 userSelect: 'none',
-                touchAction: this.props.drag === true ? 'none' : `pan-${this.props.drag === "x" ? "y" : "x"}`
+                touchAction: this.mergedProps.drag === true ? 'none' : `pan-${this.mergedProps.drag === "x" ? "y" : "x"}`
             })
         }
+        MeasureLayoutWithContext.componentDidMount(this.mergedProps);
         this.visualElement.mount(this.element as HTMLElement);
-        const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
-        MeasureLayoutWithContext.componentDidMount(featureProps);
         new VisualElementDragControls(this.visualElement).addListeners();
         // when initial animation is disabled, we need to render the styles
         this.visualElement.syncRender();
         const unmount = () => {
             this.visualElement.unmount();
-            const featureProps = { ...this.props, visualElement: this.visualElement, isPresent: true };
-            MeasureLayoutWithContext.componentWillUnmount(featureProps);
+            MeasureLayoutWithContext.componentWillUnmount(this.mergedProps);
         }
         return () => {
-            if (!this.props.exit) {
+            if (!this.mergedProps.exit) {
                 unmount();
                 return;
             }
@@ -95,7 +93,7 @@ export class Motion extends Feature<MotionProps> {
         MeasureLayoutWithContext.componentDidUpdate(this.mergedProps);
     }
     public _8 = this.effect(() => {
-        if (!this.props.layout && !this.props.layoutId) {
+        if (!this.mergedProps.layout && !this.mergedProps.layoutId) {
             return;
         }
         const ancestors: HTMLElement[] = [];
