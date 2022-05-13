@@ -1,14 +1,9 @@
 import { animate, MotionProps, motionValue, useTransform } from "@incremental-html/framer-motion";
-import { Feature, queryFeature, subscribeNode } from "@incremental-html/reactivity";
-import { notifyNodeSubscribers } from "@incremental-html/reactivity/dist/esm/subscribeNode";
+import { Feature, queryFeature } from "@incremental-html/reactivity";
 import { Motion } from "./Motion";
 
-export class RevealItem extends Feature<MotionProps> {
-    public get boundingClientRect() {
-        return this.element.getBoundingClientRect();
-    };
-    private get leftReveal() {
-        subscribeNode(this.element.parentElement);
+export class RevealItem extends Feature<MotionProps & { edge: 'trailing' | 'leading' }> {
+    private reveal = this.create(() => {
         let sibling = this.element.previousSibling;
         while (sibling) {
             const reveal = queryFeature(sibling, Reveal);
@@ -17,48 +12,29 @@ export class RevealItem extends Feature<MotionProps> {
             }
             sibling = sibling.previousSibling;
         }
-        return undefined;
+        throw new Error('can not use Reveal.Item without Reveal');
+    })
+    public readonly realWidth = this.create(() => {
+        const width = this.element.offsetWidth;
+        this.element.style.minWidth = `${this.reveal.realWidth}px`;
+        return width;
+    })
+    private x = this.reveal.registerItem(this, this.realWidth);
+    private rebaseOffset = 0;
+    private rebasedX = useTransform(this.x, (value) => {
+        return value - this.rebaseOffset;
+    });
+    public updateRebaseOffset() {
+        this.rebaseOffset = this.element.offsetLeft - this.reveal.element.offsetLeft;
     }
-    private get rightReveal() {
-        subscribeNode(this.element.parentElement);
-        let sibling = this.element.nextSibling;
-        while (sibling) {
-            const reveal = queryFeature(sibling, Reveal);
-            if (reveal) {
-                return reveal;
-            }
-            sibling = sibling.nextSibling;
-        }
-        return undefined;
-    }
-    private get reveal() {
-        return this.leftReveal || this.rightReveal;
-    }
-    private get scaleX() {
-        if (!this.reveal) {
-            return undefined;
-        }
-        return useTransform(this.reveal.x, (value) => {
-            return Math.abs(value) / this.boundingClientRect.width;
-        })
-    }
-    private get mergedProps(): MotionProps {
-        if (!this.reveal) {
-            return this.props;
-        }
+    private get mergedProps() {
         let { style } = this.props;
         return {
             ...this.props,
-            style: {
-                ...style,
-                x: this.reveal.x,
-                scaleX: this.scaleX
-            },
+            style: { ...style, x: this.rebasedX }
         }
     }
     private _ = this.onMount(() => {
-        notifyNodeSubscribers(this.element.parentElement!);
-        (this.element as HTMLElement).style.transformOrigin = '0 0';
         const motion = new Motion(this.element, () => this.mergedProps);
         return () => {
             return motion.unmount();
@@ -69,65 +45,59 @@ export class RevealItem extends Feature<MotionProps> {
 export class Reveal extends Feature<MotionProps> {
     public static Item = RevealItem;
     public readonly x = motionValue(0);
-    private get leftItem(): RevealItem | undefined {
-        subscribeNode(this.element.parentElement);
-        let sibling = this.element.previousSibling;
-        while (sibling) {
-            const item = queryFeature(sibling, RevealItem);
-            if (item) {
-                return item;
-            }
-            sibling = sibling.previousSibling;
+    private trailingItems: RevealItem[] = [];
+    private leadingItems: RevealItem[] = [];
+    private trailingLimit = 0;
+    public registerItem(item: RevealItem, width: number) {
+        const index = this.trailingItems.length;
+        if (item.props.edge === 'leading') {
+            this.leadingItems.push(item);
+        } else {
+            this.trailingItems.push(item);
         }
-        return undefined;
-    }
-    private get rightItem(): RevealItem | undefined {
-        subscribeNode(this.element.parentElement);
-        let sibling = this.element.nextSibling;
-        while (sibling) {
-            const item = queryFeature(sibling, RevealItem);
-            if (item) {
-                return item;
+        this.trailingLimit += width;
+        return useTransform(this.x, (value) => {
+            let distanceToLeftEdge = 0;
+            for (let i = 0; i < index; i++) {
+                distanceToLeftEdge += this.trailingItems[i].realWidth;
             }
-            sibling = sibling.nextSibling;
-        }
-        return undefined;
+            return this.realWidth + value - value * distanceToLeftEdge / this.trailingLimit;
+        })
     }
-    private dragStart: number;
+    private dragStart = 0;
+    public readonly realWidth = this.element.offsetWidth;
     private onPanSessionStart: MotionProps['onPanSessionStart'] = () => {
-        if (this.dragStart === undefined) {
-            this.dragStart = 0;
+        for (const item of this.trailingItems) {
+            item.updateRebaseOffset();
         }
     }
     private onPanStart: MotionProps['onPanStart'] = (e, { offset }) => {
         this.motion.setLayoutAnimationBlocked(true);
         const x = this.dragStart + offset.x;
-        if (x < 0 && this.rightItem) {
+        if (x < 0 && this.trailingLimit > 0) {
             this.x.set(x);
         } else {
 
         }
     }
     private onPan: MotionProps['onPan'] = (e, { offset }) => {
-        const x = this.dragStart + offset.x;
+        let x = this.dragStart + offset.x;
         if (x < 0) {
-            if (!this.rightItem) {
+            if (this.trailingLimit === 0) {
                 return;
             }
-            const limit = this.rightItem.boundingClientRect.width;
-            if (-x > limit) {
-                this.x.set(-limit + (limit + x) * 0.1);
-            } else {
-                this.x.set(x);
+            if (-x > this.trailingLimit) {
+                x = -this.trailingLimit + (this.trailingLimit + x) * 0.1;
             }
+            this.x.set(x);
         } else {
 
         }
     }
     private onPanEnd: MotionProps['onPanEnd'] = (e, { offset }) => {
         const x = this.dragStart + offset.x;
-        if (x < 0 && this.rightItem && -x > this.rightItem.boundingClientRect.width / 2) {
-            this.dragStart = -this.rightItem.boundingClientRect.width;
+        if (x < 0 && this.trailingLimit && -x > this.trailingLimit / 2) {
+            this.dragStart = -this.trailingLimit;
         } else {
             this.dragStart = 0;
         }
@@ -146,8 +116,6 @@ export class Reveal extends Feature<MotionProps> {
         }
     }
     private motion: Motion = this.create(() => {
-        this.x.set(-(this.element as HTMLElement).offsetLeft);
-        notifyNodeSubscribers(this.element.parentElement!);
         return new Motion(this.element, () => this.mergedProps);
     })
 }

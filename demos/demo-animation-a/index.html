@@ -8,7 +8,7 @@
     <style>
         body {
             margin: 0;
-            padding: 0;
+            padding: 100px;
         }
     </style>
 </head>
@@ -23,11 +23,10 @@
         </div>
         <div use:reveal="$Reveal" style="background-color: red; width: 100%; height: 100%;"></div>
     </div> -->
-    <div style="position: absolute; left: 20%; top: 20%; overflow: hidden; visibility:hidden;">
-        <div use:motion="$Motion" motion:drag="'x'" style="background-color: red; width: 600px; height: 100px; display: table;">
-            <div style="background-color: blue; width: fit-content;"><div style="">Save</div></div>
-            <div style="background-color: greenyellow; min-width: 100px;">Delete</div>
-        </div>
+    <div style="overflow: hidden; width: 600px; height: fit-content; display: flex; flex-direction: row;">
+        <div use:reveal="$Reveal" style="background-color: red; min-width: 100%; height: 100px; z-index: 998;"></div>
+        <div use:reveal="$Reveal.Item" style="background-color: blue; width: fit-content; min-height: 100%; z-index: 1;">Save</div>
+        <div use:reveal="$Reveal.Item" style="background-color: greenyellow; min-width: 100px; min-height: 100%; z-index: 2;">Delete</div>
     </div>
     <script type="module">
         import { render } from '@incremental-html/template';

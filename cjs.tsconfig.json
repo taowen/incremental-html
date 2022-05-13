@@ -24,9 +24,9 @@
       "path": "./packages/morph/cjs.tsconfig.json"
     },
     {
-      "path": "./packages/headlessui/cjs.tsconfig.json"
+      "path": "./features/headlessui/cjs.tsconfig.json"
     },
     {
-      "path": "./packages/motion/cjs.tsconfig.json"
+      "path": "./features/motion/cjs.tsconfig.json"
     }]
   }

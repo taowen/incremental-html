@@ -20,7 +20,7 @@ importers:
       typescript: ^4.5.5
       vite: ^2.9.1
     dependencies:
-      '@incremental-html/framer-motion': link:../../packages/framer-motion
+      '@incremental-html/framer-motion': link:../../features/framer-motion
       '@incremental-html/morph': link:../../packages/morph
       '@incremental-html/motion': link:../../features/motion
       '@incremental-html/reactivity': link:../../packages/reactivity
@@ -226,6 +226,31 @@ importers:
       typescript: 4.6.3
       vite: 2.9.1
 
+  features/framer-motion:
+    specifiers:
+      '@microsoft/api-extractor': ^7.23.1
+      '@types/react': ^17.0.39
+      '@types/react-dom': ^17.0.11
+      framesync: 6.0.1
+      hey-listen: ^1.0.8
+      popmotion: 11.0.3
+      style-value-types: 5.0.0
+      tslib: ^2.1.0
+      typescript: ^4.5.5
+      vite: ^2.9.1
+    dependencies:
+      framesync: 6.0.1
+      hey-listen: 1.0.8
+      popmotion: 11.0.3
+      style-value-types: 5.0.0
+      tslib: 2.4.0
+    devDependencies:
+      '@microsoft/api-extractor': 7.23.1
+      '@types/react': 17.0.44
+      '@types/react-dom': 17.0.16
+      typescript: 4.6.3
+      vite: 2.9.1
+
   features/headlessui:
     specifiers:
       '@incremental-html/morph': workspace:*
@@ -255,7 +280,7 @@ importers:
       typedoc: ^0.22.15
       typescript: ^4.5.5
     dependencies:
-      '@incremental-html/framer-motion': link:../../packages/framer-motion
+      '@incremental-html/framer-motion': link:../framer-motion
       '@incremental-html/morph': link:../../packages/morph
       '@incremental-html/reactivity': link:../../packages/reactivity
     devDependencies:
@@ -275,31 +300,6 @@ importers:
       jest: 27.5.1
       typedoc: 0.22.15_typescript@4.6.3
       typescript: 4.6.3
-
-  packages/framer-motion:
-    specifiers:
-      '@microsoft/api-extractor': ^7.23.1
-      '@types/react': ^17.0.39
-      '@types/react-dom': ^17.0.11
-      framesync: 6.0.1
-      hey-listen: ^1.0.8
-      popmotion: 11.0.3
-      style-value-types: 5.0.0
-      tslib: ^2.1.0
-      typescript: ^4.5.5
-      vite: ^2.9.1
-    dependencies:
-      framesync: 6.0.1
-      hey-listen: 1.0.8
-      popmotion: 11.0.3
-      style-value-types: 5.0.0
-      tslib: 2.4.0
-    devDependencies:
-      '@microsoft/api-extractor': 7.23.1
-      '@types/react': 17.0.44
-      '@types/react-dom': 17.0.16
-      typescript: 4.6.3
-      vite: 2.9.1
 
   packages/jsx-to-html:
     specifiers:

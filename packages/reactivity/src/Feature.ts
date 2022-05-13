@@ -5,16 +5,25 @@ import { subscribeNode } from "./subscribeNode";
 
 export class Feature<Props extends Record<string, any>> {
     private computedProps: { value: Record<string, any> }
-    constructor(public readonly element: Element, protected readonly prefix: string | (() => Props)) {
+    public readonly element: HTMLElement;
+    /**
+     * create a feature by DOM or by code
+     * @param element the DOM element this feature controls
+     * @param propsProvider if feature is created by DOM element, the propsProvider is a attribute prefix, the actual props will be collected from the DOM element.
+     * if feature is created by code, the propsProvider is a callback function to provide the actual props to use.
+     */
+    constructor(element: Element, protected readonly propsProvider: string | (() => Props)) {
+        this.element = element as HTMLElement;
         let features = (element as any).$features;
         if (!features) {
             features = (element as any).$features = new Map();
         }
         features.set(this.constructor, this);
         this.computedProps = computed(() => {
-            if (typeof prefix !== 'string') {
-                return prefix();
+            if (typeof propsProvider !== 'string') {
+                return propsProvider();
             }
+            const prefix = propsProvider;
             subscribeNode(element);
             const props: Record<string, any> = {};
             for (let i = 0; i < element.attributes.length; i++) {
@@ -31,6 +40,7 @@ export class Feature<Props extends Record<string, any>> {
             return props;
         })
         this.makeGettersCached();
+        // invalidate queryFeature, trigger re-run
         getInstanceCounter(this.constructor).value += 1;
     }
 

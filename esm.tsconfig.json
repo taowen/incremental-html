@@ -24,9 +24,9 @@
     "path": "./packages/morph/esm.tsconfig.json"
   },
   {
-    "path": "./packages/headlessui/esm.tsconfig.json"
+    "path": "./features/headlessui/esm.tsconfig.json"
   },
   {
-    "path": "./packages/motion/esm.tsconfig.json"
+    "path": "./features/motion/esm.tsconfig.json"
   }]
 }
