@@ -1,5 +1,5 @@
 import { mix } from "@popmotion/popcorn";
-import { animate, AnimatePresence, motion, MotionValue, Reorder, useMotionValue } from 'framer-motion';
+import { animate, AnimatePresence, motion, MotionValue, Reorder, useMotionValue, useTransform } from 'framer-motion';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom/client';
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
@@ -20,6 +20,7 @@ root.render(
                 <li><Link to="case9">Case9</Link></li>
                 <li><Link to="case10">Case10</Link></li>
                 <li><Link to="case11">Case11</Link></li>
+                <li><Link to="case12">Case12</Link></li>
             </ul>} />
             <Route path='case1' element={<Case1 />} />
             <Route path='case2' element={<Case2 />} />
@@ -32,6 +33,7 @@ root.render(
             <Route path='case9' element={<Case9 />} />
             <Route path='case10' element={<Case10 />} />
             <Route path='case11' element={<Case11 />} />
+            <Route path='case12' element={<Case12 />} />
         </Routes>
     </BrowserRouter>)
 
@@ -254,4 +256,84 @@ function useRaisedShadow(value: MotionValue<number>) {
     }, [value, boxShadow]);
 
     return boxShadow;
+}
+
+const items = [0, 1, 2, 3, 4];
+const height = 70;
+const padding = 10;
+const size = 150;
+
+function Case12() {
+    import('./case12.css');
+    const scrollY = useMotionValue(0);
+    const scale = useTransform(scrollY, [0, 100], [0, 1]);
+    const opacity = useTransform(scrollY, [0, 100], [0, 1]);
+
+    return (
+        <>
+            <motion.div
+                style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 20,
+                    backgroundColor: "#fff",
+                    position: "absolute",
+                    top: "50%",
+                    marginTop: -85,
+                    left: "50%",
+                    marginLeft: -20,
+                    scale: scale,
+                    opacity: opacity
+                }}
+            />
+            <motion.div
+                style={{
+                    width: 150,
+                    height: 150,
+                    borderRadius: 30,
+                    overflow: "hidden",
+                    position: "relative",
+                    transform: "translateZ(0)",
+                    cursor: "grab"
+                }}
+                whileTap={{ cursor: "grabbing" }}
+            >
+                <motion.div
+                    style={{
+                        width: 150,
+                        height: getHeight(items),
+                        y: scrollY
+                    }}
+                    drag="y"
+                    dragConstraints={{
+                        top: -getHeight(items) + size,
+                        bottom: 0
+                    }}
+                >
+                    {items.map((index) => {
+                        return (
+                            <motion.div
+                                style={{
+                                    width: 150,
+                                    height: height,
+                                    borderRadius: 20,
+                                    backgroundColor: "#fff",
+                                    marginBottom:
+                                        index !== items.length - 1 ? 10 : 0
+                                }}
+                                key={index}
+                            />
+                        );
+                    })}
+                </motion.div>
+            </motion.div>
+        </>
+    );
+}
+
+function getHeight(items: any[]) {
+    const totalHeight = items.length * height;
+    const totalPadding = (items.length - 1) * padding;
+    const totalScroll = totalHeight + totalPadding;
+    return totalScroll;
 }

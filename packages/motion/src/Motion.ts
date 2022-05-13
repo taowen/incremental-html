@@ -46,8 +46,8 @@ export class Motion extends Feature<MotionProps> {
                 touchAction: this.mergedProps.drag === true ? 'none' : `pan-${this.mergedProps.drag === "x" ? "y" : "x"}`
             })
         }
-        MeasureLayoutWithContext.componentDidMount(this.mergedProps);
         this.visualElement.mount(this.element as HTMLElement);
+        MeasureLayoutWithContext.componentDidMount(this.mergedProps);
         new VisualElementDragControls(this.visualElement).addListeners();
         // when initial animation is disabled, we need to render the styles
         this.visualElement.syncRender();
@@ -84,7 +84,7 @@ export class Motion extends Feature<MotionProps> {
     })
     public _7 = this.onMount(() => {
         const animateControls = this.mergedProps.animate;
-        if (!(animateControls as any).subscribe) {
+        if (!(animateControls as any)?.subscribe) {
             return;
         }
         (animateControls as any).subscribe(this.visualElement);
