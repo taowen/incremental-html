@@ -39,8 +39,7 @@ export class RevealItem extends Feature<MotionProps> {
             return undefined;
         }
         return useTransform(this.reveal.x, (value) => {
-            const dragged = Math.abs(value);
-            return dragged / this.boundingClientRect.width;
+            return Math.abs(value) / this.boundingClientRect.width;
         })
     }
     private get mergedProps(): MotionProps {
@@ -94,35 +93,45 @@ export class Reveal extends Feature<MotionProps> {
         }
         return undefined;
     }
+    private dragStart: number;
+    private onPanSessionStart: MotionProps['onPanSessionStart'] = () => {
+        if (this.dragStart === undefined) {
+            this.dragStart = 0;
+        }
+    }
     private onPanStart: MotionProps['onPanStart'] = (e, { offset }) => {
         this.motion.setLayoutAnimationBlocked(true);
-        if (offset.x < 0 && this.rightItem) {
-            this.x.set(offset.x);
+        const x = this.dragStart + offset.x;
+        if (x < 0 && this.rightItem) {
+            this.x.set(x);
         } else {
 
         }
     }
     private onPan: MotionProps['onPan'] = (e, { offset }) => {
-        if (offset.x < 0) {
+        const x = this.dragStart + offset.x;
+        if (x < 0) {
             if (!this.rightItem) {
                 return;
             }
             const limit = this.rightItem.boundingClientRect.width;
-            if (-offset.x > limit) {
-                this.x.set(-limit + (limit + offset.x) * 0.1);
+            if (-x > limit) {
+                this.x.set(-limit + (limit + x) * 0.1);
             } else {
-                this.x.set(offset.x);
+                this.x.set(x);
             }
         } else {
 
         }
     }
     private onPanEnd: MotionProps['onPanEnd'] = (e, { offset }) => {
-        if (offset.x < 0 && this.rightItem && -offset.x > this.rightItem.boundingClientRect.width / 2) {
-            animate(this.x, -this.rightItem.boundingClientRect.width);
+        const x = this.dragStart + offset.x;
+        if (x < 0 && this.rightItem && -x > this.rightItem.boundingClientRect.width / 2) {
+            this.dragStart = -this.rightItem.boundingClientRect.width;
         } else {
-            animate(this.x, 0);
+            this.dragStart = 0;
         }
+        animate(this.x, this.dragStart);
         this.motion.setLayoutAnimationBlocked(false);
     }
     private get mergedProps(): MotionProps {
@@ -132,7 +141,8 @@ export class Reveal extends Feature<MotionProps> {
             style: { ...style, x: this.x },
             onPanStart: this.onPanStart,
             onPan: this.onPan,
-            onPanEnd: this.onPanEnd
+            onPanEnd: this.onPanEnd,
+            onPanSessionStart: this.onPanSessionStart
         }
     }
     private motion: Motion = this.create(() => {

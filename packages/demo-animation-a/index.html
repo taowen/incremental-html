@@ -10,9 +10,6 @@
             margin: 0;
             padding: 0;
         }
-        div::-webkit-scrollbar {
-  display: none;
-}
     </style>
 </head>
 
@@ -20,9 +17,8 @@
     <div style="position: absolute; left: 20%; top: 20%; width: 600px; 
         height: 100px; overflow: hidden; 
         display: flex; flex-direction: row;">
-        <div style="background-color: red; min-width: 100%; min-height: 100%;"
-        use:motion="$Reveal"></div>
-        <div style="display: flex; flex-direction: row;" use:reveal="$Reveal.Item">
+        <div use:reveal="$Reveal" style="background-color: red; min-width: 100%; min-height: 100%;"></div>
+        <div use:reveal="$Reveal.Item" style="display: flex; flex-direction: row;">
             <div style="background-color: blue; min-width: 100px;">Save</div>
             <div style="background-color: greenyellow; min-width: 100px;">Delete</div>
         </div>
