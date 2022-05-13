@@ -1,5 +1,6 @@
 import { animate, MotionProps, MotionValue, motionValue, useTransform } from "@incremental-html/framer-motion";
 import { Feature } from "@incremental-html/reactivity";
+import { render } from "@incremental-html/template";
 import { Motion } from "./Motion";
 
 export class RevealItem extends Feature<{ reveal: Reveal, x: MotionValue<number> }> {
@@ -21,7 +22,7 @@ export class RevealItem extends Feature<{ reveal: Reveal, x: MotionValue<number>
     })
 }
 
-export class Reveal extends Feature<MotionProps & { trailingItems: string }> {
+export class Reveal extends Feature<MotionProps & { trailingItems?: string | HTMLTemplateElement }> {
     public static Item = RevealItem;
     public readonly x = motionValue(0);
     private trailingItems: RevealItem[] = [];
@@ -41,19 +42,11 @@ export class Reveal extends Feature<MotionProps & { trailingItems: string }> {
         if (!this.props.trailingItems) {
             return;
         }
-        const template = document.querySelector(this.props.trailingItems) as HTMLTemplateElement;
-        if (!template) {
-            throw new Error(`template ${this.props.trailingItems} not found`);
-        }
-        let child = template.content.cloneNode(true).firstChild;
-        const itemElements: Element[] = [];
-        while (child) {
-            if (child.nodeType === 1) {
-                itemElements.push(child as Element);
+        const nodes = render(this.props.trailingItems, { target: this.element });
+        for (const node of nodes) {
+            if (node.nodeType !== 1) {
+                continue;
             }
-            child = child.nextSibling;
-        }
-        for (const itemElement of itemElements) {
             const index = this.trailingItems.length;
             const props = {
                 reveal: this, x: useTransform(this.x, (value) => {
@@ -64,8 +57,8 @@ export class Reveal extends Feature<MotionProps & { trailingItems: string }> {
                     return this.realWidth + value - value * distanceToLeftEdge / this.trailingLimit;
                 }) as any
             };
-            this.element.parentElement!.appendChild(itemElement);
-            const item = new RevealItem(itemElement, () => props);
+            this.element.parentElement!.appendChild(node);
+            const item = new RevealItem(node as Element, () => props);
             this.trailingLimit += item.realWidth;
             this.trailingItems.push(item);
         }
@@ -76,7 +69,6 @@ export class Reveal extends Feature<MotionProps & { trailingItems: string }> {
         if (x < 0 && this.trailingLimit > 0) {
             this.x.set(x);
         } else {
-
         }
     }
     private onPan: MotionProps['onPan'] = (e, { offset }) => {
@@ -90,7 +82,6 @@ export class Reveal extends Feature<MotionProps & { trailingItems: string }> {
             }
             this.x.set(x);
         } else {
-
         }
     }
     private onPanEnd: MotionProps['onPanEnd'] = (e, { offset }) => {
@@ -115,6 +106,10 @@ export class Reveal extends Feature<MotionProps & { trailingItems: string }> {
         }
     }
     private motion: Motion = this.create(() => {
+        Object.assign(this.element.style, {
+            userSelect: 'none',
+            touchAction: 'pan-y'
+        })
         return new Motion(this.element, () => this.mergedProps);
     })
 }

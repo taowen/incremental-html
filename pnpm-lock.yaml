@@ -275,6 +275,7 @@ importers:
       '@incremental-html/framer-motion': workspace:*
       '@incremental-html/morph': workspace:*
       '@incremental-html/reactivity': workspace:*
+      '@incremental-html/template': workspace:*
       '@types/jest': 27.4.1
       jest: 27.5.1
       typedoc: ^0.22.15
@@ -283,6 +284,7 @@ importers:
       '@incremental-html/framer-motion': link:../framer-motion
       '@incremental-html/morph': link:../../packages/morph
       '@incremental-html/reactivity': link:../../packages/reactivity
+      '@incremental-html/template': link:../../packages/template
     devDependencies:
       '@types/jest': 27.4.1
       jest: 27.5.1

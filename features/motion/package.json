@@ -8,6 +8,7 @@
     "dependencies": {
         "@incremental-html/reactivity": "workspace:*",
         "@incremental-html/morph": "workspace:*",
+        "@incremental-html/template": "workspace:*",
         "@incremental-html/framer-motion": "workspace:*"
     },
     "devDependencies": {

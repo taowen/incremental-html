@@ -48,12 +48,12 @@ export class Motion extends Feature<MotionProps> {
     }
     public _1 = this.onMount(() => {
         if (this.mergedProps.drag && this.mergedProps.dragListener !== false) {
-            Object.assign((this.element as HTMLElement).style, {
+            Object.assign(this.element.style, {
                 userSelect: 'none',
                 touchAction: this.mergedProps.drag === true ? 'none' : `pan-${this.mergedProps.drag === "x" ? "y" : "x"}`
             })
         }
-        this.visualElement.mount(this.element as HTMLElement);
+        this.visualElement.mount(this.element);
         MeasureLayoutWithContext.componentDidMount(this.mergedProps);
         this.dragControls.addListeners();
         // when initial animation is disabled, we need to render the styles
