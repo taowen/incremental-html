@@ -14,12 +14,18 @@
 </head>
 
 <body>
-    <div style="position: absolute; left: 20%; top: 20%; width: 600px; 
+    <!-- <div style="position: absolute; left: 20%; top: 20%; width: 600px; 
         height: 100px; overflow: hidden; 
         display: flex; flex-direction: row;">
-        <div use:reveal="$Reveal" style="background-color: red; min-width: 100%; min-height: 100%;"></div>
         <div use:reveal="$Reveal.Item" style="display: flex; flex-direction: row;">
             <div style="background-color: blue; min-width: 100px;">Save</div>
+            <div style="background-color: greenyellow; min-width: 100px;">Delete</div>
+        </div>
+        <div use:reveal="$Reveal" style="background-color: red; width: 100%; height: 100%;"></div>
+    </div> -->
+    <div style="position: absolute; left: 20%; top: 20%; overflow: hidden; visibility:hidden;">
+        <div use:motion="$Motion" motion:drag="'x'" style="background-color: red; width: 600px; height: 100px; display: table;">
+            <div style="background-color: blue; width: fit-content;"><div style="">Save</div></div>
             <div style="background-color: greenyellow; min-width: 100px;">Delete</div>
         </div>
     </div>
@@ -27,8 +33,8 @@
         import { render } from '@incremental-html/template';
         import { startDomObserver, setEvalGlobals, ref, reactive } from '@incremental-html/reactivity';
         import { motionValue } from '@incremental-html/framer-motion';
-        import { Reveal } from '@incremental-html/motion';
-        setEvalGlobals({ Reveal, reactive, ref, render });
+        import { Reveal, Motion } from '@incremental-html/motion';
+        setEvalGlobals({ Reveal, Motion, reactive, ref, render });
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>

@@ -10,7 +10,7 @@ importers:
       npm-run-all: 4.1.5
       typescript: 4.6.3
 
-  packages/demo-animation-a:
+  demos/demo-animation-a:
     specifiers:
       '@incremental-html/framer-motion': workspace:*
       '@incremental-html/morph': workspace:*
@@ -20,16 +20,16 @@ importers:
       typescript: ^4.5.5
       vite: ^2.9.1
     dependencies:
-      '@incremental-html/framer-motion': link:../framer-motion
-      '@incremental-html/morph': link:../morph
-      '@incremental-html/motion': link:../motion
-      '@incremental-html/reactivity': link:../reactivity
-      '@incremental-html/template': link:../template
+      '@incremental-html/framer-motion': link:../../packages/framer-motion
+      '@incremental-html/morph': link:../../packages/morph
+      '@incremental-html/motion': link:../../packages/motion
+      '@incremental-html/reactivity': link:../../packages/reactivity
+      '@incremental-html/template': link:../../packages/template
     devDependencies:
       typescript: 4.6.3
       vite: 2.9.1
 
-  packages/demo-animation-b:
+  demos/demo-animation-b:
     specifiers:
       '@popmotion/popcorn': ^0.4.4
       '@types/react': ^18.0.9
@@ -52,7 +52,7 @@ importers:
       typescript: 4.6.3
       vite: 2.9.1
 
-  packages/demo-client-tabs:
+  demos/demo-client-tabs:
     specifiers:
       '@incremental-html/headlessui': workspace:*
       '@incremental-html/motion': workspace:*
@@ -64,10 +64,10 @@ importers:
       typescript: ^4.5.5
       vite: ^2.9.1
     dependencies:
-      '@incremental-html/headlessui': link:../headlessui
-      '@incremental-html/motion': link:../motion
-      '@incremental-html/reactivity': link:../reactivity
-      '@incremental-html/template': link:../template
+      '@incremental-html/headlessui': link:../../packages/headlessui
+      '@incremental-html/motion': link:../../packages/motion
+      '@incremental-html/reactivity': link:../../packages/reactivity
+      '@incremental-html/template': link:../../packages/template
     devDependencies:
       autoprefixer: 10.4.5_postcss@8.4.12
       postcss: 8.4.12
@@ -75,44 +75,44 @@ importers:
       typescript: 4.6.3
       vite: 2.9.1
 
-  packages/demo-client-todo:
+  demos/demo-client-todo:
     specifiers:
       '@incremental-html/reactivity': workspace:*
       '@incremental-html/template': workspace:*
       typescript: ^4.5.5
       vite: ^2.9.1
     dependencies:
-      '@incremental-html/reactivity': link:../reactivity
-      '@incremental-html/template': link:../template
+      '@incremental-html/reactivity': link:../../packages/reactivity
+      '@incremental-html/template': link:../../packages/template
     devDependencies:
       typescript: 4.6.3
       vite: 2.9.1
 
-  packages/demo-counter:
+  demos/demo-counter:
     specifiers:
       '@incremental-html/reactivity': workspace:*
       typescript: ^4.5.5
       vite: ^2.9.1
     dependencies:
-      '@incremental-html/reactivity': link:../reactivity
+      '@incremental-html/reactivity': link:../../packages/reactivity
     devDependencies:
       typescript: 4.6.3
       vite: 2.9.1
 
-  packages/demo-lifecycle:
+  demos/demo-lifecycle:
     specifiers:
       '@incremental-html/morph': workspace:*
       '@incremental-html/reactivity': workspace:*
       typescript: ^4.5.5
       vite: ^2.9.1
     dependencies:
-      '@incremental-html/morph': link:../morph
-      '@incremental-html/reactivity': link:../reactivity
+      '@incremental-html/morph': link:../../packages/morph
+      '@incremental-html/reactivity': link:../../packages/reactivity
     devDependencies:
       typescript: 4.6.3
       vite: 2.9.1
 
-  packages/demo-product-form:
+  demos/demo-product-form:
     specifiers:
       '@incremental-html/form-object': workspace:*
       '@incremental-html/jsx-to-html': workspace:*
@@ -125,11 +125,11 @@ importers:
       typescript: ^4.5.5
       vite: ^2.9.1
     dependencies:
-      '@incremental-html/form-object': link:../form-object
-      '@incremental-html/jsx-to-html': link:../jsx-to-html
-      '@incremental-html/navigator': link:../navigator
-      '@incremental-html/reactivity': link:../reactivity
-      '@incremental-html/submit-form': link:../submit-form
+      '@incremental-html/form-object': link:../../packages/form-object
+      '@incremental-html/jsx-to-html': link:../../packages/jsx-to-html
+      '@incremental-html/navigator': link:../../packages/navigator
+      '@incremental-html/reactivity': link:../../packages/reactivity
+      '@incremental-html/submit-form': link:../../packages/submit-form
       body-parser: 1.19.2
       express: 5.0.0-beta.1
     devDependencies:
@@ -137,29 +137,29 @@ importers:
       typescript: 4.6.3
       vite: 2.9.1
 
-  packages/demo-reactive:
+  demos/demo-reactive:
     specifiers:
       '@incremental-html/reactivity': workspace:*
       typescript: ^4.5.5
       vite: ^2.9.1
     dependencies:
-      '@incremental-html/reactivity': link:../reactivity
+      '@incremental-html/reactivity': link:../../packages/reactivity
     devDependencies:
       typescript: 4.6.3
       vite: 2.9.1
 
-  packages/demo-ref:
+  demos/demo-ref:
     specifiers:
       '@incremental-html/reactivity': workspace:*
       typescript: ^4.5.5
       vite: ^2.9.1
     dependencies:
-      '@incremental-html/reactivity': link:../reactivity
+      '@incremental-html/reactivity': link:../../packages/reactivity
     devDependencies:
       typescript: 4.6.3
       vite: 2.9.1
 
-  packages/demo-server-tabs:
+  demos/demo-server-tabs:
     specifiers:
       '@incremental-html/jsx-to-html': workspace:*
       '@incremental-html/motion': workspace:*
@@ -169,16 +169,16 @@ importers:
       express: ^5.0.0-beta.1
       vite: ^2.9.1
     dependencies:
-      '@incremental-html/jsx-to-html': link:../jsx-to-html
-      '@incremental-html/motion': link:../motion
-      '@incremental-html/navigator': link:../navigator
-      '@incremental-html/reactivity': link:../reactivity
+      '@incremental-html/jsx-to-html': link:../../packages/jsx-to-html
+      '@incremental-html/motion': link:../../packages/motion
+      '@incremental-html/navigator': link:../../packages/navigator
+      '@incremental-html/reactivity': link:../../packages/reactivity
       express: 5.0.0-beta.1
     devDependencies:
       '@types/express': 4.17.13
       vite: 2.9.1
 
-  packages/demo-server-todo:
+  demos/demo-server-todo:
     specifiers:
       '@incremental-html/form-object': workspace:*
       '@incremental-html/jsx-to-html': workspace:*
@@ -191,11 +191,11 @@ importers:
       typescript: ^4.5.5
       vite: ^2.9.1
     dependencies:
-      '@incremental-html/form-object': link:../form-object
-      '@incremental-html/jsx-to-html': link:../jsx-to-html
-      '@incremental-html/navigator': link:../navigator
-      '@incremental-html/reactivity': link:../reactivity
-      '@incremental-html/submit-form': link:../submit-form
+      '@incremental-html/form-object': link:../../packages/form-object
+      '@incremental-html/jsx-to-html': link:../../packages/jsx-to-html
+      '@incremental-html/navigator': link:../../packages/navigator
+      '@incremental-html/reactivity': link:../../packages/reactivity
+      '@incremental-html/submit-form': link:../../packages/submit-form
       body-parser: 1.19.2
       express: 5.0.0-beta.1
     devDependencies:
@@ -203,7 +203,7 @@ importers:
       typescript: 4.6.3
       vite: 2.9.1
 
-  packages/demo-signup:
+  demos/demo-signup:
     specifiers:
       '@incremental-html/form-object': workspace:*
       '@incremental-html/jsx-to-html': workspace:*
@@ -215,10 +215,10 @@ importers:
       typescript: ^4.5.5
       vite: ^2.9.1
     dependencies:
-      '@incremental-html/form-object': link:../form-object
-      '@incremental-html/jsx-to-html': link:../jsx-to-html
-      '@incremental-html/reactivity': link:../reactivity
-      '@incremental-html/submit-form': link:../submit-form
+      '@incremental-html/form-object': link:../../packages/form-object
+      '@incremental-html/jsx-to-html': link:../../packages/jsx-to-html
+      '@incremental-html/reactivity': link:../../packages/reactivity
+      '@incremental-html/submit-form': link:../../packages/submit-form
       body-parser: 1.19.2
       express: 5.0.0-beta.1
     devDependencies:

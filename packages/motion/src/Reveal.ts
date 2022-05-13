@@ -146,6 +146,7 @@ export class Reveal extends Feature<MotionProps> {
         }
     }
     private motion: Motion = this.create(() => {
+        this.x.set(-(this.element as HTMLElement).offsetLeft);
         notifyNodeSubscribers(this.element.parentElement!);
         return new Motion(this.element, () => this.mergedProps);
     })
