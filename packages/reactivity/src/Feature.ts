@@ -1,4 +1,4 @@
-import { computed, effect } from "@vue/reactivity";
+import { computed, effect, reactive, Ref, ref } from "@vue/reactivity";
 import { evalExpr } from "./eval";
 import { camelize } from "./naming";
 import { subscribeNode } from "./subscribeNode";
@@ -31,6 +31,7 @@ export class Feature<Props extends Record<string, any>> {
             return props;
         })
         this.makeGettersCached();
+        getInstanceCounter(this.constructor).value += 1;
     }
 
     private makeGettersCached() {
@@ -44,12 +45,11 @@ export class Feature<Props extends Record<string, any>> {
         const descriptor = Object.getOwnPropertyDescriptor(proto, propName);
         const getFunc = descriptor?.get;
         if (getFunc) {
-            let prevValue: any = undefined;
             const computedProp = computed(() => {
-                if (prevValue?.unmount) {
-                    prevValue.unmount();
+                if ((this as any)[`${propName}__cache`]?.unmount) {
+                    (this as any)[`${propName}__cache`].unmount();
                 }
-                return prevValue = getFunc.call(this);
+                return (this as any)[`${propName}__cache`] = getFunc.call(this);
             });
             descriptor.get = () => {
                 return computedProp.value;
@@ -113,7 +113,16 @@ export class Feature<Props extends Record<string, any>> {
     }
 }
 
+function getInstanceCounter(featureClass: any): Ref<number> {
+    if (!featureClass.instanceCounter) {
+        return featureClass.instanceCounter = ref(0);
+    } else {
+        return featureClass.instanceCounter;
+    }
+}
+
 export function queryFeature<T>(element: Node | null | undefined, featureClass: { new (element: Element, prefix: string): T; }): T | undefined {
+    getInstanceCounter(featureClass).value; // will run queryFeature again when new feature created
     if (element?.nodeType !== 1) {
         return undefined;
     }
