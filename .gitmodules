@@ -1,3 +1,3 @@
-[submodule "packages/framer-motion/motion"]
-	path = packages/framer-motion/motion
+[submodule "features/framer-motion/motion"]
+	path = features/framer-motion/motion
 	url = https://github.com/framer/motion.git

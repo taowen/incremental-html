@@ -22,7 +22,7 @@ importers:
     dependencies:
       '@incremental-html/framer-motion': link:../../packages/framer-motion
       '@incremental-html/morph': link:../../packages/morph
-      '@incremental-html/motion': link:../../packages/motion
+      '@incremental-html/motion': link:../../features/motion
       '@incremental-html/reactivity': link:../../packages/reactivity
       '@incremental-html/template': link:../../packages/template
     devDependencies:
@@ -64,8 +64,8 @@ importers:
       typescript: ^4.5.5
       vite: ^2.9.1
     dependencies:
-      '@incremental-html/headlessui': link:../../packages/headlessui
-      '@incremental-html/motion': link:../../packages/motion
+      '@incremental-html/headlessui': link:../../features/headlessui
+      '@incremental-html/motion': link:../../features/motion
       '@incremental-html/reactivity': link:../../packages/reactivity
       '@incremental-html/template': link:../../packages/template
     devDependencies:
@@ -170,7 +170,7 @@ importers:
       vite: ^2.9.1
     dependencies:
       '@incremental-html/jsx-to-html': link:../../packages/jsx-to-html
-      '@incremental-html/motion': link:../../packages/motion
+      '@incremental-html/motion': link:../../features/motion
       '@incremental-html/navigator': link:../../packages/navigator
       '@incremental-html/reactivity': link:../../packages/reactivity
       express: 5.0.0-beta.1
@@ -226,6 +226,44 @@ importers:
       typescript: 4.6.3
       vite: 2.9.1
 
+  features/headlessui:
+    specifiers:
+      '@incremental-html/morph': workspace:*
+      '@incremental-html/reactivity': workspace:*
+      '@incremental-html/template': workspace:*
+      '@types/jest': 27.4.1
+      jest: 27.5.1
+      typedoc: ^0.22.15
+      typescript: ^4.5.5
+    dependencies:
+      '@incremental-html/morph': link:../../packages/morph
+      '@incremental-html/reactivity': link:../../packages/reactivity
+      '@incremental-html/template': link:../../packages/template
+    devDependencies:
+      '@types/jest': 27.4.1
+      jest: 27.5.1
+      typedoc: 0.22.15_typescript@4.6.3
+      typescript: 4.6.3
+
+  features/motion:
+    specifiers:
+      '@incremental-html/framer-motion': workspace:*
+      '@incremental-html/morph': workspace:*
+      '@incremental-html/reactivity': workspace:*
+      '@types/jest': 27.4.1
+      jest: 27.5.1
+      typedoc: ^0.22.15
+      typescript: ^4.5.5
+    dependencies:
+      '@incremental-html/framer-motion': link:../../packages/framer-motion
+      '@incremental-html/morph': link:../../packages/morph
+      '@incremental-html/reactivity': link:../../packages/reactivity
+    devDependencies:
+      '@types/jest': 27.4.1
+      jest: 27.5.1
+      typedoc: 0.22.15_typescript@4.6.3
+      typescript: 4.6.3
+
   packages/form-object:
     specifiers:
       '@types/jest': 27.4.1
@@ -263,25 +301,6 @@ importers:
       typescript: 4.6.3
       vite: 2.9.1
 
-  packages/headlessui:
-    specifiers:
-      '@incremental-html/morph': workspace:*
-      '@incremental-html/reactivity': workspace:*
-      '@incremental-html/template': workspace:*
-      '@types/jest': 27.4.1
-      jest: 27.5.1
-      typedoc: ^0.22.15
-      typescript: ^4.5.5
-    dependencies:
-      '@incremental-html/morph': link:../morph
-      '@incremental-html/reactivity': link:../reactivity
-      '@incremental-html/template': link:../template
-    devDependencies:
-      '@types/jest': 27.4.1
-      jest: 27.5.1
-      typedoc: 0.22.15_typescript@4.6.3
-      typescript: 4.6.3
-
   packages/jsx-to-html:
     specifiers:
       '@types/jest': 27.4.1
@@ -317,25 +336,6 @@ importers:
     devDependencies:
       typescript: 4.6.3
       vite: 2.9.1
-
-  packages/motion:
-    specifiers:
-      '@incremental-html/framer-motion': workspace:*
-      '@incremental-html/morph': workspace:*
-      '@incremental-html/reactivity': workspace:*
-      '@types/jest': 27.4.1
-      jest: 27.5.1
-      typedoc: ^0.22.15
-      typescript: ^4.5.5
-    dependencies:
-      '@incremental-html/framer-motion': link:../framer-motion
-      '@incremental-html/morph': link:../morph
-      '@incremental-html/reactivity': link:../reactivity
-    devDependencies:
-      '@types/jest': 27.4.1
-      jest: 27.5.1
-      typedoc: 0.22.15_typescript@4.6.3
-      typescript: 4.6.3
 
   packages/navigator:
     specifiers:
