@@ -1,74 +1,62 @@
-import { animate, MotionProps, motionValue, useTransform } from "@incremental-html/framer-motion";
-import { Feature, queryFeature } from "@incremental-html/reactivity";
+import { animate, MotionProps, MotionValue, motionValue, useTransform } from "@incremental-html/framer-motion";
+import { Feature } from "@incremental-html/reactivity";
 import { Motion } from "./Motion";
 
-export class RevealItem extends Feature<MotionProps & { edge: 'trailing' | 'leading' }> {
-    private reveal = this.create(() => {
-        let sibling = this.element.previousSibling;
-        while (sibling) {
-            const reveal = queryFeature(sibling, Reveal);
-            if (reveal) {
-                return reveal;
-            }
-            sibling = sibling.previousSibling;
-        }
-        throw new Error('can not use Reveal.Item without Reveal');
-    })
+export class RevealItem extends Feature<{ reveal: Reveal, x: MotionValue<number> }> {
     public readonly realWidth = this.create(() => {
         const width = this.element.offsetWidth;
-        this.element.style.minWidth = `${this.reveal.realWidth}px`;
+        this.element.style.minWidth = `${this.props.reveal.realWidth}px`;
         return width;
     })
-    private x = this.reveal.registerItem(this, this.realWidth);
-    private rebaseOffset = 0;
-    private rebasedX = useTransform(this.x, (value) => {
+    private rebaseOffset = this.element.offsetLeft - this.props.reveal.element.offsetLeft;
+    private rebasedX = useTransform(this.props.x, (value) => {
         return value - this.rebaseOffset;
     });
-    public updateRebaseOffset() {
-        this.rebaseOffset = this.element.offsetLeft - this.reveal.element.offsetLeft;
-    }
-    private get mergedProps() {
-        let { style } = this.props;
-        return {
-            ...this.props,
-            style: { ...style, x: this.rebasedX }
-        }
-    }
     private _ = this.onMount(() => {
-        const motion = new Motion(this.element, () => this.mergedProps);
+        const motion = new Motion(this.element, () => ({ style: { x: this.rebasedX } }));
         return () => {
             return motion.unmount();
         }
     })
 }
 
-export class Reveal extends Feature<MotionProps> {
+export class Reveal extends Feature<MotionProps & { trailingItems: string }> {
     public static Item = RevealItem;
     public readonly x = motionValue(0);
     private trailingItems: RevealItem[] = [];
     private leadingItems: RevealItem[] = [];
     private trailingLimit = 0;
-    public registerItem(item: RevealItem, width: number) {
-        const index = this.trailingItems.length;
-        if (item.props.edge === 'leading') {
-            this.leadingItems.push(item);
-        } else {
-            this.trailingItems.push(item);
-        }
-        this.trailingLimit += width;
-        return useTransform(this.x, (value) => {
-            let distanceToLeftEdge = 0;
-            for (let i = 0; i < index; i++) {
-                distanceToLeftEdge += this.trailingItems[i].realWidth;
-            }
-            return this.realWidth + value - value * distanceToLeftEdge / this.trailingLimit;
-        })
-    }
-    private dragStart = 0;
+    private dragStart: number;
     public readonly realWidth = this.element.offsetWidth;
     private onPanSessionStart: MotionProps['onPanSessionStart'] = () => {
-        for (const item of this.trailingItems) {
-            item.updateRebaseOffset();
+        if (this.dragStart === undefined) {
+            this.dragStart = 0;
+            const template = document.querySelector(this.props.trailingItems) as HTMLTemplateElement;
+            if (!template) {
+                throw new Error(`template ${this.props.trailingItems} not found`);
+            }
+            let child = template.content.cloneNode(true).firstChild;
+            const itemElements: Element[] = [];
+            while (child) {
+                if (child.nodeType === 1) {
+                    itemElements.push(child as Element);
+                }
+                child = child.nextSibling;
+            }
+            for (const itemElement of itemElements) {
+                const index = this.trailingItems.length;
+                const props = { reveal: this, x: useTransform(this.x, (value) => {
+                    let distanceToLeftEdge = 0;
+                    for (let i = 0; i < index; i++) {
+                        distanceToLeftEdge += this.trailingItems[i].realWidth;
+                    }
+                    return this.realWidth + value - value * distanceToLeftEdge / this.trailingLimit;
+                }) as any};
+                this.element.parentElement!.appendChild(itemElement);
+                const item = new RevealItem(itemElement, () => props);
+                this.trailingLimit += item.realWidth;
+                this.trailingItems.push(item);
+            }
         }
     }
     private onPanStart: MotionProps['onPanStart'] = (e, { offset }) => {
