@@ -102,8 +102,8 @@ export class Feature<Props extends Record<string, any>> {
     }
 }
 
-export function queryFeature<T>(element: Element | null | undefined, featureClass: { new (element: Element, prefix: string): T; }): T | undefined {
-    if (!element) {
+export function queryFeature<T>(element: Node | null | undefined, featureClass: { new (element: Element, prefix: string): T; }): T | undefined {
+    if (element?.nodeType !== 1) {
         return undefined;
     }
     const features = (element as any).$features;

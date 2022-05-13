@@ -1,0 +1,120 @@
+<!-- index.html -->
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Demo</title>
+    <link rel="shortcut icon" href="#" />
+    <style>
+        body {
+            width: 100vw;
+            height: 100vh;
+            background: #ffaa00;
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        nav {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 300px;
+        }
+
+        ul,
+        li {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-family: "Poppins", sans-serif;
+            font-weight: 500;
+            font-size: 24px;
+        }
+
+        ul {
+            position: relative;
+            width: 300px;
+        }
+
+        li {
+            border-radius: 10px;
+            margin-bottom: 10px;
+            width: 100%;
+            padding: 15px 18px;
+            position: relative;
+            background: white;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            cursor: grab;
+        }
+
+        li svg {
+            width: 18px;
+            height: 18px;
+            cursor: grab;
+        }
+
+        .background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 300px;
+            background: #fff;
+        }
+
+        .refresh {
+            padding: 10px;
+            position: absolute;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            width: 20px;
+            height: 20px;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <ul>
+        <template id="list-item" use:reorder="$Reorder" reorder:initial="'initial'" reorder:while-not-at-origin="'drag'" reorder:variants="{ 
+            initial: { boxShadow: '0px 0px 0px rgba(0,0,0,0.8)' },
+            drag: { boxShadow: '5px 5px 10px rgba(0,0,0,0.3)' }
+         }"></template>
+        <li id="🍅 Tomato" copy-from="#list-item">
+            <span>🍅 Tomato</span>
+        </li>
+        <li id="🥒 Cucumber" copy-from="#list-item">
+            <span>🥒 Cucumber</span>
+        </li>
+        <li id="🧀 Cheese" copy-from="#list-item">
+            <span>🧀 Cheese</span>
+        </li>
+        <li id="🥬 Lettuce" copy-from="#list-item">
+            <span>🥬 Lettuce</span>
+        </li>
+    </ul>
+    <script type="module">
+        import { render } from '@incremental-html/template';
+        import { startDomObserver, setEvalGlobals, ref, reactive } from '@incremental-html/reactivity';
+        import { Reorder } from '@incremental-html/motion';
+        setEvalGlobals({ Reorder, reactive, ref, render });
+        // for properties like bind:xxx or on:xxx
+        startDomObserver();
+    </script>
+</body>
+
+</html>

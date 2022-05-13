@@ -36,6 +36,13 @@ export class Motion extends Feature<MotionProps> {
         useProjection(nextProjectionId++, this.props, {}, visualElement, HTMLProjectionNode);
         return visualElement;
     })
+    public setLayoutAnimationBlocked(isBlocked: boolean) {
+        this.visualElement.projection!.isAnimationBlocked = isBlocked;
+        if (isBlocked) {
+            this.visualElement.projection!.target = undefined;
+        }
+    }
+    public readonly dragControls = new VisualElementDragControls(this.visualElement);
     public get mergedProps(): any {
         return { ...this.props, ...this.inheritedProps, visualElement: this.visualElement }
     }
@@ -48,7 +55,7 @@ export class Motion extends Feature<MotionProps> {
         }
         this.visualElement.mount(this.element as HTMLElement);
         MeasureLayoutWithContext.componentDidMount(this.mergedProps);
-        new VisualElementDragControls(this.visualElement).addListeners();
+        this.dragControls.addListeners();
         // when initial animation is disabled, we need to render the styles
         this.visualElement.syncRender();
         const unmount = () => {

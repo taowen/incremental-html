@@ -28,6 +28,10 @@ export function subscribeNode(node?: Element | null) {
     }
 }
 
-export function notifyNodeSubscribers(xid: string) {
-    nodeVersions[xid] = nextVer++;
+export function notifyNodeSubscribers(xid: Element | string) {
+    if (typeof xid === 'string') {
+        nodeVersions[xid] = nextVer++;
+    } else if ((xid as any).$xid) {
+        nodeVersions[(xid as any).$xid] = nextVer++;
+    }
 }
