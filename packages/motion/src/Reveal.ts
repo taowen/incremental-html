@@ -1,4 +1,4 @@
-import { animate, MotionProps, motionValue } from "@incremental-html/framer-motion";
+import { animate, MotionProps, motionValue, useTransform } from "@incremental-html/framer-motion";
 import { Feature, queryFeature, subscribeNode } from "@incremental-html/reactivity";
 import { notifyNodeSubscribers } from "@incremental-html/reactivity/dist/esm/subscribeNode";
 import { Motion } from "./Motion";
@@ -34,6 +34,15 @@ export class RevealItem extends Feature<MotionProps> {
     private get reveal() {
         return this.leftReveal || this.rightReveal;
     }
+    private get scaleX() {
+        if (!this.reveal) {
+            return undefined;
+        }
+        return useTransform(this.reveal.x, (value) => {
+            const dragged = Math.abs(value);
+            return dragged / this.boundingClientRect.width;
+        })
+    }
     private get mergedProps(): MotionProps {
         if (!this.reveal) {
             return this.props;
@@ -41,11 +50,16 @@ export class RevealItem extends Feature<MotionProps> {
         let { style } = this.props;
         return {
             ...this.props,
-            style: { ...style, x: this.reveal.x },
+            style: {
+                ...style,
+                x: this.reveal.x,
+                scaleX: this.scaleX
+            },
         }
     }
     private _ = this.onMount(() => {
         notifyNodeSubscribers(this.element.parentElement!);
+        (this.element as HTMLElement).style.transformOrigin = '0 0';
         const motion = new Motion(this.element, () => this.mergedProps);
         return () => {
             return motion.unmount();
@@ -95,7 +109,7 @@ export class Reveal extends Feature<MotionProps> {
             }
             const limit = this.rightItem.boundingClientRect.width;
             if (-offset.x > limit) {
-                this.x.set(-limit + (limit + offset.x) * 0.2);
+                this.x.set(-limit + (limit + offset.x) * 0.1);
             } else {
                 this.x.set(offset.x);
             }
@@ -103,8 +117,12 @@ export class Reveal extends Feature<MotionProps> {
 
         }
     }
-    private onPanEnd: MotionProps['onPanEnd'] = (e, panInfo) => {
-        animate(this.x, 0);
+    private onPanEnd: MotionProps['onPanEnd'] = (e, { offset }) => {
+        if (offset.x < 0 && this.rightItem && -offset.x > this.rightItem.boundingClientRect.width / 2) {
+            animate(this.x, -this.rightItem.boundingClientRect.width);
+        } else {
+            animate(this.x, 0);
+        }
         this.motion.setLayoutAnimationBlocked(false);
     }
     private get mergedProps(): MotionProps {

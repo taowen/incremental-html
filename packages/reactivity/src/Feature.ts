@@ -36,14 +36,25 @@ export class Feature<Props extends Record<string, any>> {
     private makeGettersCached() {
         const proto = Object.getPrototypeOf(this);
         for (const propName of Object.getOwnPropertyNames(proto)) {
-            const descriptor = Object.getOwnPropertyDescriptor(proto, propName);
-            if (descriptor?.get) {
-                const computedProp = computed(descriptor.get.bind(this));
-                descriptor.get = () => {
-                    return computedProp.value;
+            this.makeGetterCached(proto, propName);
+        }
+    }
+
+    private makeGetterCached(proto: any, propName: string) {
+        const descriptor = Object.getOwnPropertyDescriptor(proto, propName);
+        const getFunc = descriptor?.get;
+        if (getFunc) {
+            let prevValue: any = undefined;
+            const computedProp = computed(() => {
+                if (prevValue?.unmount) {
+                    prevValue.unmount();
                 }
-                Object.defineProperty(this, propName, descriptor);
+                return prevValue = getFunc.call(this);
+            });
+            descriptor.get = () => {
+                return computedProp.value;
             }
+            Object.defineProperty(this, propName, descriptor);
         }
     }
     
