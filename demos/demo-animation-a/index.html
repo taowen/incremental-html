@@ -66,7 +66,7 @@
             transform: translate3d(0, 0, 0);
             -webkit-text-fill-color: transparent !important;
             -webkit-background-clip: text !important;
-            font-size: 50vw;
+            font-size: 40vw;
             font-weight: 800;
             color: #000;
             z-index: 2;
@@ -321,26 +321,26 @@
 
 <body>
     <div class="cont">
-        <div class="slider animation" use:slide="$Slide">
+        <div class="slider animation" use:slide="$Slide" prop:parallax="$useTransform(this.slide.dragX, [-400, 400], [-100,100])">
             <div data-target="1" class="slide">
                 <div class="slide__darkbg slide--1__darkbg"></div>
                 <div class="slide__text-wrapper slide--1__text-wrapper">
                     <div class="slide__letter slide--1__letter">
                         A
                     </div>
-                    <div class="slide__text slide__text--1">
+                    <div class="slide__text slide__text--1" use:motion="$Motion" motion:style="{ x: $('.slider').parallax }">
                         Am
                     </div>
-                    <div class="slide__text slide__text--2">
+                    <div class="slide__text slide__text--2" use:motion="$Motion" motion:style="{ x: $('.slider').parallax }">
                         st
                     </div>
-                    <div class="slide__text slide__text--3">
+                    <div class="slide__text slide__text--3" use:motion="$Motion" motion:style="{ x: $('.slider').parallax }">
                         er
                     </div>
-                    <div class="slide__text slide__text--4">
+                    <div class="slide__text slide__text--4" use:motion="$Motion" motion:style="{ x: $('.slider').parallax }">
                         da
                     </div>
-                    <div class="slide__text slide__text--5">
+                    <div class="slide__text slide__text--5" use:motion="$Motion" motion:style="{ x: $('.slider').parallax }">
                         m
                     </div>
                 </div>
@@ -351,20 +351,16 @@
                     <div class="slide__letter slide--2__letter">
                         R
                     </div>
-                    <div class="slide__text slide__text--1"
-                        style="font-size: 12vw; transform: translate3d(0px, 0px, 0px);">
+                    <div class="slide__text slide__text--1" use:motion="$Motion" motion:style="{ x: $('.slider').parallax }">
                         R
                     </div>
-                    <div class="slide__text slide__text--2"
-                        style="font-size: 12vw; transform: translate3d(0px, 0px, 0px);">
+                    <div class="slide__text slide__text--2" use:motion="$Motion" motion:style="{ x: $('.slider').parallax }">
                         o
                     </div>
-                    <div class="slide__text slide__text--3"
-                        style="font-size: 12vw; transform: translate3d(0px, 0px, 0px);">
+                    <div class="slide__text slide__text--3" use:motion="$Motion" motion:style="{ x: $('.slider').parallax }">
                         m
                     </div>
-                    <div class="slide__text slide__text--4"
-                        style="font-size: 12vw; transform: translate3d(0px, 0px, 0px);">
+                    <div class="slide__text slide__text--4" use:motion="$Motion" motion:style="{ x: $('.slider').parallax }">
                         e
                     </div>
                 </div>
@@ -375,16 +371,16 @@
                     <div class="slide__letter slide--3__letter">
                         N
                     </div>
-                    <div class="slide__text slide__text--1">
+                    <div class="slide__text slide__text--1" use:motion="$Motion" motion:style="{ x: $('.slider').parallax }">
                         Ne
                     </div>
-                    <div class="slide__text slide__text--2">
+                    <div class="slide__text slide__text--2" use:motion="$Motion" motion:style="{ x: $('.slider').parallax }">
                         w—
                     </div>
-                    <div class="slide__text slide__text--3">
+                    <div class="slide__text slide__text--3" use:motion="$Motion" motion:style="{ x: $('.slider').parallax }">
                         Yo
                     </div>
-                    <div class="slide__text slide__text--4">
+                    <div class="slide__text slide__text--4" use:motion="$Motion" motion:style="{ x: $('.slider').parallax }">
                         rk
                     </div>
                 </div>
@@ -395,19 +391,19 @@
                     <div class="slide__letter slide--4__letter">
                         S
                     </div>
-                    <div class="slide__text slide__text--1">
+                    <div class="slide__text slide__text--1" use:motion="$Motion" motion:style="{ x: $('.slider').parallax }">
                         Si
                     </div>
-                    <div class="slide__text slide__text--2">
+                    <div class="slide__text slide__text--2" use:motion="$Motion" motion:style="{ x: $('.slider').parallax }">
                         ng
                     </div>
-                    <div class="slide__text slide__text--3">
+                    <div class="slide__text slide__text--3" use:motion="$Motion" motion:style="{ x: $('.slider').parallax }">
                         ap
                     </div>
-                    <div class="slide__text slide__text--4">
+                    <div class="slide__text slide__text--4" use:motion="$Motion" motion:style="{ x: $('.slider').parallax }">
                         or
                     </div>
-                    <div class="slide__text slide__text--5">
+                    <div class="slide__text slide__text--5" use:motion="$Motion" motion:style="{ x: $('.slider').parallax }">
                         e
                     </div>
                 </div>
@@ -418,22 +414,22 @@
                     <div class="slide__letter slide--5__letter">
                         P
                     </div>
-                    <div class="slide__text slide__text--1">
+                    <div class="slide__text slide__text--1" use:motion="$Motion" motion:style="{ x: $('.slider').parallax }">
                         P
                     </div>
-                    <div class="slide__text slide__text--2">
+                    <div class="slide__text slide__text--2" use:motion="$Motion" motion:style="{ x: $('.slider').parallax }">
                         r
                     </div>
-                    <div class="slide__text slide__text--3">
+                    <div class="slide__text slide__text--3" use:motion="$Motion" motion:style="{ x: $('.slider').parallax }">
                         a
                     </div>
-                    <div class="slide__text slide__text--4">
+                    <div class="slide__text slide__text--4" use:motion="$Motion" motion:style="{ x: $('.slider').parallax }">
                         g
                     </div>
-                    <div class="slide__text slide__text--5">
+                    <div class="slide__text slide__text--5" use:motion="$Motion" motion:style="{ x: $('.slider').parallax }">
                         u
                     </div>
-                    <div class="slide__text slide__text--6">
+                    <div class="slide__text slide__text--6" use:motion="$Motion" motion:style="{ x: $('.slider').parallax }">
                         e
                     </div>
                 </div>
@@ -451,10 +447,10 @@
     <div data-target="left" class="side-nav side-nav--left"></div>
     <script type="module">
         import { render } from '@incremental-html/template';
-        import { startDomObserver, setEvalGlobals, ref, reactive } from '@incremental-html/reactivity';
-        import { motionValue } from '@incremental-html/framer-motion';
-        import { Slide } from '@incremental-html/motion';
-        setEvalGlobals({ Slide, reactive, ref, render });
+        import { startDomObserver, setEvalGlobals, ref, reactive, queryFeature, querySelector } from '@incremental-html/reactivity';
+        import { motionValue, useTransform } from '@incremental-html/framer-motion';
+        import { Slide, Motion } from '@incremental-html/motion';
+        setEvalGlobals({ Slide, Motion, reactive, ref, render, queryFeature, useTransform, $: querySelector });
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>

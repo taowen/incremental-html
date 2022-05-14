@@ -4,6 +4,7 @@ import { Motion } from "./Motion";
 
 export class Slide extends Feature<MotionProps> {
     private scrollX = motionValue(0);
+    public dragX = motionValue(0);
     private dragStart: number;
     private current = this.element.firstElementChild as HTMLElement;
     private onPanSessionStart: MotionProps['onPanSessionStart'] = () => {
@@ -11,9 +12,11 @@ export class Slide extends Feature<MotionProps> {
     }
     private onPanStart: MotionProps['onPanStart'] = (e, { offset }) => {
         this.scrollX.set(this.dragStart + -offset.x * 0.2);
+        this.dragX.set(offset.x);
     }
     private onPan: MotionProps['onPan'] = (e, { offset }) => {
         this.scrollX.set(this.dragStart + -offset.x * 0.2);
+        this.dragX.set(offset.x);
     }
     private onPanEnd: MotionProps['onPanEnd'] = (e, { offset }) => {
         if (offset.x < 0 && offset.x < -this.element.offsetWidth / 8) {
@@ -23,6 +26,7 @@ export class Slide extends Feature<MotionProps> {
             const next = this.current.previousElementSibling as HTMLElement;
             this.current = next || this.current;
         }
+        this.dragX.set(0);
         animate(this.scrollX, this.current.offsetLeft);
     }
     private get mergedProps(): MotionProps {
