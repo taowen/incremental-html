@@ -321,7 +321,7 @@
 
 <body>
     <div class="cont">
-        <div class="slider animation" use:slide="$Slide" prop:parallax="$useTransform(this.slide.dragX, [-400, 400], [-100,100])">
+        <div class="slider animation" use:slide="$SwipeSlide" prop:parallax="$useTransform(this.slide.offsetX, [-400, 400], [-100,100])">
             <div data-target="1" class="slide">
                 <div class="slide__darkbg slide--1__darkbg"></div>
                 <div class="slide__text-wrapper slide--1__text-wrapper">
@@ -436,11 +436,21 @@
             </div>
         </div>
         <ul class="nav">
-            <li data-target="1" class="nav__slide nav__slide--1 nav-active"></li>
-            <li data-target="2" class="nav__slide nav__slide--2"></li>
-            <li data-target="3" class="nav__slide nav__slide--3"></li>
-            <li data-target="4" class="nav__slide nav__slide--4"></li>
-            <li data-target="5" class="nav__slide nav__slide--5"></li>
+            <li data-target="1" class="nav__slide nav__slide--1" 
+                bind:class.active="$('.slider').slide.isActive('.slide:nth-child(1)') && 'nav-active'"
+                on:click="$('.slider').slide.setActive('.slide:nth-child(1)')"></li>
+            <li data-target="2" class="nav__slide nav__slide--2" 
+                bind:class.active="$('.slider').slide.isActive('.slide:nth-child(2)') && 'nav-active'"
+                on:click="$('.slider').slide.setActive('.slide:nth-child(2)')"></li>
+            <li data-target="3" class="nav__slide nav__slide--3"
+                bind:class.active="$('.slider').slide.isActive('.slide:nth-child(3)') && 'nav-active'"
+                on:click="$('.slider').slide.setActive('.slide:nth-child(3)')"></li>
+            <li data-target="4" class="nav__slide nav__slide--4"
+                bind:class.active="$('.slider').slide.isActive('.slide:nth-child(4)') && 'nav-active'"
+                on:click="$('.slider').slide.setActive('.slide:nth-child(4)')"></li>
+            <li data-target="5" class="nav__slide nav__slide--5"
+                bind:class.active="$('.slider').slide.isActive('.slide:nth-child(5)') && 'nav-active'"
+                on:click="$('.slider').slide.setActive('.slide:nth-child(5)')"></li>
         </ul>
     </div>
     <div data-target="right" class="side-nav side-nav--right"></div>
@@ -449,8 +459,8 @@
         import { render } from '@incremental-html/template';
         import { startDomObserver, setEvalGlobals, ref, reactive, queryFeature, querySelector } from '@incremental-html/reactivity';
         import { motionValue, useTransform } from '@incremental-html/framer-motion';
-        import { Slide, Motion } from '@incremental-html/motion';
-        setEvalGlobals({ Slide, Motion, reactive, ref, render, queryFeature, useTransform, $: querySelector });
+        import { SwipeSlide, Motion } from '@incremental-html/motion';
+        setEvalGlobals({ SwipeSlide, Motion, reactive, ref, render, queryFeature, useTransform, $: querySelector });
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>

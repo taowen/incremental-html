@@ -1,33 +1,52 @@
 import { MotionProps, motionValue, addPointerEvent, animate } from "@incremental-html/framer-motion";
-import { Feature } from "@incremental-html/reactivity";
+import { Feature, Ref, ref } from "@incremental-html/reactivity";
 import { Motion } from "./Motion";
 
-export class Slide extends Feature<MotionProps> {
+export class SwipeSlide extends Feature<MotionProps> {
     private scrollX = motionValue(0);
-    public dragX = motionValue(0);
+    public offsetX = motionValue(0);
     private dragStart: number;
-    private current = this.element.firstElementChild as HTMLElement;
+    private active: Ref<any> = ref(this.element.firstElementChild as HTMLElement);
+    public isActive(element: string | HTMLElement): boolean {
+        if (!element) {
+            return false;
+        }
+        if (typeof element === 'string') {
+            return this.isActive(document.querySelector(element) as any);
+        }
+        return this.active.value === element;
+    }
+    public setActive(element: string | HTMLElement): void {
+        if (!element) {
+            return;
+        }
+        if (typeof element === 'string') {
+            return this.setActive(document.querySelector(element) as any);
+        }
+        this.active.value = element;
+        animate(this.scrollX, this.active.value.offsetLeft);
+    }
     private onPanSessionStart: MotionProps['onPanSessionStart'] = () => {
         this.dragStart = this.element.scrollLeft;
     }
     private onPanStart: MotionProps['onPanStart'] = (e, { offset }) => {
         this.scrollX.set(this.dragStart + -offset.x * 0.2);
-        this.dragX.set(offset.x);
+        this.offsetX.set(offset.x);
     }
     private onPan: MotionProps['onPan'] = (e, { offset }) => {
         this.scrollX.set(this.dragStart + -offset.x * 0.2);
-        this.dragX.set(offset.x);
+        this.offsetX.set(offset.x);
     }
     private onPanEnd: MotionProps['onPanEnd'] = (e, { offset }) => {
         if (offset.x < 0 && offset.x < -this.element.offsetWidth / 8) {
-            const next = this.current.nextElementSibling as HTMLElement;
-            this.current = next || this.current;
+            const next = this.active.value.nextElementSibling as HTMLElement;
+            this.active.value = next || this.active.value;
         } else if (offset.x > 0 && offset.x > this.element.offsetWidth / 8) {
-            const next = this.current.previousElementSibling as HTMLElement;
-            this.current = next || this.current;
+            const next = this.active.value.previousElementSibling as HTMLElement;
+            this.active.value = next || this.active.value;
         }
-        this.dragX.set(0);
-        animate(this.scrollX, this.current.offsetLeft);
+        this.offsetX.set(0);
+        animate(this.scrollX, this.active.value.offsetLeft);
     }
     private get mergedProps(): MotionProps {
         return {
