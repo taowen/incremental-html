@@ -147,7 +147,7 @@ export class Reveal extends Feature<MotionProps & { trailingItems?: string | HTM
         Object.assign(this.element.style, {
             zIndex: '999',
             userSelect: 'none',
-            touchAction: 'pan-y'
+            touchAction: 'pan-y',
         })
         return new Motion(this.element, () => this.mergedProps);
     })

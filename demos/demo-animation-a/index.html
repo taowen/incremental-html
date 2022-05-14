@@ -100,7 +100,6 @@
         }
 
         .slide--1__darkbg {
-            left: 0%;
             background: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/537051/city--1-min-min.jpg") center center no-repeat;
             background-size: cover;
             background-position: 0px center, 0px center;
@@ -322,7 +321,7 @@
 
 <body>
     <div class="cont">
-        <div class="slider animation">
+        <div class="slider animation" use:slide="$Slide">
             <div data-target="1" class="slide">
                 <div class="slide__darkbg slide--1__darkbg"></div>
                 <div class="slide__text-wrapper slide--1__text-wrapper">
@@ -454,8 +453,8 @@
         import { render } from '@incremental-html/template';
         import { startDomObserver, setEvalGlobals, ref, reactive } from '@incremental-html/reactivity';
         import { motionValue } from '@incremental-html/framer-motion';
-        import { Reveal, Motion } from '@incremental-html/motion';
-        setEvalGlobals({ Reveal, Motion, reactive, ref, render });
+        import { Slide } from '@incremental-html/motion';
+        setEvalGlobals({ Slide, reactive, ref, render });
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>
