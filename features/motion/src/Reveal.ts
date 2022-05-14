@@ -22,12 +22,13 @@ export class RevealItem extends Feature<{ reveal: Reveal, x: MotionValue<number>
     })
 }
 
-export class Reveal extends Feature<MotionProps & { trailingItems?: string | HTMLTemplateElement }> {
+export class Reveal extends Feature<MotionProps & { trailingItems?: string | HTMLTemplateElement, leadingItems?: string | HTMLTemplateElement }> {
     public static Item = RevealItem;
     public readonly x = motionValue(0);
     private trailingItems: RevealItem[] = [];
     private leadingItems: RevealItem[] = [];
-    private trailingLimit = 0;
+    private leadingTotalWidth = 0;
+    private trailingTotalWidth = 0;
     private dragStart: number;
     public readonly realWidth = this.element.offsetWidth;
     private onPanSessionStart: MotionProps['onPanSessionStart'] = () => {
@@ -36,7 +37,33 @@ export class Reveal extends Feature<MotionProps & { trailingItems?: string | HTM
             return;
         }
         this.dragStart = 0;
+        this.initLeadingItems();
         this.initTrailingItems();
+    }
+    private initLeadingItems() {
+        if (!this.props.leadingItems) {
+            return;
+        }
+        const nodes = render(this.props.leadingItems, { target: this.element });
+        for (const node of nodes) {
+            if (node.nodeType !== 1) {
+                continue;
+            }
+            const index = this.leadingItems.length;
+            const props = {
+                reveal: this, x: useTransform(this.x, (value) => {
+                    let distanceToEdge = 0;
+                    for (let i = 0; i < index; i++) {
+                        distanceToEdge += this.leadingItems[i].realWidth;
+                    }
+                    return value * distanceToEdge / this.leadingTotalWidth;
+                }) as any
+            };
+            this.element.parentElement!.appendChild(node);
+            const item = new RevealItem(node as Element, () => props);
+            this.leadingTotalWidth += item.realWidth;
+            this.leadingItems.push(item);
+        }
     }
     private initTrailingItems() {
         if (!this.props.trailingItems) {
@@ -50,44 +77,55 @@ export class Reveal extends Feature<MotionProps & { trailingItems?: string | HTM
             const index = this.trailingItems.length;
             const props = {
                 reveal: this, x: useTransform(this.x, (value) => {
-                    let distanceToLeftEdge = 0;
+                    let distanceToEdge = 0;
                     for (let i = 0; i < index; i++) {
-                        distanceToLeftEdge += this.trailingItems[i].realWidth;
+                        distanceToEdge += this.trailingItems[i].realWidth;
                     }
-                    return this.realWidth + value - value * distanceToLeftEdge / this.trailingLimit;
+                    const edge = this.realWidth + value;
+                    return edge - value * distanceToEdge / this.trailingTotalWidth;
                 }) as any
             };
             this.element.parentElement!.appendChild(node);
             const item = new RevealItem(node as Element, () => props);
-            this.trailingLimit += item.realWidth;
+            this.trailingTotalWidth += item.realWidth;
             this.trailingItems.push(item);
         }
     }
     private onPanStart: MotionProps['onPanStart'] = (e, { offset }) => {
         this.motion.setLayoutAnimationBlocked(true);
         const x = this.dragStart + offset.x;
-        if (x < 0 && this.trailingLimit > 0) {
+        if (x < 0 && this.trailingTotalWidth > 0) {
             this.x.set(x);
-        } else {
+        } else if (x > 0 && this.leadingTotalWidth > 0) {
+            this.x.set(x);
         }
     }
     private onPan: MotionProps['onPan'] = (e, { offset }) => {
         let x = this.dragStart + offset.x;
         if (x < 0) {
-            if (this.trailingLimit === 0) {
+            if (this.trailingTotalWidth === 0) {
                 return;
             }
-            if (-x > this.trailingLimit) {
-                x = -this.trailingLimit + (this.trailingLimit + x) * 0.1;
+            if (-x > this.trailingTotalWidth) {
+                x = -this.trailingTotalWidth + (x + this.trailingTotalWidth) * 0.1;
             }
             this.x.set(x);
-        } else {
+        } else if (x > 0) {
+            if (this.leadingTotalWidth === 0) {
+                return;
+            }
+            if (x > this.leadingTotalWidth) {
+                x = this.leadingTotalWidth + (x - this.leadingTotalWidth) * 0.1;
+            }
+            this.x.set(x);
         }
     }
     private onPanEnd: MotionProps['onPanEnd'] = (e, { offset }) => {
         const x = this.dragStart + offset.x;
-        if (x < 0 && this.trailingLimit && -x > this.trailingLimit / 2) {
-            this.dragStart = -this.trailingLimit;
+        if (x < 0 && this.trailingTotalWidth && -x > this.trailingTotalWidth / 2) {
+            this.dragStart = -this.trailingTotalWidth;
+        } else if (x > 0 && this.leadingTotalWidth && x > this.leadingTotalWidth / 2) {
+            this.dragStart = this.leadingTotalWidth;
         } else {
             this.dragStart = 0;
         }
@@ -107,6 +145,7 @@ export class Reveal extends Feature<MotionProps & { trailingItems?: string | HTM
     }
     private motion: Motion = this.create(() => {
         Object.assign(this.element.style, {
+            zIndex: '999',
             userSelect: 'none',
             touchAction: 'pan-y'
         })
