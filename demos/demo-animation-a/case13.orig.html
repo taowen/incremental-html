@@ -14,23 +14,59 @@
         }
 
         .slider {
-            display: flex;
-            flex-direction: row;
-            height: 100vh;
-            width: 100vw;
+            position: relative;
+            height: 100%;
+            transform: translate3d(0, 0, 0);
             will-change: transform;
             cursor: all-scroll;
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
-            overflow: hidden;
+        }
+
+        .slider.animation {
+            transition: transform 750ms ease-in-out;
+        }
+
+        .slider.animation .slide__darkbg {
+            transition: transform 750ms ease-in-out;
+        }
+
+        .slider.animation .slide__text {
+            transition: transform 750ms ease-in-out;
+        }
+
+        .slider.animation .slide__letter {
+            transition: transform 750ms ease-in-out;
         }
 
         .slide {
-            min-width: 100%;
-            min-height: 100%;
-            position: relative;
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .slide--1 {
+            left: 0%;
+        }
+
+        .slide--2 {
+            left: 100%;
+        }
+
+        .slide--3 {
+            left: 200%;
+        }
+
+        .slide--4 {
+            left: 300%;
+        }
+
+        .slide--5 {
+            left: 400%;
         }
 
         .slide__darkbg {
@@ -125,6 +161,7 @@
         }
 
         .slide--2__darkbg {
+            left: -50%;
             background: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/537051/city--2-min-min.jpg") center center no-repeat;
             background-size: cover;
             background-position: 0px center, 0px center;
@@ -149,6 +186,7 @@
         }
 
         .slide--3__darkbg {
+            left: -100%;
             background: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/537051/city--3-min-min.jpg") center center no-repeat;
             background-size: cover;
             background-position: 0px center, 0px center;
@@ -173,6 +211,7 @@
         }
 
         .slide--4__darkbg {
+            left: -150%;
             background: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/537051/city--4-min-min.jpg") center center no-repeat;
             background-size: cover;
             background-position: 0px center, 0px center;
@@ -197,6 +236,7 @@
         }
 
         .slide--5__darkbg {
+            left: -200%;
             background: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/537051/city--5-min-min.jpg") center center no-repeat;
             background-size: cover;
             background-position: 0px center, 0px center;
@@ -322,34 +362,34 @@
 
 <body>
     <div class="cont">
-        <div class="slider animation">
-            <div data-target="1" class="slide">
-                <div class="slide__darkbg slide--1__darkbg"></div>
+        <div class="slider animation" style="transform: translate3d(0%, 0px, 0px);">
+            <div data-target="1" class="slide slide--1">
+                <div class="slide__darkbg slide--1__darkbg" style="transform: translate3d(0%, 0px, 0px);"></div>
                 <div class="slide__text-wrapper slide--1__text-wrapper">
-                    <div class="slide__letter slide--1__letter">
+                    <div class="slide__letter slide--1__letter" style="transform: translate3d(0px, 0px, 0px);">
                         A
                     </div>
-                    <div class="slide__text slide__text--1">
+                    <div class="slide__text slide__text--1" style="transform: translate3d(0px, 0px, 0px);">
                         Am
                     </div>
-                    <div class="slide__text slide__text--2">
+                    <div class="slide__text slide__text--2" style="transform: translate3d(0px, 0px, 0px);">
                         st
                     </div>
-                    <div class="slide__text slide__text--3">
+                    <div class="slide__text slide__text--3" style="transform: translate3d(0px, 0px, 0px);">
                         er
                     </div>
-                    <div class="slide__text slide__text--4">
+                    <div class="slide__text slide__text--4" style="transform: translate3d(0px, 0px, 0px);">
                         da
                     </div>
-                    <div class="slide__text slide__text--5">
+                    <div class="slide__text slide__text--5" style="transform: translate3d(0px, 0px, 0px);">
                         m
                     </div>
                 </div>
             </div>
-            <div data-target="2" class="slide">
-                <div class="slide__darkbg slide--2__darkbg"></div>
+            <div data-target="2" class="slide slide--2">
+                <div class="slide__darkbg slide--2__darkbg" style="transform: translate3d(0%, 0px, 0px);"></div>
                 <div class="slide__text-wrapper slide--2__text-wrapper">
-                    <div class="slide__letter slide--2__letter">
+                    <div class="slide__letter slide--2__letter" style="transform: translate3d(0px, 0px, 0px);">
                         R
                     </div>
                     <div class="slide__text slide__text--1"
@@ -370,71 +410,71 @@
                     </div>
                 </div>
             </div>
-            <div data-target="3" class="slide">
-                <div class="slide__darkbg slide--3__darkbg"></div>
+            <div data-target="3" class="slide slide--3">
+                <div class="slide__darkbg slide--3__darkbg" style="transform: translate3d(0%, 0px, 0px);"></div>
                 <div class="slide__text-wrapper slide--3__text-wrapper">
-                    <div class="slide__letter slide--3__letter">
+                    <div class="slide__letter slide--3__letter" style="transform: translate3d(0px, 0px, 0px);">
                         N
                     </div>
-                    <div class="slide__text slide__text--1">
+                    <div class="slide__text slide__text--1" style="transform: translate3d(0px, 0px, 0px);">
                         Ne
                     </div>
-                    <div class="slide__text slide__text--2">
+                    <div class="slide__text slide__text--2" style="transform: translate3d(0px, 0px, 0px);">
                         w—
                     </div>
-                    <div class="slide__text slide__text--3">
+                    <div class="slide__text slide__text--3" style="transform: translate3d(0px, 0px, 0px);">
                         Yo
                     </div>
-                    <div class="slide__text slide__text--4">
+                    <div class="slide__text slide__text--4" style="transform: translate3d(0px, 0px, 0px);">
                         rk
                     </div>
                 </div>
             </div>
-            <div data-target="4" class="slide">
-                <div class="slide__darkbg slide--4__darkbg"></div>
+            <div data-target="4" class="slide slide--4">
+                <div class="slide__darkbg slide--4__darkbg" style="transform: translate3d(0%, 0px, 0px);"></div>
                 <div class="slide__text-wrapper slide--4__text-wrapper">
-                    <div class="slide__letter slide--4__letter">
+                    <div class="slide__letter slide--4__letter" style="transform: translate3d(0px, 0px, 0px);">
                         S
                     </div>
-                    <div class="slide__text slide__text--1">
+                    <div class="slide__text slide__text--1" style="transform: translate3d(0px, 0px, 0px);">
                         Si
                     </div>
-                    <div class="slide__text slide__text--2">
+                    <div class="slide__text slide__text--2" style="transform: translate3d(0px, 0px, 0px);">
                         ng
                     </div>
-                    <div class="slide__text slide__text--3">
+                    <div class="slide__text slide__text--3" style="transform: translate3d(0px, 0px, 0px);">
                         ap
                     </div>
-                    <div class="slide__text slide__text--4">
+                    <div class="slide__text slide__text--4" style="transform: translate3d(0px, 0px, 0px);">
                         or
                     </div>
-                    <div class="slide__text slide__text--5">
+                    <div class="slide__text slide__text--5" style="transform: translate3d(0px, 0px, 0px);">
                         e
                     </div>
                 </div>
             </div>
-            <div data-target="5" class="slide">
-                <div class="slide__darkbg slide--5__darkbg"></div>
+            <div data-target="5" class="slide slide--5">
+                <div class="slide__darkbg slide--5__darkbg" style="transform: translate3d(0%, 0px, 0px);"></div>
                 <div class="slide__text-wrapper slide--5__text-wrapper">
-                    <div class="slide__letter slide--5__letter">
+                    <div class="slide__letter slide--5__letter" style="transform: translate3d(0px, 0px, 0px);">
                         P
                     </div>
-                    <div class="slide__text slide__text--1">
+                    <div class="slide__text slide__text--1" style="transform: translate3d(0px, 0px, 0px);">
                         P
                     </div>
-                    <div class="slide__text slide__text--2">
+                    <div class="slide__text slide__text--2" style="transform: translate3d(0px, 0px, 0px);">
                         r
                     </div>
-                    <div class="slide__text slide__text--3">
+                    <div class="slide__text slide__text--3" style="transform: translate3d(0px, 0px, 0px);">
                         a
                     </div>
-                    <div class="slide__text slide__text--4">
+                    <div class="slide__text slide__text--4" style="transform: translate3d(0px, 0px, 0px);">
                         g
                     </div>
-                    <div class="slide__text slide__text--5">
+                    <div class="slide__text slide__text--5" style="transform: translate3d(0px, 0px, 0px);">
                         u
                     </div>
-                    <div class="slide__text slide__text--6">
+                    <div class="slide__text slide__text--6" style="transform: translate3d(0px, 0px, 0px);">
                         e
                     </div>
                 </div>
@@ -450,6 +490,211 @@
     </div>
     <div data-target="right" class="side-nav side-nav--right"></div>
     <div data-target="left" class="side-nav side-nav--left"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script id="rendered-js">
+        $(document).ready(function () {
+            const $cont = $('.cont');
+            const $slider = $('.slider');
+            const $nav = $('.nav');
+            const winW = $(window).width();
+            const animSpd = 750; // Change also in CSS
+            const distOfLetGo = winW * 0.2;
+            let curSlide = 1;
+            let animation = false;
+            let autoScrollVar = true;
+            let diff = 0;
+
+            // Generating slides
+            let arrCities = ['Amsterdam', 'Rome', 'New—York', 'Singapore', 'Prague']; // Change number of slides in CSS also
+            let numOfCities = arrCities.length;
+            let arrCitiesDivided = [];
+
+            arrCities.map(city => {
+                let length = city.length;
+                let letters = Math.floor(length / 4);
+                let exp = new RegExp(".{1," + letters + "}", "g");
+
+                arrCitiesDivided.push(city.match(exp));
+            });
+
+            let generateSlide = function (city) {
+                let frag1 = $(document.createDocumentFragment());
+                let frag2 = $(document.createDocumentFragment());
+                const numSlide = arrCities.indexOf(arrCities[city]) + 1;
+                const firstLetter = arrCitiesDivided[city][0].charAt(0);
+
+                const $slide =
+                    $(`<div data-target="${numSlide}" class="slide slide--${numSlide}">
+                                  <div class="slide__darkbg slide--${numSlide}__darkbg"></div>
+                                  <div class="slide__text-wrapper slide--${numSlide}__text-wrapper"></div>
+                              </div>`);
+
+                const letter =
+                    $(`<div class="slide__letter slide--${numSlide}__letter">
+                                  ${firstLetter}
+                              </div>`);
+
+                for (let i = 0, length = arrCitiesDivided[city].length; i < length; i++) {
+                    const text =
+                        $(`<div class="slide__text slide__text--${i + 1}">
+                                      ${arrCitiesDivided[city][i]}
+                                  </div>`);
+                    frag1.append(text);
+                }
+
+                const navSlide = $(`<li data-target="${numSlide}" class="nav__slide nav__slide--${numSlide}"></li>`);
+                frag2.append(navSlide);
+                $nav.append(frag2);
+
+                $slide.find(`.slide--${numSlide}__text-wrapper`).append(letter).append(frag1);
+                $slider.append($slide);
+
+                if (arrCities[city].length <= 4) {
+                    $('.slide--' + numSlide).find('.slide__text').css("font-size", "12vw");
+                }
+            };
+
+            for (let i = 0, length = numOfCities; i < length; i++) {
+                generateSlide(i);
+            }
+
+            $('.nav__slide--1').addClass('nav-active');
+
+            // Navigation
+            function bullets(dir) {
+                $('.nav__slide--' + curSlide).removeClass('nav-active');
+                $('.nav__slide--' + dir).addClass('nav-active');
+            }
+
+            function timeout() {
+                animation = false;
+            }
+
+            function pagination(direction) {
+                animation = true;
+                diff = 0;
+                $slider.addClass('animation');
+                $slider.css({
+                    'transform': 'translate3d(-' + (curSlide - direction) * 100 + '%, 0, 0)'
+                });
+
+
+                $slider.find('.slide__darkbg').css({
+                    'transform': 'translate3d(' + (curSlide - direction) * 50 + '%, 0, 0)'
+                });
+
+
+                $slider.find('.slide__letter').css({
+                    'transform': 'translate3d(0, 0, 0)'
+                });
+
+
+                $slider.find('.slide__text').css({
+                    'transform': 'translate3d(0, 0, 0)'
+                });
+
+            }
+
+            function navigateRight() {
+                if (!autoScrollVar) return;
+                if (curSlide >= numOfCities) return;
+                pagination(0);
+                setTimeout(timeout, animSpd);
+                bullets(curSlide + 1);
+                curSlide++;
+            }
+
+            function navigateLeft() {
+                if (curSlide <= 1) return;
+                pagination(2);
+                setTimeout(timeout, animSpd);
+                bullets(curSlide - 1);
+                curSlide--;
+            }
+
+            function toDefault() {
+                pagination(1);
+                setTimeout(timeout, animSpd);
+            }
+
+            // Events
+            $(document).on('mousedown touchstart', '.slide', function (e) {
+                if (animation) return;
+                let target = +$(this).attr('data-target');
+                let startX = e.pageX || e.originalEvent.touches[0].pageX;
+                $slider.removeClass('animation');
+
+                $(document).on('mousemove touchmove', function (e) {
+                    let x = e.pageX || e.originalEvent.touches[0].pageX;
+                    diff = startX - x;
+                    if (target === 1 && diff < 0 || target === numOfCities && diff > 0) return;
+
+                    $slider.css({
+                        'transform': 'translate3d(-' + ((curSlide - 1) * 100 + diff / 30) + '%, 0, 0)'
+                    });
+
+
+                    $slider.find('.slide__darkbg').css({
+                        'transform': 'translate3d(' + ((curSlide - 1) * 50 + diff / 60) + '%, 0, 0)'
+                    });
+
+
+                    $slider.find('.slide__letter').css({
+                        'transform': 'translate3d(' + diff / 60 + 'vw, 0, 0)'
+                    });
+
+
+                    $slider.find('.slide__text').css({
+                        'transform': 'translate3d(' + diff / 15 + 'px, 0, 0)'
+                    });
+
+                });
+            });
+
+            $(document).on('mouseup touchend', function (e) {
+                $(document).off('mousemove touchmove');
+
+                if (animation) return;
+
+                if (diff >= distOfLetGo) {
+                    navigateRight();
+                } else if (diff <= -distOfLetGo) {
+                    navigateLeft();
+                } else {
+                    toDefault();
+                }
+            });
+
+            $(document).on('click', '.nav__slide:not(.nav-active)', function () {
+                let target = +$(this).attr('data-target');
+                bullets(target);
+                curSlide = target;
+                pagination(1);
+            });
+
+            $(document).on('click', '.side-nav', function () {
+                let target = $(this).attr('data-target');
+
+                if (target === 'right') navigateRight();
+                if (target === 'left') navigateLeft();
+            });
+
+            $(document).on('keydown', function (e) {
+                if (e.which === 39) navigateRight();
+                if (e.which === 37) navigateLeft();
+            });
+
+            $(document).on('mousewheel DOMMouseScroll', function (e) {
+                if (animation) return;
+                let delta = e.originalEvent.wheelDelta;
+
+                if (delta > 0 || e.originalEvent.detail < 0) navigateLeft();
+                if (delta < 0 || e.originalEvent.detail > 0) navigateRight();
+            });
+        });
+      //# sourceURL=pen.js
+    </script>
     <script type="module">
         import { render } from '@incremental-html/template';
         import { startDomObserver, setEvalGlobals, ref, reactive } from '@incremental-html/reactivity';
