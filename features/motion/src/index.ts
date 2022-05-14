@@ -1,4 +1,4 @@
 export * from './Motion';
 export * from './Reorder';
-export * from './Reveal';
+export * from './SwipeActions';
 export * from './Slide';

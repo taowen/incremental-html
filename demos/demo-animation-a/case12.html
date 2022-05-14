@@ -23,14 +23,14 @@
         <div style="background-color: greenyellow; min-width: 100px; min-height: 100%;">Delete</div>
     </template>
     <div style="overflow: hidden; width: 600px; display: flex; flex-direction: row;">
-        <div use:reveal="$Reveal" reveal:leading-items="'#items'" reveal:trailing-items="'#items2'" style="background-color: red; min-width: 100%; height: 100px;"></div>
+        <div use:swipe="$SwipeActions" swipe:leading="'#items'" swipe:trailing="'#items2'" style="background-color: red; min-width: 100%; height: 100px;"></div>
     </div>
     <script type="module">
         import { render } from '@incremental-html/template';
         import { startDomObserver, setEvalGlobals, ref, reactive } from '@incremental-html/reactivity';
         import { motionValue } from '@incremental-html/framer-motion';
-        import { Reveal, Motion } from '@incremental-html/motion';
-        setEvalGlobals({ Reveal, Motion, reactive, ref, render });
+        import { SwipeActions, Motion } from '@incremental-html/motion';
+        setEvalGlobals({ SwipeActions, Motion, reactive, ref, render });
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>

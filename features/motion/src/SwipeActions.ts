@@ -3,7 +3,7 @@ import { Feature } from "@incremental-html/reactivity";
 import { render } from "@incremental-html/template";
 import { Motion } from "./Motion";
 
-export class RevealItem extends Feature<{ reveal: Reveal, x: MotionValue<number> }> {
+class SwipeAction extends Feature<{ reveal: SwipeActions, x: MotionValue<number> }> {
     public readonly realWidth = this.create(() => {
         const width = this.element.offsetWidth;
         // ensure width is wide enough to avoid showing underlying element when dragging elastic
@@ -22,11 +22,11 @@ export class RevealItem extends Feature<{ reveal: Reveal, x: MotionValue<number>
     })
 }
 
-export class Reveal extends Feature<MotionProps & { trailingItems?: string | HTMLTemplateElement, leadingItems?: string | HTMLTemplateElement }> {
-    public static Item = RevealItem;
+export class SwipeActions extends Feature<MotionProps & { trailing?: string | HTMLTemplateElement, leading?: string | HTMLTemplateElement }> {
+    public static Item = SwipeAction;
     public readonly x = motionValue(0);
-    private trailingItems: RevealItem[] = [];
-    private leadingItems: RevealItem[] = [];
+    private trailingItems: SwipeAction[] = [];
+    private leadingItems: SwipeAction[] = [];
     private leadingTotalWidth = 0;
     private trailingTotalWidth = 0;
     private dragStart: number;
@@ -41,10 +41,10 @@ export class Reveal extends Feature<MotionProps & { trailingItems?: string | HTM
         this.initTrailingItems();
     }
     private initLeadingItems() {
-        if (!this.props.leadingItems) {
+        if (!this.props.leading) {
             return;
         }
-        const nodes = render(this.props.leadingItems, { target: this.element });
+        const nodes = render(this.props.leading, { target: this.element });
         for (const node of nodes) {
             if (node.nodeType !== 1) {
                 continue;
@@ -60,16 +60,16 @@ export class Reveal extends Feature<MotionProps & { trailingItems?: string | HTM
                 }) as any
             };
             this.element.parentElement!.appendChild(node);
-            const item = new RevealItem(node as Element, () => props);
+            const item = new SwipeAction(node as Element, () => props);
             this.leadingTotalWidth += item.realWidth;
             this.leadingItems.push(item);
         }
     }
     private initTrailingItems() {
-        if (!this.props.trailingItems) {
+        if (!this.props.trailing) {
             return;
         }
-        const nodes = render(this.props.trailingItems, { target: this.element });
+        const nodes = render(this.props.trailing, { target: this.element });
         for (const node of nodes) {
             if (node.nodeType !== 1) {
                 continue;
@@ -86,7 +86,7 @@ export class Reveal extends Feature<MotionProps & { trailingItems?: string | HTM
                 }) as any
             };
             this.element.parentElement!.appendChild(node);
-            const item = new RevealItem(node as Element, () => props);
+            const item = new SwipeAction(node as Element, () => props);
             this.trailingTotalWidth += item.realWidth;
             this.trailingItems.push(item);
         }
