@@ -54,7 +54,7 @@ export class Feature<Props extends Record<string, any>> {
     private makeGetterCached(proto: any, propName: string) {
         const descriptor = Object.getOwnPropertyDescriptor(proto, propName);
         const getFunc = descriptor?.get;
-        if (getFunc) {
+        if (getFunc && !descriptor.set) {
             const computedProp = computed(() => {
                 if ((this as any)[`${propName}__cache`]?.unmount) {
                     (this as any)[`${propName}__cache`].unmount();
