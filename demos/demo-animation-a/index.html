@@ -22,7 +22,7 @@
 </head>
 
 <body>
-    <div
+    <div use:scroll="$Scroll"
         style="border: 1px solid #ccc; height: 100%; width: 100%; position: relative; overflow: hidden; padding: 0 10px;">
         <div>
             <div
@@ -69,8 +69,8 @@
         import { render } from '@incremental-html/template';
         import { startDomObserver, setEvalGlobals, ref, reactive } from '@incremental-html/reactivity';
         import { motionValue } from '@incremental-html/framer-motion';
-        import { SwipeActions, Motion } from '@incremental-html/motion';
-        setEvalGlobals({ SwipeActions, Motion, reactive, ref, render });
+        import { Scroll, Motion } from '@incremental-html/motion';
+        setEvalGlobals({ Scroll, Motion, reactive, ref, render });
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>
