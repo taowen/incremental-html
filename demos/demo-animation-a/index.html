@@ -25,13 +25,23 @@
     <div use:scroll="$Scroll"
         style="border: 1px solid #ccc; height: 100%; width: 100%; position: relative; overflow: hidden; padding: 0 10px;">
         <div>
-            <div
+            <div use:pullable="$Scroll.Pullable" pullable:handle="() => { return new Promise(resolve => setTimeout(resolve, 1000)); }"
                 style="text-align: center; position: absolute; width: 100%; padding: 20px; transform: translateY(-100%);">
-                <svg width="16" height="16" viewBox="0 0 512 512">
+                <svg width="16" height="16" viewBox="0 0 512 512"
+                render:if="this.$props.status === 'default'">
                     <path fill="currentColor"
                         d="M367.997 338.75l-95.998 95.997V17.503h-32v417.242l-95.996-95.995l-22.627 22.627L256 496l134.624-134.623l-22.627-22.627z">
                     </path>
-                </svg> Pull down
+                </svg>
+                <span render:if="this.$props.status === 'default'">Pull
+                    down</span>
+                <svg width="16" height="16" viewBox="0 0 512 512" render:if="this.$props.status === 'will-handle'">
+                    <path fill="currentColor"
+                        d="M390.624 150.625L256 16L121.376 150.625l22.628 22.627l95.997-95.998v417.982h32V77.257l95.995 95.995l22.628-22.627z">
+                    </path>
+                </svg>
+                <span render:if="this.$props.status === 'will-handle'">Release</span>
+                <span render:if="this.$props.status === 'handling'">Loading...</span>
             </div>
             <div class="item">Item 1</div>
             <div class="item">Item 2</div>
@@ -67,10 +77,10 @@
     </div>
     <script type="module">
         import { render } from '@incremental-html/template';
-        import { startDomObserver, setEvalGlobals, ref, reactive } from '@incremental-html/reactivity';
+        import { startDomObserver, setEvalGlobals, ref, reactive, queryFeature } from '@incremental-html/reactivity';
         import { motionValue } from '@incremental-html/framer-motion';
         import { Scroll, Motion } from '@incremental-html/motion';
-        setEvalGlobals({ Scroll, Motion, reactive, ref, render });
+        setEvalGlobals({ Scroll, Motion, reactive, ref, render, queryFeature });
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>
