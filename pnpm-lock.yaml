@@ -13,6 +13,7 @@ importers:
   demos/demo-animation-a:
     specifiers:
       '@incremental-html/framer-motion': workspace:*
+      '@incremental-html/headlessui': workspace:*
       '@incremental-html/morph': workspace:*
       '@incremental-html/motion': workspace:*
       '@incremental-html/reactivity': workspace:*
@@ -21,6 +22,7 @@ importers:
       vite: ^2.9.1
     dependencies:
       '@incremental-html/framer-motion': link:../../features/framer-motion
+      '@incremental-html/headlessui': link:../../features/headlessui
       '@incremental-html/morph': link:../../packages/morph
       '@incremental-html/motion': link:../../features/motion
       '@incremental-html/reactivity': link:../../packages/reactivity

@@ -1,0 +1,89 @@
+<!-- index.html -->
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Demo</title>
+    <link rel="shortcut icon" href="#" />
+    <style>
+        body {
+            padding: 50px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        .item {
+            padding: 10px 0;
+            border-bottom: 1px solid #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <div use:scroll="$Scroll"
+        style="border: 1px solid #ccc; height: 100%; width: 100%; position: relative; overflow: hidden; padding: 0 10px;">
+        <div use:pullable="$Scroll.Pullable" pullable:handle="() => { return new Promise(resolve => setTimeout(resolve, 1000)); }">
+            <div
+                style="text-align: center; position: absolute; width: 100%; padding: 20px; transform: translateY(-100%);">
+                <svg width="16" height="16" viewBox="0 0 512 512"
+                render:if="this.$props.status === 'default'">
+                    <path fill="currentColor"
+                        d="M367.997 338.75l-95.998 95.997V17.503h-32v417.242l-95.996-95.995l-22.627 22.627L256 496l134.624-134.623l-22.627-22.627z">
+                    </path>
+                </svg>
+                <span render:if="this.$props.status === 'default'">Pull
+                    down</span>
+                <svg width="16" height="16" viewBox="0 0 512 512" render:if="this.$props.status === 'will-handle'">
+                    <path fill="currentColor"
+                        d="M390.624 150.625L256 16L121.376 150.625l22.628 22.627l95.997-95.998v417.982h32V77.257l95.995 95.995l22.628-22.627z">
+                    </path>
+                </svg>
+                <span render:if="this.$props.status === 'will-handle'">Release</span>
+                <span render:if="this.$props.status === 'handling'">Loading...</span>
+            </div>
+            <div class="item">Item 1</div>
+            <div class="item">Item 2</div>
+            <div class="item">Item 3</div>
+            <div class="item">Item 4</div>
+            <div class="item">Item 5</div>
+            <div class="item">Item 6</div>
+            <div class="item">Item 7</div>
+            <div class="item">Item 8</div>
+            <div class="item">Item 9</div>
+            <div class="item">Item 10</div>
+            <div class="item">Item 11</div>
+            <div class="item">Item 12</div>
+            <div class="item">Item 13</div>
+            <div class="item">Item 14</div>
+            <div class="item">Item 15</div>
+            <div class="item">Item 16</div>
+            <div class="item">Item 17</div>
+            <div class="item">Item 18</div>
+            <div class="item">Item 19</div>
+            <div class="item">Item 20</div>
+            <div class="item">Item 21</div>
+            <div class="item">Item 22</div>
+            <div class="item">Item 23</div>
+            <div class="item">Item 24</div>
+            <div class="item">Item 25</div>
+            <div class="item">Item 26</div>
+            <div class="item">Item 27</div>
+            <div class="item">Item 28</div>
+            <div class="item">Item 29</div>
+            <div class="item">Item 30</div>
+        </div>
+    </div>
+    <script type="module">
+        import { render } from '@incremental-html/template';
+        import { startDomObserver, setEvalGlobals, ref, reactive, queryFeature } from '@incremental-html/reactivity';
+        import { motionValue } from '@incremental-html/framer-motion';
+        import { Scroll, Motion } from '@incremental-html/motion';
+        setEvalGlobals({ Scroll, Motion, reactive, ref, render, queryFeature });
+        // for properties like bind:xxx or on:xxx
+        startDomObserver();
+    </script>
+</body>
+
+</html>

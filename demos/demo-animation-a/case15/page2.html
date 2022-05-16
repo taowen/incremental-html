@@ -22,8 +22,7 @@
 </head>
 
 <body>
-    <div style="border: 1px solid #ccc; height: 100%; width: 100%; position: relative; overflow: auto; padding: 0 10px;"
-        use:list="$List">
+    <div style="border: 1px solid #ccc; height: 100%; width: 100%; position: relative; overflow: auto; padding: 0 10px;">
         <div class="item">Item 1</div>
         <div class="item">Item 2</div>
         <div class="item">Item 3</div>
@@ -54,13 +53,13 @@
         <div class="item">Item 28</div>
         <div class="item">Item 29</div>
         <div class="item">Item 30</div>
-        <div use:loader="$List.Loader" style="padding: 10px; width: 100%; text-align: center;">Loading...</div>
     </div>
     <script type="module">
         import { render } from '@incremental-html/template';
         import { startDomObserver, setEvalGlobals, ref, reactive, queryFeature } from '@incremental-html/reactivity';
-        import { List } from '@incremental-html/headlessui';
-        setEvalGlobals({ List });
+        import { motionValue } from '@incremental-html/framer-motion';
+        import { Scroll, Motion } from '@incremental-html/motion';
+        setEvalGlobals({ Scroll, Motion, reactive, ref, render, queryFeature });
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>
