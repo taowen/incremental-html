@@ -18,11 +18,6 @@ incremental-html want to enable following interaction styles
 * [ ] if server processing takes time, client may optimistically update before server confirm
 * [ ] show error next to the input
 * [ ] avoid multi page form, prefer minimal data entry initially, grow the form gradually as user provided more information
-* [ ] use infinite scroll to load more
-* [ ] use pull down to refresh
-* [ ] use swipe to show/hide more actions
-* [ ] use drag and drop to re-order items
-* [ ] use drag and drop to connect relationship
 * [ ] use half screen dialog to replace page jumping, use inline editing to replace modal dialog, avoid jumping around if possible
 * [ ] use mansonry to layout double columns, use screen space more efficiently
 * [ ] use FLIP layout animation to avoid content suddenly appear/disappear
@@ -32,6 +27,16 @@ incremental-html want to enable following interaction styles
 * [ ] perserve unsaved form in browser 
 * [ ] render big page with many dom nodes, showing only the porition in viewport
 * [ ] multiple concurrent actions, end up with a consistent final state
+
+common pan gesture interaction
+
+* [ ] [Scroll] use infinite scroll to load more, use pull down to refresh
+* [ ] [SwipeActions] use swipe to show/hide more actions
+* [ ] [SwipeSlide] use swipe to select prev/next item, like powerpoint slide
+* [ ] [SwipePick] use swipe to select nearest selectable item on pointer release
+* [ ] [Reorder] use drag and drop to re-order item in a list
+* [ ] [Relocate] use drag and drap to re-locate item to different group
+* [ ] [ConnectedPath] use drag and drop to connect relationship
 
 ## reusable libraries
 
