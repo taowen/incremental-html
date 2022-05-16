@@ -22,13 +22,13 @@
 </head>
 
 <body>
-    <div id="items" style="border: 1px solid #ccc; height: 100%; width: 100%; position: relative; overflow: auto; padding: 0 10px;"
-        use:list="$List" list:virtualized>
+    <div id="items" style="border: 1px solid #ccc; height: 100%; width: 100%; position: relative; overflow: auto; padding: 0 10px; display: flex; flex-direction: row; "
+        use:list="$List" list:masonry-columns="2" list:masonry-column-style="'flex-grow: 1'">
         <div id="item-1" class="item">Item 1</div>
         <div id="item-2" class="item">Item 2</div>
-        <div id="item-3" class="item">Item 3</div>
+        <div id="item-3" class="item" style="height: 140px;">Item 3</div>
         <div id="item-4" class="item">Item 4</div>
-        <div id="item-5" class="item">Item 5</div>
+        <div id="item-5" class="item" style="height: 70px;">Item 5</div>
         <div id="item-6" class="item">Item 6</div>
         <div id="item-7" class="item">Item 7</div>
         <div id="item-8" class="item">Item 8</div>
@@ -54,35 +54,13 @@
         <div id="item-28" class="item">Item 28</div>
         <div id="item-29" class="item">Item 29</div>
         <div id="item-30" class="item">Item 30</div>
-        <div use:loader="$List.Loader" loader:load="$fakeLoad" style="padding: 10px; width: 100%; text-align: center;">
-            <span bind:style.display="this.parentNode.loader.isLoading ? 'inline' : 'none'">Loading...</span>
-            <span bind:text-content="this.parentNode.loader.loadError ? `Error: ${this.parentNode.loader.loadError}` : ''"></span>
-        </div>
+        <div use:loader="$List.Loader" loader:url="'/case15/page2.html'" style="padding: 10px; width: 100%; text-align: center;">Loading...</div>
     </div>
     <script type="module">
         import { render } from '@incremental-html/template';
         import { startDomObserver, setEvalGlobals, ref, reactive, queryFeature } from '@incremental-html/reactivity';
         import { List } from '@incremental-html/headlessui';
-        let counter = 30;
-        async function fakeLoad() {
-            counter--;
-            await new Promise((resovle) => {
-                setTimeout(resovle, 1000);
-            });
-            const lines = ['<div id="items">']
-            for (let i = 0; i < 100; i++) {
-                const id = counter++;
-                lines.push(`<div id="item-${id}" class="item">Item ${id}</div>`);
-            }
-            lines.push(`
-            <div use:loader="$List.Loader" loader:load="$fakeLoad" style="padding: 10px; width: 100%; text-align: center;">
-                <span bind:style.display="this.parentNode.loader.isLoading ? 'inline' : 'none'">Loading...</span>
-                <span bind:text-content="this.parentNode.loader.loadError ? \`Error: \${this.parentNode.loader.loadError}\` : ''"></span>
-            </div>
-            </div>`);
-            return lines.join('\n');
-        }
-        setEvalGlobals({ List, fakeLoad });
+        setEvalGlobals({ List });
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>
