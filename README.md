@@ -36,7 +36,7 @@ common pan gesture interaction
 * [ ] [SwipePick] use swipe to select nearest selectable item on pointer release
 * [ ] [Reorder] use drag and drop to re-order item in a list
 * [ ] [Relocate] use drag and drap to re-locate item to different group
-* [ ] [ConnectedPath] use drag and drop to connect relationship
+* [ ] [ConnectedPath] continuously keep path visually connected to items at one/both ends while dragging
 
 ## reusable libraries
 
