@@ -66,10 +66,10 @@
         let counter = 31;
         async function fakeLoad() {
             const lines = ['<div id="items">']
-            for (let i = 0; i < 100; i++) {
+            for (let i = 0; i < 20; i++) {
                 const id = counter++;
-                lines.push(`<div id="item-${id}" class="item">Item ${id}</div>`);
-                // lines.push(`<div id="item-${id}" class="item"><img src="https://picsum.photos/200/300"></img></div>`);
+                // lines.push(`<div id="item-${id}" class="item">Item ${id}</div>`);
+                lines.push(`<div id="item-${id}" class="item"><img src="https://picsum.photos/200/${id}"></img></div>`);
             }
             lines.push(`
             <div use:loader="$List.Loader" loader:load="$fakeLoad" style="padding: 10px; width: 100%; text-align: center;">

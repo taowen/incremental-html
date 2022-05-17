@@ -61,6 +61,22 @@ class MasonryColumn extends Feature<{ virtualized: boolean, measureVisibleRange:
         return tailPlaceholder;
 
     })
+    private resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+            const newHeight = entry.target.getBoundingClientRect().height;
+            if (newHeight === 0) {
+                // invisible when replaced by placeholder will cause height to 0
+                return;
+            }
+            (entry.target as any).$cachedHeight = newHeight;
+        }
+    })
+
+    private _ =  this.onMount(() => {
+        return () => {
+            this.resizeObserver.disconnect();
+        }
+    })
 
     public removeLoader(loader: ListLoader) {
         if (this.items[this.items.length -1] === loader.element) {
@@ -73,32 +89,34 @@ class MasonryColumn extends Feature<{ virtualized: boolean, measureVisibleRange:
         if (!skipAppendChild) {
             this.element.appendChild(item);
         }
-        (item as any).$cachedHeight = item.getBoundingClientRect().height;
-        this.height += (item as any).$cachedHeight;
+        this.resizeObserver.observe(item);
     }
 
     public compact() {
         const [min, max] = this.props.measureVisibleRange();
-        console.log(min ,max);
         let top = 0;
         let head = 0;
         let tail = 0;
         const inViewItems = [];
         for (const item of this.items) {
+            let itemHeight = (item as any).$cachedHeight;
+            if (itemHeight === undefined) {
+                (item as any).$cachedHeight = itemHeight = item.getBoundingClientRect().height;
+            }
             let inView = false;
             if (top > max) {
-                tail += (item as any).$cachedHeight;
+                tail += itemHeight;
             }
             if (top >= min && top <= max) {
                 inView = true;
             }
-            top += (item as any).$cachedHeight;
+            top += itemHeight;
             if (top >= min && top <= max) {
                 inView = true;
             }
             if (inView) {
                 if (inViewItems.length === 0) {
-                    head = top - (item as any).$cachedHeight;
+                    head = top - itemHeight;
                 }
                 inViewItems.push(item);
             }
@@ -122,7 +140,13 @@ class MasonryColumn extends Feature<{ virtualized: boolean, measureVisibleRange:
         morphChildNodes(this.element, [this.headPlaceholder, ...inViewItems, this.tailPlaceholder]);
     }
 
-    public height: number = 0;
+    public calcHeight() {
+        let height = 0;
+        for (const item of this.items) {
+            height += (item as any).$cachedHeight || 0
+        }
+        return height;
+    }
 }
 
 export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?: string; masonryColumnStyle?: string; virtualized?: boolean }> {
@@ -142,7 +166,8 @@ export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?
 
     private measureVisibleRange = () => {
         const height = this.element.getBoundingClientRect().height;
-        return [this.element.scrollTop - height, this.element.scrollTop + height + height] as const;
+        let min = this.element.scrollTop - height;
+        return [min > 0 ? min : 0, this.element.scrollTop + height + height] as const;
     }
 
     private columns = this.create(() => {
@@ -174,10 +199,11 @@ export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?
     })
 
     private addItem(item: HTMLElement, skipAppendChild?: boolean) {
-        let minHeight = this.columns[0].height;
+        let minHeight = this.columns[0].calcHeight();
         let pickedColumn = this.columns[0];
-        for (const column of this.columns) {
-            if (column.height < minHeight) {
+        for (let i = 1; i < this.columns.length; i++) {
+            const column = this.columns[i];
+            if (column.calcHeight() < minHeight) {
                 pickedColumn = column;
             }
         }
@@ -191,7 +217,6 @@ export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?
         }
         const parsed = document.createElement('html');
         parsed.innerHTML = respText;
-        console.log((parsed as any).$xid);
         const newList = parsed.querySelector('#' + this.element.id);
         if (!newList) {
             console.error(`List #${this.element.id} not found in response`, respText);
