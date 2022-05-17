@@ -2,9 +2,9 @@
 
 Argument HTML with iOS like layout animation and gestures, deliver modern user experience with traditional monolith web server.
 
-Inspired by [[html over the wire]](https://hotwired.dev/) and various [similar previous efforts](https://github.com/taowen/awesome-html), incremental-html adds declarative inline javascript to your server generated HTML. You do not need to write a lot of javascript, it is more like declarative annotation of data binding. The web page will be as performant, as reactive, as React built app. Checkout the demos -->
+Inspired by [[html over the wire]](https://hotwired.dev/) and [similar efforts](https://github.com/taowen/awesome-html), incremental-html adds declarative inline javascript to your server generated HTML. You do not need to write a lot of javascript, it is more like declarative annotation of data binding. The web page will be as performant, as reactive, as React built app. Checkout the demos >>>
 
-## the pendulum is going to swing back
+## The pendulum is going to swing back
 
 > As more and more people come to realize that the chase for microservices ended in a blind alley, the pendulum is going to swing back. The Majestic Monolith is here waiting for [microservice refugees](https://www.youtube.com/watch?v=y8OnoxKotPQ). And The Citadel is there to give peace of mind that the pattern will stretch, if they ever do hit that jackpot of becoming a mega-scale app.
 > https://m.signalvnoise.com/the-majestic-monolith-can-become-the-citadel/
@@ -13,13 +13,11 @@ We do not have to split microservices to scale up the development team size, the
 
 We do not have to write Single Page Application in React to meet the user expectation, there is another choice: incremental-html.
 
-the pendulum is going to swing back.
+The pendulum is going to swing back.
 
-## interaction styles
+## Demo
 
-incremental-html provides out-of-box support of following interactions
-
-interact with server
+load from and save to server
 
 * [ ] load server generated page without waiting in blank state for too long, load as much as possible within a time budget, defer unfinished loading to second roundtrip
 * [ ] show loading indicator to allow other areas to show before everything ready, but not too many indicators
@@ -31,13 +29,13 @@ interact with server
 * [ ] preload next page, show progress, save the waiting time after switching
 * [ ] multiple concurrent actions, end up with a consistent final state
 * [ ] go back to previous page without reload waiting
+* [ ] avoid multi page form, prefer minimal data entry initially, grow the form gradually as user provided more information
 
-form 
+client-side form behavior
 
 * [ ] show feedback while typing, save extra click
 * [ ] show search results while typing, save extra click
 * [ ] show error next to the input
-* [ ] avoid multi page form, prefer minimal data entry initially, grow the form gradually as user provided more information
 * [ ] perserve unsaved form in browser 
 
 common pan gestures and animation
@@ -52,8 +50,15 @@ common pan gestures and animation
 * [ ] show current and next page side by side with transition animation, if no loading required
 * [ ] use FLIP layout animation to avoid content suddenly appear/disappear
 
-common javascript based layout
+common javascript based rendering
 
-* [ ] use half screen dialog to replace page jumping, use inline editing to replace modal dialog, avoid jumping around if possible
-* [ ] render big page with many dom nodes, showing only the porition in viewport
 * [ ] use masonry to layout double columns, use screen space more efficiently
+* [ ] virtualized list and table
+
+common in page navigation
+
+* [ ] dialog
+* [ ] popover
+* [ ] menu
+* [ ] tab
+* [ ] accordian
