@@ -2,10 +2,18 @@
 
 Argument HTML with iOS like layout animation and gestures, deliver modern user experience with traditional monolith web server.
 
+Inspired by [[html over the wire]](https://hotwired.dev/) and various [similar previous efforts](https://github.com/taowen/awesome-html), incremental-html adds declarative inline javascript to your server generated HTML. You do not need to write a lot of javascript, it is more like declarative annotation of data binding. The web page will be as performant, as reactive, as React built app. Checkout the demos -->
+
+## the pendulum is going to swing back
+
 > As more and more people come to realize that the chase for microservices ended in a blind alley, the pendulum is going to swing back. The Majestic Monolith is here waiting for [microservice refugees](https://www.youtube.com/watch?v=y8OnoxKotPQ). And The Citadel is there to give peace of mind that the pattern will stretch, if they ever do hit that jackpot of becoming a mega-scale app.
 > https://m.signalvnoise.com/the-majestic-monolith-can-become-the-citadel/
 
-Inspired by [[html over the wire]](https://hotwired.dev/) and various [similar previous efforts](https://github.com/taowen/awesome-html), incremental-html adds declarative inline javascript to your server generated HTML. You do not need to write a lot of javascript, it is more like declarative annotation of data binding. The web page will be as performant, as reactive, as React built app. Checkout the demos -->
+We do not have to split microservices to scale up the development team size, there is another choice: https://github.com/taowen/vite-howto/tree/main/packages/STATIC-LINKING/inversion-of-control
+
+We do not have to write Single Page Application in React to meet the user expectation, there is another choice: incremental-html.
+
+the pendulum is going to swing back.
 
 ## interaction styles
 
