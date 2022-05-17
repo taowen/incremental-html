@@ -2,7 +2,7 @@
 
 Argument HTML with iOS like layout animation and gestures, deliver modern user experience with traditional monolith web server.
 
-> As more and more people come to realize that the chase for microservices ended in a blind alley, the pendulum is going to swing back. The Majestic Monolith is here waiting for microservice refugees. And The Citadel is there to give peace of mind that the pattern will stretch, if they ever do hit that jackpot of becoming a mega-scale app.
+> As more and more people come to realize that the chase for microservices ended in a blind alley, the pendulum is going to swing back. The Majestic Monolith is here waiting for [microservice refugees](https://www.youtube.com/watch?v=y8OnoxKotPQ). And The Citadel is there to give peace of mind that the pattern will stretch, if they ever do hit that jackpot of becoming a mega-scale app.
 > https://m.signalvnoise.com/the-majestic-monolith-can-become-the-citadel/
 
 Inspired by https://hotwired.dev/ like [previous effort](https://github.com/taowen/awesome-html), incremental-html try to avoid re-inventing javascript, and try to be declaractive. The API to remember should be minimal. Developers should program in normal javascript (compared to programming by turbo-stream/htmx action).
