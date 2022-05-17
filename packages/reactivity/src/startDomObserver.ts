@@ -43,7 +43,7 @@ export const mutationObserver = new MutationObserver((mutationList) => {
         }
         for (let i = 0; i < mutation.addedNodes.length; i++) {
             const addedNode = mutation.addedNodes.item(i)!;
-            if (addedNode.nodeType === 1) {
+            if (addedNode.nodeType === 1 && addedNode.parentElement) {
                 mountNode(addedNode as Element);
             }
         }

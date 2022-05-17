@@ -1,5 +1,5 @@
 import { morphAttributes, morphChildNodes } from "@incremental-html/morph";
-import { Feature, queryFeature, reactive, Ref } from "@incremental-html/reactivity";
+import { Feature, queryFeature, reactive } from "@incremental-html/reactivity";
 
 class ListLoader extends Feature<{ url?: string, load?: () => Promise<string> }> {
     private state = reactive({
@@ -26,7 +26,6 @@ class ListLoader extends Feature<{ url?: string, load?: () => Promise<string> }>
     private list = queryFeature(this.element, List);
     private async load() {
         if (!this.list) {
-            console.error('Can not use List.Loader without List', this.element);
             return;
         }
         try {
@@ -34,12 +33,12 @@ class ListLoader extends Feature<{ url?: string, load?: () => Promise<string> }>
                 this.state.isLoading = true;
                 const resp = await fetch(this.props.url);
                 const respText = await resp.text();
-                this.list.load(respText);
+                this.list.load(this, respText);
             } else if (this.props.load) {
                 this.state.isLoading = true;
-                this.list.load(await this.props.load());
+                this.list.load(this, await this.props.load());
             }
-        } catch(e) {
+        } catch (e) {
             this.state.loadError = e;
         } finally {
             this.state.isLoading = false;
@@ -47,13 +46,25 @@ class ListLoader extends Feature<{ url?: string, load?: () => Promise<string> }>
     }
 }
 
-class MasonryColumn extends Feature<{}> {
-    private items: HTMLElement[] = [];
+let nextId = 1;
 
-    public removeItem(item: HTMLElement) {
-        const index = this.items.indexOf(item);
-        if (index !== -1) {
-            this.items.splice(index, 1);
+class MasonryColumn extends Feature<{ virtualized: boolean, measureVisibleRange: () => readonly [number, number] }> {
+    public readonly items: HTMLElement[] = [];
+    private headPlaceholder = this.create(() => {
+        const headPlaceholder = document.createElement('div');
+        headPlaceholder.id = `head-placeholder-${nextId++}`;
+        return headPlaceholder;
+    })
+    private tailPlaceholder = this.create(() => {
+        const tailPlaceholder = document.createElement('div');
+        tailPlaceholder.id = `tail-placeholder-${nextId++}`;
+        return tailPlaceholder;
+
+    })
+
+    public removeLoader(loader: ListLoader) {
+        if (this.items[this.items.length -1] === loader.element) {
+            this.items.length -= 1;
         }
     }
 
@@ -66,14 +77,58 @@ class MasonryColumn extends Feature<{}> {
         this.height += (item as any).$cachedHeight;
     }
 
+    public compact() {
+        const [min, max] = this.props.measureVisibleRange();
+        console.log(min ,max);
+        let top = 0;
+        let head = 0;
+        let tail = 0;
+        const inViewItems = [];
+        for (const item of this.items) {
+            let inView = false;
+            if (top > max) {
+                tail += (item as any).$cachedHeight;
+            }
+            if (top >= min && top <= max) {
+                inView = true;
+            }
+            top += (item as any).$cachedHeight;
+            if (top >= min && top <= max) {
+                inView = true;
+            }
+            if (inView) {
+                if (inViewItems.length === 0) {
+                    head = top - (item as any).$cachedHeight;
+                }
+                inViewItems.push(item);
+            }
+        }
+        this.headPlaceholder.style.minHeight = `${head}px`;
+        this.headPlaceholder.style.minWidth = '100%';
+        this.tailPlaceholder.style.minHeight = `${tail}px`;
+        this.tailPlaceholder.style.minWidth = '100%';
+        const refresh = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                refresh.disconnect();
+                this.compact();
+            }
+        });
+        if (head > 0) {
+            refresh.observe(this.headPlaceholder);
+        }
+        if (tail > 0) {
+            refresh.observe(this.tailPlaceholder);
+        }
+        morphChildNodes(this.element, [this.headPlaceholder, ...inViewItems, this.tailPlaceholder]);
+    }
+
     public height: number = 0;
 }
 
 export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?: string; masonryColumnStyle?: string; virtualized?: boolean }> {
     public static Loader = ListLoader
 
-    // compare with loaded items to know what has been added, what has been removed
-    private items = this.create(() => {
+    private initItems = this.create(() => {
         let child = this.element.firstChild;
         const items = [];
         while (child) {
@@ -85,9 +140,14 @@ export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?
         return items;
     });
 
+    private measureVisibleRange = () => {
+        const height = this.element.getBoundingClientRect().height;
+        return [this.element.scrollTop - height, this.element.scrollTop + height + height] as const;
+    }
+
     private columns = this.create(() => {
         if (!this.props.masonryColumns) {
-            return [new MasonryColumn(this.element, () => ({}))];
+            return [new MasonryColumn(this.element, () => ({ virtualized: !!this.props.virtualized, measureVisibleRange: this.measureVisibleRange }))];
         }
         this.element.innerHTML = '';
         const columnsCount = this.props.masonryColumns!;
@@ -97,26 +157,23 @@ export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?
             columnEl.setAttribute('style', this.props.masonryColumnStyle || '');
             columnEl.className = this.props.masonryColumnClass || '';
             this.element.appendChild(columnEl);
-            columns.push(new MasonryColumn(columnEl, () => ({})));
+            columns.push(new MasonryColumn(columnEl, () => ({ virtualized: !!this.props.virtualized, measureVisibleRange: this.measureVisibleRange  })));
         }
         return columns;
     })
 
+    public get items() {
+        return this.columns[0].items;
+    }
+
     private _ = this.onMount(() => {
         const skipAppendChild = !this.props.masonryColumns;
-        for (const item of this.items) {
-            this.onItemAdded(item, skipAppendChild);
+        for (const item of this.initItems) {
+            this.addItem(item, skipAppendChild);
         }
     })
 
-    private onItemRemoved(item: HTMLElement) {
-        for (const column of this.columns) {
-            column.removeItem(item);
-        }
-        item.parentElement?.removeChild(item);
-    }
-
-    private onItemAdded(item: HTMLElement, skipAppendChild?: boolean) {
+    private addItem(item: HTMLElement, skipAppendChild?: boolean) {
         let minHeight = this.columns[0].height;
         let pickedColumn = this.columns[0];
         for (const column of this.columns) {
@@ -127,68 +184,34 @@ export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?
         pickedColumn.addItem(item, skipAppendChild);
     }
 
-    public async load(respText: string) {
+    public async load(loader: ListLoader, respText: string) {
         if (!this.element.id) {
             console.error('List does not have id', this.element);
             return;
         }
         const parsed = document.createElement('html');
         parsed.innerHTML = respText;
+        console.log((parsed as any).$xid);
         const newList = parsed.querySelector('#' + this.element.id);
         if (!newList) {
             console.error(`List #${this.element.id} not found in response`, respText);
             return;
         }
+        for (const column of this.columns) {
+            column.removeLoader(loader);
+        }
+        loader.element.parentElement!.removeChild(loader.element);
         let newItem = newList.firstElementChild as HTMLElement;
-        if (!newItem) {
-            console.error(`List #${this.element.id} is empty`, respText);
-            return;
-        }
-        let index = this.searchBackwards(newItem);
-        if (index === -1) {
-            this.items = [newItem, ...this.items];
-            index = 0;
-            this.onItemAdded(newItem);
-        }
-        const oldItems = this.items.splice(index + 1, this.items.length - index - 1);
-        const oldItemMap = new Map<any, HTMLElement>();
-        for (const oldItem of oldItems) {
-            if (!oldItem.id) {
-                this.onItemRemoved(oldItem);
-                continue;
-            }
-            oldItemMap.set(oldItem.id, oldItem);
-        }
-        newItem = newItem.nextElementSibling as HTMLElement;
         const newItems = [];
         while (newItem) {
-            const oldItem = oldItemMap.get(newItem.id);
-            if (oldItem) {
-                // reuse oldItem if we can
-                morphAttributes(oldItem, newItem);
-                morphChildNodes(oldItem, newItem);
-                oldItemMap.delete(newItem.id);
-                this.items.push(oldItem);
-            } else {
-                newItems.push(newItem);
-                this.items.push(newItem);
-            }
+            newItems.push(newItem);
             newItem = newItem.nextElementSibling as HTMLElement;
         }
         for (const newItem of newItems) {
-            this.onItemAdded(newItem);
+            this.addItem(newItem);
         }
-        for (const oldItem of oldItemMap.values()) {
-            this.onItemRemoved(oldItem);
+        for (const column of this.columns) {
+            column.compact();
         }
-    }
-
-    private searchBackwards(newItem: HTMLElement): number {
-        for (let i = this.items.length - 1; i >= 0; i--) {
-            if (this.items[i].id === newItem.id) {
-                return i;
-            }
-        }
-        return -1;
     }
 }

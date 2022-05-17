@@ -699,8 +699,8 @@
         import { render } from '@incremental-html/template';
         import { startDomObserver, setEvalGlobals, ref, reactive } from '@incremental-html/reactivity';
         import { motionValue } from '@incremental-html/framer-motion';
-        import { Reveal, Motion } from '@incremental-html/motion';
-        setEvalGlobals({ Reveal, Motion, reactive, ref, render });
+        import { Motion } from '@incremental-html/motion';
+        setEvalGlobals({ Motion, reactive, ref, render });
         // for properties like bind:xxx or on:xxx
         startDomObserver();
     </script>

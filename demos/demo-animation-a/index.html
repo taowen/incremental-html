@@ -63,16 +63,13 @@
         import { render } from '@incremental-html/template';
         import { startDomObserver, setEvalGlobals, ref, reactive, queryFeature } from '@incremental-html/reactivity';
         import { List } from '@incremental-html/headlessui';
-        let counter = 30;
+        let counter = 31;
         async function fakeLoad() {
-            counter--;
-            await new Promise((resovle) => {
-                setTimeout(resovle, 1000);
-            });
             const lines = ['<div id="items">']
             for (let i = 0; i < 100; i++) {
                 const id = counter++;
                 lines.push(`<div id="item-${id}" class="item">Item ${id}</div>`);
+                // lines.push(`<div id="item-${id}" class="item"><img src="https://picsum.photos/200/300"></img></div>`);
             }
             lines.push(`
             <div use:loader="$List.Loader" loader:load="$fakeLoad" style="padding: 10px; width: 100%; text-align: center;">
