@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "useDefineForClassFields": true,
+        "declaration": true,
+        "moduleResolution": "node",
+        "incremental": true,
+        "strict": true,
+        "noImplicitThis": true,
+        "jsx": "react",
+        "jsxFactory": "jsxToHtml.createElement",
+        "jsxFragmentFactory": "jsxToHtml.Fragment",
+        "sourceMap": true,
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "types": ["jest", "node"],
+        "lib": [
+            "esnext",
+            "dom"
+        ]
+    },
+    "include": [
+        "server/**/*.ts",
+        "server/**/*.tsx",
+        "server/**/*.d.ts"
+    ]
+}
