@@ -1035,6 +1035,7 @@ declare namespace JsxToHtml {
     button: ButtonHTMLAttributes
     canvas: CanvasHTMLAttributes
     caption: HTMLAttributes
+    context: any
     cite: HTMLAttributes
     code: HTMLAttributes
     col: ColHTMLAttributes

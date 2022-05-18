@@ -13,5 +13,8 @@
       "jest": "27.5.1",
       "@types/jest": "27.4.1"
     },
-    "files": ["dist/*", "jsx.d.ts", "index.d.ts", "README.md", "LICENSE"]
+    "files": ["dist/*", "jsx.d.ts", "index.d.ts", "README.md", "LICENSE"],
+    "scripts": {
+      "test": "pnpm tsc -p cjs.tsconfig.json  && pnpm jest"
+    }
   }
