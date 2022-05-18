@@ -31,13 +31,15 @@ import * as CSS from 'csstype'
 export = JsxToHtml;
 export as namespace JsxToHtml;
 declare namespace JsxToHtml {
-    export const Fragment = "Fragment";
-    export function createElement(tag: string, props: Record<string, any>, ...children: any[]): Promise<any>;
-    export const jsxToHtml: {
-        createElement: typeof createElement;
-        Fragment: string;
-    };
-
+    export function jsxToHtml(element: JSX.Element, ctx?: any, stream?: WritableStream): Promise<string>;
+    export namespace jsxToHtml {
+        var createElement: (tag: string, props: Record<string, any>, ...children: any[])=> {
+          (ctx: any): Promise<any>;
+            IS_ELEMENT: boolean;
+        };
+        var Fragment: string;
+    }
+  
   export interface CSSProperties
     extends CSS.Properties<string | number>,
       CSS.PropertiesHyphen<string | number> {

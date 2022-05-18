@@ -69,13 +69,6 @@ async function renderChild(ctx: { __writer: WritableStreamDefaultWriter, [key: s
     return;
 }
 
-export function createContext() {
-    return {
-        createElement,
-        Fragment
-    }
-}
-
 export async function jsxToHtml(element: JSX.Element, ctx?: any, stream?: WritableStream): Promise<string> {
     if (stream) {
         const writer = stream.getWriter();
@@ -95,6 +88,5 @@ export async function jsxToHtml(element: JSX.Element, ctx?: any, stream?: Writab
         return chunks.join('');
     }
 }
-jsxToHtml.createContext = createContext;
 jsxToHtml.createElement = createElement;
 jsxToHtml.Fragment = Fragment;
