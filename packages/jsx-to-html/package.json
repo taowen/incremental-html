@@ -2,6 +2,7 @@
     "name": "@incremental-html/jsx-to-html",
     "version": "1.0.0",
     "description": "render jsx to html",
+    "license": "MIT",
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
     "types": "index.d.ts",
@@ -11,10 +12,12 @@
     "devDependencies": {
       "typescript": "^4.5.5",
       "jest": "27.5.1",
-      "@types/jest": "27.4.1"
+      "@types/jest": "27.4.1",
+      "vite": "^2.9.1"
     },
-    "files": ["dist/*", "jsx.d.ts", "index.d.ts", "README.md", "LICENSE"],
+    "files": ["dist/*", "index.d.ts", "README.md", "LICENSE"],
     "scripts": {
+      "build": "rm -rf dist && vite build",
       "test": "pnpm tsc -p cjs.tsconfig.json  && pnpm jest"
     }
   }
