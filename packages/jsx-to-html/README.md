@@ -25,3 +25,22 @@ The `tsconfig.json` should configure like this to translate `*.tsx` using jsxToH
 //...
 }
 ```
+
+## async context
+
+We can use jsxToHtml as an alterantive to node.js `async_hooks`. 
+There is no runtime trick, works in any environment (including deno, cloudflare workers, etc)
+
+```tsx
+test('component with context', async () => {
+    const C1 = async (props: {}, ctx: { msg: string }) => {
+        await new Promise<void>(resolve => resolve());
+        return <div>{ctx.msg}</div>
+    }
+    const result = <context msg="hello"><C1 /></context>
+    expect(await jsxToHtml(result, { msg: 'original msg' })).toBe('<div>\nhello\n</div>');
+})
+```
+
+The context will be automatically passed down the tree. 
+`<context>` is a built-in component to alter the context in the middle.

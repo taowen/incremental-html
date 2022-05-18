@@ -1,8 +1,9 @@
 {
     "name": "@incremental-html/jsx-to-html",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "render jsx to html",
     "license": "MIT",
+    "homepage": "https://github.com/taowen/incremental-html/tree/main/packages/jsx-to-html",
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
     "types": "index.d.ts",

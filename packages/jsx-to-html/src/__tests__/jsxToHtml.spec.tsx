@@ -1,6 +1,6 @@
 /// <reference path="../../index.d.ts" />
+import { CountQueuingStrategy, WritableStream } from 'node:stream/web';
 import { jsxToHtml } from '..';
-import { WritableStream, CountQueuingStrategy } from 'node:stream/web'
 
 test('string literal', async () => {
     const result = <>hello</>
@@ -59,7 +59,7 @@ test('component with context', async () => {
         return <div>{ctx.msg}</div>
     }
     const result = <context msg="hello"><C1 /></context>
-    expect(await jsxToHtml(result)).toBe('<div>\nhello\n</div>');
+    expect(await jsxToHtml(result, { msg: 'original msg' })).toBe('<div>\nhello\n</div>');
 })
 
 test('streaming', async () => {
@@ -68,7 +68,7 @@ test('streaming', async () => {
         write(chunk) {
             chunks.push(chunk);
         }
-    },  new CountQueuingStrategy({ highWaterMark: 1 }))
+    }, new CountQueuingStrategy({ highWaterMark: 1 }))
     const result = <div>hello</div>
     expect(await jsxToHtml(result, {}, stream)).toBe('');
     expect(chunks.join('')).toBe('<div>\nhello\n</div>');
