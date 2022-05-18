@@ -62,6 +62,20 @@ export const navigator = {
     }
 }
 
+function handleReload() {
+    const reload = document.querySelector('link.reload') as HTMLLinkElement;
+    if (!reload) {
+        return;
+    }
+    if (reload.getAttribute('handled')) {
+        return;
+    }
+    reload.setAttribute('handled', 'true');
+    navigator.reload(reload.href);
+}
+handleReload();
+window.addEventListener('load', handleReload);
+
 function initPageState() {
     const pageStateElement = (document.querySelector('template.page-state') as HTMLTemplateElement);
     if (!pageStateElement) {
