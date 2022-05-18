@@ -31,7 +31,19 @@ import * as CSS from 'csstype'
 export = JsxToHtml;
 export as namespace JsxToHtml;
 declare namespace JsxToHtml {
-    export function jsxToHtml(element: JSX.Element, ctx?: any, stream?: WritableStream): Promise<string>;
+  export type transformFn = (props: {
+      tag: string;
+      props: Record<string, any>;
+      children: any[];
+  }) => {
+      tag: string;
+      props: Record<string, any>;
+      children: any[];
+  } | undefined;
+    export function jsxToHtml(element: JSX.Element, ctx?: {
+        transform?: transformFn;
+        [key: string]: any;
+    }, stream?: WritableStream): Promise<string>;
     export namespace jsxToHtml {
         var createElement: (tag: string, props: Record<string, any>, ...children: any[])=> {
           (ctx: any): Promise<any>;

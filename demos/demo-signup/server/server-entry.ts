@@ -20,14 +20,20 @@ server.get('/', async (req, resp) => {
 });
 
 async function sendHtml(resp: Response, jsx: any) {
-    let result = await jsxToHtml(jsx);
-    if (result) {
-        result = "<!DOCTYPE html>" + result;
+    if (!jsx) {
+        return;
     }
-    if (result) {
-        result = result.replace('</body>', '<script type="module" src="./client/client-entry.js"></script></body>');
-    }
-    resp.status(200).set({ 'Content-Type': 'text/html' }).end(result);
+    const html = await jsxToHtml(jsx, {
+        transform({ tag, props, children }) {
+            if (tag === 'body') {
+                return { tag, props, children: [...children, '<script type="module" src="./client/client-entry.js"></script>']}
+            }
+            return undefined;
+        }
+    });
+    resp.status(200).contentType('html');
+    resp.write('<!DOCTYPE html>');
+    resp.end(html);
 }
 
 export default async function (req: Request, resp: Response) {

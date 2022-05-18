@@ -6,7 +6,21 @@ export function createElement(tag: string, props: Record<string, any>, ...childr
     return element;
 }
 
-async function renderElement(ctx: { __writer: WritableStreamDefaultWriter, [key: string]: any }, tag: string, props: Record<string, any>, children: any[]) {
+export type transformFn = (props: { tag: string, props: Record<string, any>, children: any[] }) => { tag: string, props: Record<string, any>, children: any[] } | undefined;
+
+async function renderElement(ctx: {
+    transform?: transformFn,
+    __writer: WritableStreamDefaultWriter,
+    [key: string]: any
+}, tag: string, props: Record<string, any>, children: any[]) {
+    if (ctx.transform) {
+        const transformed = ctx.transform({ tag, props, children });
+        if (transformed) {
+            tag = transformed.tag;
+            props = transformed.props;
+            children = transformed.children;
+        }
+    }
     if (tag === Fragment) {
         return await renderChild(ctx, children);
     }
@@ -69,7 +83,10 @@ async function renderChild(ctx: { __writer: WritableStreamDefaultWriter, [key: s
     return;
 }
 
-export async function jsxToHtml(element: JSX.Element, ctx?: any, stream?: WritableStream): Promise<string> {
+export async function jsxToHtml(element: JSX.Element, ctx?: {
+    transform?: transformFn,
+    [key: string]: any
+}, stream?: WritableStream): Promise<string> {
     if (stream) {
         const writer = stream.getWriter();
         try {
@@ -82,8 +99,8 @@ export async function jsxToHtml(element: JSX.Element, ctx?: any, stream?: Writab
         const chunks: string[] = [];
         await renderChild({
             ...ctx, __writer: {
-                write: (chunk) => { chunks.push(chunk) }
-            }
+                write: (chunk: string) => { chunks.push(chunk) }
+            } as any
         }, element)
         return chunks.join('');
     }
