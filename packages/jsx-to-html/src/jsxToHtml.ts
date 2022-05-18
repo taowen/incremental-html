@@ -6,57 +6,67 @@ export function createElement(tag: string, props: Record<string, any>, ...childr
     return element;
 }
 
-async function renderElement(ctx: any, tag: string, props: Record<string, any>, children: any[]) {
+async function renderElement(ctx: { __writer: WritableStreamDefaultWriter, [key: string]: any }, tag: string, props: Record<string, any>, children: any[]) {
     if (tag === Fragment) {
         return await renderChild(ctx, children);
     }
     if (tag === 'context') {
-        return await renderChild({...ctx, ...props}, children);
+        return await renderChild({ ...ctx, ...props }, children);
     }
+    const { __writer } = ctx;
     if (typeof tag === 'string') {
-        const parts = ['<', tag];
+        __writer.write('<');
+        __writer.write(tag);
         if (props) {
             for (const [k, v] of Object.entries(props)) {
                 if (typeof v === 'boolean') {
                     if (v) {
-                        parts.push(' ');
-                        parts.push(k);
+                        __writer.write(' ');
+                        __writer.write(k);
                     }
                 } else {
-                    parts.push(' ');
-                    parts.push(k);
-                    parts.push('="');
-                    parts.push(`${v}`);
-                    parts.push('"');
+                    __writer.write(' ');
+                    __writer.write(k);
+                    __writer.write('="');
+                    __writer.write(`${v}`);
+                    __writer.write('"');
                 }
             }
         }
-        parts.push('>\n');
-        parts.push(await renderChild(ctx, children));
-        parts.push('\n</', tag, '>');
-        return parts.join('');
+        __writer.write('>\n');
+        await renderChild(ctx, children);
+        __writer.write('\n</');
+        __writer.write(tag);
+        __writer.write('>');
+        return;
     }
     return await (tag as Function)({ ...props, children }, ctx)
 }
 
-async function renderChild(ctx: any, node: any): Promise<string> {
+async function renderChild(ctx: { __writer: WritableStreamDefaultWriter, [key: string]: any }, node: any): Promise<void> {
+    node = await node;
     if (!node) {
-        return '';
+        return;
     }
+    const { __writer } = ctx;
     if (typeof node === 'string') {
-        return node;
+        __writer.write(node);
+        return;
     }
     if (node.IS_ELEMENT) {
         return await renderChild(ctx, await (node as any)(ctx));
     }
     if (Array.isArray(node)) {
-        const children = [];
-        for (const child of node) {
-            children.push(await renderChild(ctx, child));
+        for (const [i, child] of node.entries()) {
+            if (i !== 0) {
+                __writer.write('\n');
+            }
+            await renderChild(ctx, child);
         }
-        return children.join('\n');
+        return;
     }
-    return `${node}`;
+    __writer.write(`${node}`);
+    return;
 }
 
 export function createContext() {
@@ -66,10 +76,25 @@ export function createContext() {
     }
 }
 
-export function jsxToHtml(element: JSX.Element, ctx?: any) {
-    return renderChild(ctx || {}, element)
+export async function jsxToHtml(element: JSX.Element, ctx?: any, stream?: WritableStream): Promise<string> {
+    if (stream) {
+        const writer = stream.getWriter();
+        try {
+            await renderChild({ ...ctx, __writer: writer }, element)
+            return '';
+        } finally {
+            await writer.close();
+        }
+    } else {
+        const chunks: string[] = [];
+        await renderChild({
+            ...ctx, __writer: {
+                write: (chunk) => { chunks.push(chunk) }
+            }
+        }, element)
+        return chunks.join('');
+    }
 }
-
 jsxToHtml.createContext = createContext;
 jsxToHtml.createElement = createElement;
 jsxToHtml.Fragment = Fragment;

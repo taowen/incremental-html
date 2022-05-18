@@ -1,5 +1,6 @@
 /// <reference path="../../index.d.ts" />
 import { jsxToHtml } from '..';
+import { WritableStream, CountQueuingStrategy } from 'node:stream/web'
 
 test('string literal', async () => {
     const result = <>hello</>
@@ -8,6 +9,11 @@ test('string literal', async () => {
 
 test('string value', async () => {
     const result = <>{'hello'}</>
+    expect(await jsxToHtml(result)).toBe('hello');
+})
+
+test('async string value', async () => {
+    const result = <>{new Promise<string>(resolve => resolve('hello'))}</>
     expect(await jsxToHtml(result)).toBe('hello');
 })
 
@@ -40,18 +46,30 @@ test('component without args', async () => {
 })
 
 test('component with args', async () => {
-    const C1 = ({ msg }: { msg: string}) => {
+    const C1 = ({ msg }: { msg: string }) => {
         return <div>{msg}</div>
     }
-    const result = <C1 msg="hello"/>
+    const result = <C1 msg="hello" />
     expect(await jsxToHtml(result)).toBe('<div>\nhello\n</div>');
 })
 
 test('component with context', async () => {
-    const C1 = async (props: {}, ctx: { msg: string}) => {
+    const C1 = async (props: {}, ctx: { msg: string }) => {
         await new Promise<void>(resolve => resolve());
         return <div>{ctx.msg}</div>
     }
-    const result = <context msg="hello"><C1/></context>
+    const result = <context msg="hello"><C1 /></context>
     expect(await jsxToHtml(result)).toBe('<div>\nhello\n</div>');
+})
+
+test('streaming', async () => {
+    const chunks: string[] = [];
+    const stream = new WritableStream({
+        write(chunk) {
+            chunks.push(chunk);
+        }
+    },  new CountQueuingStrategy({ highWaterMark: 1 }))
+    const result = <div>hello</div>
+    expect(await jsxToHtml(result, {}, stream)).toBe('');
+    expect(chunks.join('')).toBe('<div>\nhello\n</div>');
 })
