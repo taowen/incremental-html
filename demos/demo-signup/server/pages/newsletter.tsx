@@ -28,14 +28,7 @@ export function GET() {
         <body>
             <main>
                 <form method="post" on:submit="
-                const [e] = arguments;
-                const form = e.target;
-                form.setAttribute('submitting', 'true');
-                try {
-                    await $submitForm(form)
-                } finally {
-                    form.setAttribute('submitting', '');
-                }
+                await $submitForm(event.target);
                 ">
                     <h2>Subscribe!</h2>
                     <p>Don't miss any of the action!</p>
@@ -49,12 +42,12 @@ export function GET() {
                             on:input="this.closest('form').setAttribute('error', '')"
                         />
                         <button type="submit" 
-                            bind:text-content="this.closest('form').getAttribute('submitting') ? 'Subscribing...' : 'Subscribe'">
+                            bind:text-content="$(this.closest('form')).getAttribute('submitting') ? 'Subscribing...' : 'Subscribe'">
                         </button>
                     </fieldset>
 
                     <p id="error-message" 
-                        bind:text-content="this.closest('form').getAttribute('error') || '\xa0'">
+                        bind:text-content="$(this.closest('form')).getAttribute('error') || '\xa0'">
                     </p>
                 </form>
             </main>
