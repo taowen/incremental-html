@@ -9,6 +9,7 @@ import { notifyNodeSubscribers } from './subscribeNode';
 let nextId = 1;
 
 export function startDomObserver() {
+    mountNode(document.head)
     return mountNode(document.body);
 }
 

@@ -16,9 +16,7 @@ export function morphAttributes(oldEl: Element, newEl: Element) {
         }
     }
     for (const attr of oldAttrs) {
-        if (attr !== 'style') {
-            oldEl.removeAttribute(attr);
-        }
+        oldEl.removeAttribute(attr);
     }
 }
 

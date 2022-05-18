@@ -16,13 +16,13 @@ export const navigator = {
     /**
      * like window.location.reload to refresh current page without changing url
      */
-    async reload() {
+    async reload(url?: string) {
         const pageState = this.pageState;
-        const resp = await (pageState ? fetch(window.location.href, {
+        const resp = await (pageState ? fetch(url || window.location.href, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(pageState)
-        }) : fetch(window.location.href));
+        }) : fetch(url || window.location.href));
         const respText = await resp.text();
         applyHtml(respText);
     },
