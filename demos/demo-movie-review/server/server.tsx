@@ -33,7 +33,7 @@ server.get('/', async (req, resp) => {
     const appHtml = await jsxToHtml(jsx, ctx);
     let indexHtml = config.indexHtml;
     if (loadCache.shouldReload) {
-        indexHtml = indexHtml.replace('<!--prefetch-->', '<link id="reload" href="?deadline=disabled" rel="prefetch" use:reload="$Reload">')
+        indexHtml = indexHtml.replace('<!--prefetch-->', '<link id="reload" href="?deadline=disabled" rel="prefetch">')
     }
     indexHtml = indexHtml.replace('<!--app-html-->', appHtml);
     resp.write(indexHtml);

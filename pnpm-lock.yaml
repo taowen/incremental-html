@@ -114,6 +114,25 @@ importers:
       typescript: 4.6.3
       vite: 2.9.1
 
+  demos/demo-movie-review:
+    specifiers:
+      '@incremental-html/jsx-to-html': workspace:*
+      '@incremental-html/navigator': workspace:*
+      '@incremental-html/reactivity': workspace:*
+      '@types/express': ^4.17.13
+      body-parser: ^1.20.0
+      express: ^5.0.0-beta.1
+      vite: ^2.9.1
+    dependencies:
+      '@incremental-html/jsx-to-html': link:../../packages/jsx-to-html
+      '@incremental-html/navigator': link:../../packages/navigator
+      '@incremental-html/reactivity': link:../../packages/reactivity
+      body-parser: 1.20.0
+      express: 5.0.0-beta.1
+    devDependencies:
+      '@types/express': 4.17.13
+      vite: 2.9.1
+
   demos/demo-product-form:
     specifiers:
       '@incremental-html/form-object': workspace:*
@@ -228,25 +247,6 @@ importers:
       '@types/express': 4.17.13
       '@types/node': 17.0.34
       typescript: 4.6.3
-      vite: 2.9.1
-
-  demos/movie-review:
-    specifiers:
-      '@incremental-html/jsx-to-html': workspace:*
-      '@incremental-html/navigator': workspace:*
-      '@incremental-html/reactivity': workspace:*
-      '@types/express': ^4.17.13
-      body-parser: ^1.20.0
-      express: ^5.0.0-beta.1
-      vite: ^2.9.1
-    dependencies:
-      '@incremental-html/jsx-to-html': link:../../packages/jsx-to-html
-      '@incremental-html/navigator': link:../../packages/navigator
-      '@incremental-html/reactivity': link:../../packages/reactivity
-      body-parser: 1.20.0
-      express: 5.0.0-beta.1
-    devDependencies:
-      '@types/express': 4.17.13
       vite: 2.9.1
 
   features/framer-motion:
@@ -367,13 +367,11 @@ importers:
   packages/navigator:
     specifiers:
       '@incremental-html/morph': 'workspace: *'
-      '@incremental-html/reactivity': 'workspace: *'
       '@types/jest': 27.4.1
       jest: 27.5.1
       typescript: ^4.5.5
     dependencies:
       '@incremental-html/morph': link:../morph
-      '@incremental-html/reactivity': link:../reactivity
     devDependencies:
       '@types/jest': 27.4.1
       jest: 27.5.1
