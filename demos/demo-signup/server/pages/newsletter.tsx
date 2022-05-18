@@ -42,7 +42,8 @@ export function GET() {
                             on:input="this.closest('form').setAttribute('error', '')"
                         />
                         <button type="submit" 
-                            bind:text-content="$(this.closest('form')).getAttribute('submitting') ? 'Subscribing...' : 'Subscribe'">
+                            bind:text-content="$(this.closest('form')).getAttribute('submitting') ? 'Subscribing...' : 'Subscribe'"
+                            bind:disabled="$(this.closest('form')).getAttribute('submitting') ? true : false">
                         </button>
                     </fieldset>
 
