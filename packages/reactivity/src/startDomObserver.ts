@@ -9,7 +9,7 @@ import { notifyNodeSubscribers } from './subscribeNode';
 let nextId = 1;
 
 export function startDomObserver() {
-    return mountNode(document.body);
+    return mountElement(document.body);
 }
 
 export function stopDomObserver() {
@@ -29,7 +29,7 @@ morphChildNodes.morphProperties = (oldEl, newEl) => {
 };
 
 morphChildNodes.beforeRemove = (el) => {
-    return unmountNode(el);
+    return unmountElement(el);
 };
 
 export const mutationObserver = new MutationObserver((mutationList) => {
@@ -48,13 +48,13 @@ export const mutationObserver = new MutationObserver((mutationList) => {
         for (let i = 0; i < mutation.addedNodes.length; i++) {
             const addedNode = mutation.addedNodes.item(i)!;
             if (addedNode.nodeType === 1 && addedNode.parentElement) {
-                mountNode(addedNode as Element);
+                mountElement(addedNode as Element);
             }
         }
         for (let i = 0; i < mutation.removedNodes.length; i++) {
             const removedNode = mutation.removedNodes.item(i) as Element;
             if (!removedNode.parentNode && removedNode.nodeType === 1) {
-                unmountNode(removedNode);
+                unmountElement(removedNode);
             }
         }
     }
@@ -65,7 +65,7 @@ export const mutationObserver = new MutationObserver((mutationList) => {
     }
 });
 
-function unmountNode(element: Element): Promise<void> | void {
+function unmountElement(element: Element): Promise<void> | void {
     if ((element as any).$unmounted) {
         return;
     }
@@ -89,6 +89,12 @@ function unmountNode(element: Element): Promise<void> | void {
             }
         }
     }
+    for (let i = 0; i < element.children.length; i++) {
+        const promise = unmountElement(element.children[i]);
+        if (promise) {
+            promises.push(promise);
+        }
+    }
     if (promises.length === 0) {
         return undefined;
     } else if (promises.length === 1) {
@@ -98,37 +104,37 @@ function unmountNode(element: Element): Promise<void> | void {
     }
 }
 
-function mountNode(node: Element) {
-    if ((node as any).$xid) {
-        return (node as any).$xid;
+function mountElement(element: Element) {
+    if ((element as any).$xid) {
+        return (element as any).$xid;
     }
     const xid = `n${nextId++}`;
-    (node as any).$xid = xid;
-    if (node.tagName === 'TEMPLATE') {
+    (element as any).$xid = xid;
+    if (element.tagName === 'TEMPLATE') {
         return;
     }
-    const copyFromSelector = node.getAttribute('copy-from');
+    const copyFromSelector = element.getAttribute('copy-from');
     if (copyFromSelector) {
         const template = document.querySelector(copyFromSelector);
         if (template) {
-            node.removeAttribute('copy-from');
-            copyFrom(node, template as HTMLTemplateElement);
+            element.removeAttribute('copy-from');
+            copyFrom(element, template as HTMLTemplateElement);
         } else {
             console.error(`copy-from ${copyFromSelector} not found`);
         }
     }
-    if (node.tagName === 'INPUT') {
-        node.addEventListener('input', () => {
-            const ref = (node as any).$valueRef;
+    if (element.tagName === 'INPUT') {
+        element.addEventListener('input', () => {
+            const ref = (element as any).$valueRef;
             if (ref) {
-                ref.value = (node as HTMLInputElement).value;
+                ref.value = (element as HTMLInputElement).value;
             }
             notifyNodeSubscribers(xid);
         });
-        const superProps = Object.getPrototypeOf(node);
+        const superProps = Object.getPrototypeOf(element);
         const superSet = Object.getOwnPropertyDescriptor(superProps, "value")!.set!;
         const superGet = Object.getOwnPropertyDescriptor(superProps, "value")!.get!;
-        Object.defineProperty(node, "value", {
+        Object.defineProperty(element, "value", {
             get: function () {
                 return superGet.apply(this);
             },
@@ -144,45 +150,45 @@ function mountNode(node: Element) {
             }
         });
     }
-    for (let i = 0; i < node.attributes.length; i++) {
-        const attr = node.attributes[i];
+    for (let i = 0; i < element.attributes.length; i++) {
+        const attr = element.attributes[i];
         if (attr.name.startsWith('on:')) {
             const eventName = attr.name.substring('on:'.length);
-            node.addEventListener(eventName, (...args) => {
+            element.addEventListener(eventName, (...args) => {
                 const [event] = args;
                 event.preventDefault();
                 event.stopPropagation();
-                callEventHandlerAsync(node, eventName, ...args);
+                callEventHandlerAsync(element, eventName, ...args);
             })
         } else if (attr.name.startsWith('prop:')) {
-            let computedProps = (node as any).$computedProps;
+            let computedProps = (element as any).$computedProps;
             if (!computedProps) {
-                (node as any).$computedProps = computedProps = {};
+                (element as any).$computedProps = computedProps = {};
             }
             const propName = camelize(attr.name.substring('prop:'.length));
             const computedProp = computed(() => {
                 let value = undefined;
                 try {
-                    value = evalExpr(attr.value, node);
+                    value = evalExpr(attr.value, element);
                 } catch (e) {
-                    console.error(`failed to eval ${attr.name} of `, node, e);
+                    console.error(`failed to eval ${attr.name} of `, element, e);
                 }
                 return value;
             });
             computedProps[propName] = computedProp;
-            if (isExistingProp(node, propName)) {
+            if (isExistingProp(element, propName)) {
                 // existing DOM node property, make a data binding here
-                let bindings = (node as any).$bindings;
+                let bindings = (element as any).$bindings;
                 if (!bindings) {
-                    (node as any).$bindings = bindings = {};
+                    (element as any).$bindings = bindings = {};
                 }
                 bindings[propName] = effect(() => {
                     computedProp.value; // subscribe
-                    markDirty(node, propName); // delay the actual DOM changes to next tick
+                    markDirty(element, propName); // delay the actual DOM changes to next tick
                 });
             } else {
                 // define new property
-                Object.defineProperty(node, propName, {
+                Object.defineProperty(element, propName, {
                     enumerable: true,
                     get() {
                         return computedProp.value;
@@ -190,15 +196,15 @@ function mountNode(node: Element) {
                 })
             }
         } else if (attr.name.startsWith('use:')) {
-            let featureClass = evalExpr(attr.value, node);
+            let featureClass = evalExpr(attr.value, element);
             const featureName = attr.name.substring('use:'.length);
-            createFeature(featureClass, node, featureName);
+            createFeature(featureClass, element, featureName);
         }
     }
-    for (let i = 0; i < node.children.length; i++) {
-        mountNode(node.children[i])
+    for (let i = 0; i < element.children.length; i++) {
+        mountElement(element.children[i])
     }
-    mutationObserver.observe(node, {
+    mutationObserver.observe(element, {
         attributes: true,
         attributeOldValue: false,
         childList: true,

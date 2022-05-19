@@ -114,12 +114,12 @@ export class Motion extends Feature<MotionProps> {
         const ancestors: HTMLElement[] = [];
         let parent = this.element.parentElement;
         while (parent) {
-            if (parent === document.body) {
-                break;
-            }
             ancestors.push(parent);
             parent.addEventListener('beforeMorph', this.beforeMorph);
             parent.addEventListener('afterMorph', this.afterMorph);
+            if (parent === document.body) {
+                break;
+            }
             parent = parent.parentElement;
         }
         return () => {
