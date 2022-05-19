@@ -10,19 +10,19 @@
     <button on:click="
     const counter = document.body.counter;
     counter.value = Number(counter.value) - 1">-</button>
-    <!-- because counter is a ref, so bind:value is bi-directional -->
-    <input bind:value="document.body.counter"/>
+    <!-- because counter is a ref, so prop:value is bi-directional -->
+    <input prop:value="document.body.counter"/>
     <button on:click="
     const counter = document.body.counter;
     counter.value = Number(counter.value) + 1">+</button>
-    <p bind:style.color="Number(document.body.counter.value) > 100 ? 'red' : 'black'" 
-        bind:inner-html="`value is: ${document.body.counter.value}`" />
+    <p prop:style.color="Number(document.body.counter.value) > 100 ? 'red' : 'black'" 
+        prop:inner-html="`value is: ${document.body.counter.value}`" />
     <script type="module">
         import { startDomObserver, ref, setEvalGlobals } from '@incremental-html/reactivity';
         setEvalGlobals({ 
             ref
         })
-        // for properties like bind:xxx or on:xxx
+        // for properties like prop:xxx or on:xxx
         startDomObserver();
     </script>
 </body>

@@ -157,26 +157,26 @@
     icon: '🧀', label: 'Cheese'
 }])">
     <template id="tab-item">
-        <li bind:class="this.$props.selected ? 'selected' : ''" 
+        <li prop:class="this.$props.selected ? 'selected' : ''" 
         on:click="
         document.body.tabs.forEach(tab => tab.selected = (tab.label === this.$props.label));
         ">
-            <span bind:text-content="`${this.$props.icon} ${this.$props.label}`"></span>
+            <span prop:text-content="`${this.$props.icon} ${this.$props.label}`"></span>
             <div class="underline" render:if="this.$props.selected"
                 use:motion="$Motion" motion:layout-id="'underline'"></div>
         </li>
     </template>
     <template id="tab-panel">
-        <div render:id="this.$props.label" bind:text-content="this.$props.icon"
+        <div render:id="this.$props.label" prop:text-content="this.$props.icon"
             use:motion="$Motion" motion:initial="{ opacity: 0, y: 20 }" motion:animate="{ opacity: 1, y: 0 }" motion:exit="{ opacity: 0, y: -20 }"
             motion:transition="{ duration: 0.5 }"></div>
     </template>
     <div class="window">
         <nav>
-            <ul bind:inner-html="document.body.tabs.map(tab => $render('#tab-item', {...tab}))"></ul>
+            <ul prop:inner-html="document.body.tabs.map(tab => $render('#tab-item', {...tab}))"></ul>
         </nav>
         <main>
-            <div bind:inner-html="(() => {
+            <div prop:inner-html="(() => {
                 for (const tab of document.body.tabs) {
                     if (tab.selected) {
                         return $render('#tab-panel', tab);
@@ -191,7 +191,7 @@
         import { morphInnerHTML, morph } from '@incremental-html/morph';
         import { Motion } from '@incremental-html/motion';
         setEvalGlobals({ Motion, morphInnerHTML, morph, reactive, render });
-        // for properties like bind:xxx or on:xxx
+        // for properties like prop:xxx or on:xxx
         startDomObserver();
     </script>
 </body>

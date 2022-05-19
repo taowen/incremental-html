@@ -42,13 +42,14 @@ export function GET() {
                             on:input="this.closest('form').setAttribute('error', '')"
                         />
                         <button type="submit" 
-                            bind:text-content="$(this.closest('form')).getAttribute('submitting') ? 'Subscribing...' : 'Subscribe'"
-                            bind:disabled="$(this.closest('form')).getAttribute('submitting') ? true : false">
+                            prop:submitting="$(this.closest('form')).getAttribute('submitting')"
+                            prop:text-content="this.submitting ? 'Subscribing...' : 'Subscribe'"
+                            prop:disabled="this.submitting ? true : false">
                         </button>
                     </fieldset>
 
                     <p id="error-message" 
-                        bind:text-content="$(this.closest('form')).getAttribute('error') || '\xa0'">
+                        prop:text-content="$(this.closest('form')).getAttribute('error') || '\xa0'">
                     </p>
                 </form>
             </main>

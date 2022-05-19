@@ -55,8 +55,8 @@
         <div id="item-29" class="item">Item 29</div>
         <div id="item-30" class="item">Item 30</div>
         <div use:loader="$List.Loader" loader:load="$fakeLoad" style="padding: 10px; width: 100%; text-align: center;">
-            <span bind:style.display="this.parentNode.loader.isLoading ? 'inline' : 'none'">Loading...</span>
-            <span bind:text-content="this.parentNode.loader.loadError ? `Error: ${this.parentNode.loader.loadError}` : ''"></span>
+            <span prop:style.display="this.parentNode.loader.isLoading ? 'inline' : 'none'">Loading...</span>
+            <span prop:text-content="this.parentNode.loader.loadError ? `Error: ${this.parentNode.loader.loadError}` : ''"></span>
         </div>
     </div>
     <script type="module">
@@ -73,14 +73,14 @@
             }
             lines.push(`
             <div use:loader="$List.Loader" loader:load="$fakeLoad" style="padding: 10px; width: 100%; text-align: center;">
-                <span bind:style.display="this.parentNode.loader.isLoading ? 'inline' : 'none'">Loading...</span>
-                <span bind:text-content="this.parentNode.loader.loadError ? \`Error: \${this.parentNode.loader.loadError}\` : ''"></span>
+                <span prop:style.display="this.parentNode.loader.isLoading ? 'inline' : 'none'">Loading...</span>
+                <span prop:text-content="this.parentNode.loader.loadError ? \`Error: \${this.parentNode.loader.loadError}\` : ''"></span>
             </div>
             </div>`);
             return lines.join('\n');
         }
         setEvalGlobals({ List, fakeLoad });
-        // for properties like bind:xxx or on:xxx
+        // for properties like prop:xxx or on:xxx
         startDomObserver();
     </script>
 </body>

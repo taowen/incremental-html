@@ -1,4 +1,4 @@
-import { computed, effect, reactive, Ref, ref } from "@vue/reactivity";
+import { computed, effect, Ref, ref } from "@vue/reactivity";
 import { evalExpr } from "./eval";
 import { camelize } from "./naming";
 import { subscribeNode } from "./subscribeNode";

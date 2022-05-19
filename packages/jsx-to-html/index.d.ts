@@ -265,10 +265,10 @@ declare namespace JsxToHtml {
 
     class?: any
     style?: StyleValue
-    ['bind:style']?: string
-    ['bind:inner-html']?: string
-    ['bind:disabled']?: string
-    ['bind:text-content']?: string
+    ['prop:style']?: string
+    ['prop:inner-html']?: string
+    ['prop:disabled']?: string
+    ['prop:text-content']?: string
 
     // Standard HTML Attributes
     accesskey?: string

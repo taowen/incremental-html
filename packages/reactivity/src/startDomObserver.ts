@@ -1,15 +1,14 @@
 import { morph, morphChildNodes, morphInnerHTML } from '@incremental-html/morph';
-import { effect, isRef } from '@vue/reactivity';
+import { computed, ComputedRef, effect, isRef, ReactiveEffectRunner } from '@vue/reactivity';
+import { copyFrom } from './copyFrom';
 import { callEventHandlerAsync, evalExpr } from './eval';
 import { Feature } from './Feature';
-import { copyFrom } from './copyFrom';
 import { camelize } from './naming';
 import { notifyNodeSubscribers } from './subscribeNode';
 
 let nextId = 1;
 
 export function startDomObserver() {
-    mountNode(document.head)
     return mountNode(document.body);
 }
 
@@ -22,7 +21,11 @@ morphChildNodes.morphProperties = (oldEl, newEl) => {
     // @incremental/template render will set $props to new element
     // if old element reused, we need to propagate $props to old element
     (oldEl as any).$props = (newEl as any).$props;
-    refreshNode(oldEl);
+    if ((oldEl as any).$bindings) {
+        for (const binding of Object.values((oldEl as any).$bindings)) {
+            (binding as ReactiveEffectRunner<any>)();
+        }
+    }
 };
 
 morphChildNodes.beforeRemove = (el) => {
@@ -67,8 +70,15 @@ function unmountNode(element: Element): Promise<void> | void {
         return;
     }
     (element as any).$unmounted = true;
-    if ((element as any).$refreshNode) {
-        (element as any).$refreshNode.stop();
+    if ((element as any).$computedProps) {
+        for (const computedProp of Object.values((element as any).$computedProps)) {
+            (computedProp as ComputedRef<any>).effect.stop();
+        }
+    }
+    if ((element as any).$bindings) {
+        for (const binding of Object.values((element as any).$bindings)) {
+            (binding as ReactiveEffectRunner<any>).effect.stop();
+        }
     }
     const promises = [];
     if ((element as any).$features) {
@@ -145,24 +155,46 @@ function mountNode(node: Element) {
                 callEventHandlerAsync(node, eventName, ...args);
             })
         } else if (attr.name.startsWith('prop:')) {
-            const propName = camelize(attr.name.substring('prop:'.length));
-            let value = undefined;
-            try {
-                value = evalExpr(attr.value, node);
-            } catch (e) {
-                console.error(`failed to eval ${attr.name} of `, node, e);
-                continue;
+            let computedProps = (node as any).$computedProps;
+            if (!computedProps) {
+                (node as any).$computedProps = computedProps = {};
             }
-            setNodeProperty(node, propName, value);
+            const propName = camelize(attr.name.substring('prop:'.length));
+            const computedProp = computed(() => {
+                let value = undefined;
+                try {
+                    value = evalExpr(attr.value, node);
+                } catch (e) {
+                    console.error(`failed to eval ${attr.name} of `, node, e);
+                }
+                return value;
+            });
+            computedProps[propName] = computedProp;
+            if (isExistingProp(node, propName)) {
+                // existing DOM node property, make a data binding here
+                let bindings = (node as any).$bindings;
+                if (!bindings) {
+                    (node as any).$bindings = bindings = {};
+                }
+                bindings[propName] = effect(() => {
+                    computedProp.value; // subscribe
+                    markDirty(node, propName); // delay the actual DOM changes to next tick
+                });
+            } else {
+                // define new property
+                Object.defineProperty(node, propName, {
+                    enumerable: true,
+                    get() {
+                        return computedProp.value;
+                    }
+                })
+            }
         } else if (attr.name.startsWith('use:')) {
             let featureClass = evalExpr(attr.value, node);
             const featureName = attr.name.substring('use:'.length);
             createFeature(featureClass, node, featureName);
         }
     }
-    (node as any).$refreshNode = effect(() => {
-        refreshNode(node);
-    }).effect;
     for (let i = 0; i < node.children.length; i++) {
         mountNode(node.children[i])
     }
@@ -173,6 +205,20 @@ function mountNode(node: Element) {
         subtree: false
     });
     return xid;
+}
+
+function isExistingProp(obj: any, propName: string): any {
+    if (propName === 'innerHtml' || propName.startsWith('class.') || propName.startsWith('style.')) {
+        return true;
+    }
+    if (!obj) {
+        return false;
+    }
+    const desc = Object.getOwnPropertyDescriptor(obj, propName);
+    if (desc) {
+        return desc;
+    }
+    return isExistingProp(Object.getPrototypeOf(obj), propName);
 }
 
 function createFeature(featureClass: any, element: Element, featureName: string) {
@@ -193,49 +239,65 @@ function createFeature(featureClass: any, element: Element, featureName: string)
     })();
 }
 
-function refreshNode(node: Element) {
-    for (let i = 0; i < node.attributes.length; i++) {
-        const attr = node.attributes[i];
-        if (attr.name.startsWith('bind:')) {
-            const name = camelize(attr.name.substring('bind:'.length));
-            try {
-                const newValue = evalExpr(attr.value, node);
-                let bindProps = (node as any).$bindProps;
-                if (!bindProps) {
-                    (node as any).$bindProps = bindProps = {};
-                }
-                bindProps[name] = newValue;
-            } catch (e) {
-                console.error(`failed to eval ${attr.name}`, { node, e });
-            }
-        }
+let scheduler: { current: Promise<void> | undefined } = { current: undefined };
+const dirtyElements = new Set<Element>();
+
+function markDirty(element: Element, propName: string) {
+    let dirtyProps = (element as any).$dirtyProps;
+    if (!dirtyProps) {
+        (element as any).$dirtyProps = dirtyProps = new Set<string>();
     }
-    if ((node as any).$bindProps) {
-        applyBindProps(node);
+    dirtyProps.add(propName);
+    dirtyElements.add(element);
+    schedule();
+}
+
+function schedule() {
+    if (scheduler.current) {
+        return scheduler.current;
+    }
+    return scheduler.current = (async () => {
+        await new Promise<void>(resolve => resolve());
+        scheduler.current = undefined;
+        try {
+            applyChanges()
+        } catch (e) {
+            console.error('unexpected error', e);
+        }
+    })();
+}
+
+function applyChanges() {
+    const toApply = [...dirtyElements];
+    dirtyElements.clear();
+    for (const el of toApply) {
+        const computedProps = (el as any).$computedProps;
+        const dirtyProps: Set<string> = (el as any).$dirtyProps
+        if (!computedProps || !dirtyProps) {
+            continue;
+        }
+        const innerHtmlIsDirty = dirtyProps.delete('innerHtml')
+        const childNodesIsDirty = dirtyProps.delete('childNodes')
+        const toApplyProps = [...dirtyProps];
+        dirtyProps.clear();
+        if (toApplyProps.length > 0) {
+            morph(el, () => {
+                for (const propName of toApplyProps) {
+                    setNodeProperty(el, propName, computedProps[propName].value);
+                }
+            })
+        }
+        if (innerHtmlIsDirty) {
+            morphInnerHTML(el, computedProps.innerHtml.value);
+        }
+        if (childNodesIsDirty) {
+            morphChildNodes(el, computedProps.childNodes.value);
+        }
     }
 }
 
-async function applyBindProps(node: Element) {
-    await new Promise<void>(resolve => resolve());
-    const bindProps = (node as any).$bindProps;
-    if (!bindProps) {
-        return;
-    }
-    delete (node as any).$bindProps;
-    const { innerHtml, childNodes, ...otherBindProps } = bindProps;
-    if (Object.keys(otherBindProps).length > 0) {
-        morph(node, () => {
-            for (const [name, value] of Object.entries(otherBindProps)) {
-                setNodeProperty(node, name, value);
-            }
-        });
-    }
-    if (innerHtml) {
-        morphInnerHTML(node, innerHtml);
-    }
-    if (childNodes) {
-        morphChildNodes(node, Array.isArray(childNodes) ? childNodes : [childNodes]);
-    }
+export function nextTick(): Promise<void> {
+    return schedule();
 }
 
 function setNodeProperty(node: Element, name: string, value: any) {
@@ -256,14 +318,6 @@ function setNodeProperty(node: Element, name: string, value: any) {
         } else {
             node.className = node.className + value;
         }
-        return;
-    }
-    if (name === 'innerHtml') {
-        morphInnerHTML(node, value);
-        return;
-    }
-    if (name === 'childNodes') {
-        morphChildNodes(node, Array.isArray(value) ? value : [value]);
         return;
     }
     Reflect.set(node, name, value);

@@ -8,17 +8,17 @@
 
 <body prop:store="$reactive({ counter: 99 })">
     <button on:click="document.body.store.counter -= 1">-</button>
-    <input bind:value="document.body.store.counter" 
+    <input prop:value="document.body.store.counter" 
     on:input="document.body.store.counter = parseInt(arguments[0].target.value)"/>
     <button on:click="document.body.store.counter += 1">+</button>
-    <p bind:style.color="document.body.store.counter > 100 ? 'red' : 'black'" 
-        bind:inner-html="`value is: ${document.body.store.counter}`" />
+    <p prop:style.color="document.body.store.counter > 100 ? 'red' : 'black'" 
+        prop:inner-html="`value is: ${document.body.store.counter}`" />
     <script type="module">
         import { startDomObserver, reactive, setEvalGlobals } from '@incremental-html/reactivity';
         setEvalGlobals({
             reactive
         })
-        // for properties like bind:xxx or on:xxx
+        // for properties like prop:xxx or on:xxx
         startDomObserver();
     </script>
 </body>

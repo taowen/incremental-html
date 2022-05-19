@@ -10,7 +10,7 @@
     <template id="tpl-todo-item">
         <!-- this.$props provided by @incremental-html/template -->
         <li>
-            <span bind:text-content="this.$props.task"></span>
+            <span prop:text-content="this.$props.task"></span>
             <button on:click="
                 const items = [...document.body.store.items];
                 const index = items.indexOf(this.$props.task);
@@ -31,7 +31,7 @@
         <input type="text" name="task" />
         <button>add</button>
     </form>
-    <ul bind:inner-html="
+    <ul prop:inner-html="
         document.body.store.items.map(
             item => $render('#tpl-todo-item', { task: item })
         );" />
@@ -42,7 +42,7 @@
             reactive,
             render
         })
-        // for properties like bind:xxx or on:xxx
+        // for properties like prop:xxx or on:xxx
         startDomObserver();
     </script>
 </body>

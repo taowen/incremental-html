@@ -4,5 +4,5 @@ import { Motion } from '@incremental-html/motion';
 import { navigator } from '@incremental-html/navigator';
 
 setEvalGlobals({ Motion, navigator });
-// for properties like bind:xxx or on:xxx
+// for properties like prop:xxx or on:xxx
 startDomObserver();

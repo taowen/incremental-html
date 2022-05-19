@@ -93,8 +93,8 @@ function initPageState() {
 function applyHtml(html: string) {
     const fakeDom = document.createElement('html');
     fakeDom.innerHTML = html;
-    morphChildNodes(document.body, fakeDom.querySelector('body')!);
     document.title = fakeDom.querySelector('title')?.innerText || '';
+    morphChildNodes(document.body, fakeDom.querySelector('body')!);
 }
 
 async function onPopState(e: PopStateEvent) {

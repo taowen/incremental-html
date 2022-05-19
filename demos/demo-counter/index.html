@@ -14,14 +14,14 @@
     ">-</button>
     <input id="counter" value="99" />
     <button on:click="$('#counter').value = parseInt($('#counter').value) + 1">+</button>
-    <p bind:style.color="$('#counter').value > 100 ? 'red' : 'black'" 
-        bind:inner-html="`value is: ${$('#counter').value}`" />
+    <p prop:style.color="$('#counter').value > 100 ? 'red' : 'black'" 
+        prop:inner-html="`value is: ${$('#counter').value}`" />
     <script type="module">
         import { startDomObserver, querySelector, setEvalGlobals } from '@incremental-html/reactivity';
         setEvalGlobals({
             $: querySelector
         })
-        // for properties like bind:xxx or on:xxx
+        // for properties like prop:xxx or on:xxx
         startDomObserver();
     </script>
 </body>

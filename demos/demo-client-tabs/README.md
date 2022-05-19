@@ -35,7 +35,7 @@ this.tabGroup = new $Tab.Group({ element: this, selectedIndex: 1 })
 ## Step3: tab
 
 ```html
-<button use:tab="$Tab" bind:class.selection="this.tab.selected ? 'bg-white shadow' : 'text-blue-100 hover:bg-white/[0.12] hover:text-white'"
+<button use:tab="$Tab" prop:class.selection="this.tab.selected ? 'bg-white shadow' : 'text-blue-100 hover:bg-white/[0.12] hover:text-white'"
     class="w-full py-2.5 text-sm leading-5 font-medium text-blue-700 rounded-lg focus:outline-none focus:ring-2 ring-offset-2 ring-offset-blue-400 ring-white ring-opacity-60"
     id="headlessui-tabs-tab-1" type="button" aria-selected="true" tabindex="0"
     aria-controls="headlessui-tabs-panel-4">Recent</button>
@@ -48,7 +48,7 @@ The html above will execute
 this.tab = new $Tab({ element: this })
 ```
 
-It also has a `bind:class.selection` to reactively bind part of the class name to `this.tab.selected`. 
+It also has a `prop:class.selection` to reactively bind part of the class name to `this.tab.selected`. 
 The `class.selection` will be appended to the final `class`.
 
 ## Under the hood
@@ -129,10 +129,10 @@ effect(() => {
 function refreshNode(node: Element) {
     for (let i = 0; i < node.attributes.length; i++) {
         const attr = node.attributes[i];
-        if (attr.name.startsWith('bind:')) {
+        if (attr.name.startsWith('prop:')) {
             try {
                 const newValue = evalSync(attr.value, elementProxy(node));
-                setNodeProperty(node, camelize(attr.name.substring('bind:'.length)), newValue);
+                setNodeProperty(node, camelize(attr.name.substring('prop:'.length)), newValue);
             } catch (e) {
                 console.error(`failed to eval ${attr.name}`, { node, e });
             }

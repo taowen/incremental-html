@@ -144,7 +144,7 @@
             </div>
         </div>
     </template>
-    <div bind:inner-html="
+    <div prop:inner-html="
     [1,2,3,4].map(index => $render('#accordion', { index }));
     ">
     </div>
@@ -154,7 +154,7 @@
         import { morphInnerHTML, morph } from '@incremental-html/morph';
         import { Motion } from '@incremental-html/motion';
         setEvalGlobals({ Motion, morphInnerHTML, morph, reactive, ref, render });
-        // for properties like bind:xxx or on:xxx
+        // for properties like prop:xxx or on:xxx
         startDomObserver();
     </script>
 </body>
