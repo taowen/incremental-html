@@ -5,16 +5,19 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Demo</title>
     <link rel="shortcut icon" href="#" />
+    <link rel="stylesheet" href="/index.css" />
 </head>
 
 <body>
     <div style="width: fit-content;">
-        <div class="card-content" use:motion="$Motion" motion:layout-id="'card'">
-            <div class="card-image-container" use:motion="$Motion" motion:layout-id="'image'"><img
-                    class="card-image" src="images/c.jpg" alt=""></div>
-            <div class="title-container" use:motion="$Motion" motion:layout-id="'title'"><span
-                    class="category">Pizza</span>
-                <h2>5 Food Apps Delivering the Best of Your City</h2>
+        <div class="card-content">
+            <div style="height: 420px" use:motion="$Motion" motion:layout-id="'card'">
+                <div class="card-image-container" use:motion="$Motion" motion:layout-id="'image'"><img class="card-image"
+                    src="images/c.jpg" alt="" on:click="window.history.go(-1);"></div>
+                <div class="title-container" use:motion="$Motion" motion:layout-id="'title'"><span
+                        class="category">Pizza</span>
+                    <h2>5 Food Apps Delivering the Best of Your City</h2>
+                </div>
             </div>
             <div class="content-container">
                 <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Quisque tempor montes cubilia mi. Finibus justo

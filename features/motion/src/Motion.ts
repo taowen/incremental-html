@@ -28,9 +28,11 @@ export class Motion extends Feature<MotionProps> {
     })
     private visualElement = this.create(() => {
         const visualState = makeVisualState(this.props, this.inheritedProps, null);
+        const parent = queryFeature(this.element.parentElement, Motion)?.visualElement;
         const visualElement = htmlVisualElement({
             visualState,
-            props: this.props
+            props: this.props,
+            parent
         });
         visualElement.animationState = createAnimationState(visualElement);
         useProjection(nextProjectionId++, this.props, {}, visualElement, HTMLProjectionNode);
