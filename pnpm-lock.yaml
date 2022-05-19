@@ -114,6 +114,19 @@ importers:
       typescript: 4.6.3
       vite: 2.9.1
 
+  demos/demo-list-detail:
+    specifiers:
+      '@incremental-html/motion': workspace:*
+      '@incremental-html/reactivity': workspace:*
+      typescript: ^4.5.5
+      vite: ^2.9.1
+    dependencies:
+      '@incremental-html/motion': link:../../features/motion
+      '@incremental-html/reactivity': link:../../packages/reactivity
+    devDependencies:
+      typescript: 4.6.3
+      vite: 2.9.1
+
   demos/demo-movie-review:
     specifiers:
       '@incremental-html/jsx-to-html': workspace:*

@@ -74,12 +74,9 @@ server.get('/', async (req, resp) => {
                 {
                     todoItems.map(todoItem => <li>
                         <a href={`/item?task=${encodeURIComponent(todoItem)}`}
-                        on:click="
-                            const [e] = arguments;
-                            e.preventDefault();
-                            $navigator.href = this.href;
-                        "
-                        >{todoItem}</a>
+                        on:click="$navigator.href = this.href;">
+                            {todoItem}
+                        </a>
                         <button on:click={`
                             await fetch('/delete', {
                                 method: 'POST',
