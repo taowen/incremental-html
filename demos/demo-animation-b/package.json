@@ -3,11 +3,13 @@
     "private": true,
     "version": "1.0.0",
     "dependencies": {
+        "@popmotion/popcorn": "^0.4.4",
         "framer-motion": "^6.3.3",
+        "prop-types": "^15.8.1",
         "react": "^18.1.0",
         "react-dom": "^18.1.0",
-        "react-router-dom": "6",
-        "@popmotion/popcorn": "^0.4.4"
+        "react-lorem-ipsum": "^1.4.10",
+        "react-router-dom": "6"
     },
     "devDependencies": {
         "@types/react": "^18.0.9",

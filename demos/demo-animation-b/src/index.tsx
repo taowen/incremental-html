@@ -3,6 +3,7 @@ import { animate, AnimatePresence, motion, MotionValue, Reorder, useMotionValue,
 import * as React from 'react';
 import * as ReactDOM from 'react-dom/client';
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
+import { Case17 } from "./case17";
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(
@@ -21,6 +22,7 @@ root.render(
                 <li><Link to="case10">Case10</Link></li>
                 <li><Link to="case11">Case11</Link></li>
                 <li><Link to="case12">Case12</Link></li>
+                <li><Link to="case17">Case17</Link></li>
             </ul>} />
             <Route path='case1' element={<Case1 />} />
             <Route path='case2' element={<Case2 />} />
@@ -34,6 +36,7 @@ root.render(
             <Route path='case10' element={<Case10 />} />
             <Route path='case11' element={<Case11 />} />
             <Route path='case12' element={<Case12 />} />
+            <Route path='case17/*' element={<Case17 />} />
         </Routes>
     </BrowserRouter>)
 
