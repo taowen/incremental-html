@@ -275,17 +275,15 @@
                 <div class="card-content-container">
                     <div class="card-content"
                         style="transform: translate3d(0px, 0px, 0px) scale(1, 1); transform-origin: 50% 50% 0px; opacity: 1;">
-                        <div class="card-image-container"
-                            style="transform: translate3d(0px, 0px, 0px) scale(1, 1); transform-origin: 50% 50% 0px;">
+                        <div class="card-image-container" use:motion="$Motion" motion:layout-id="'image'" motion:transition="{ duration: 2 }">
                             <img class="card-image" src="images/c.jpg" alt="">
                         </div>
-                        <div class="title-container"
-                            style="transform: translate3d(0px, 0px, 0px) scale(1, 1); transform-origin: 50% 50% 0px;">
+                        <div class="title-container">
                             <span class="category">Pizza</span>
                             <h2>5 Food Apps Delivering the Best of Your City</h2>
                         </div>
                     </div>
-                </div><a class="card-open-link" href="/c"></a>
+                </div><a class="card-open-link" href="/detail-c.html" on:click="$navigator.href = this.href"></a>
             </li>
             <li class="card undefined">
                 <div class="card-content-container">
@@ -403,8 +401,11 @@
     </div>
     <script type="module">
         import { startDomObserver, querySelector, setEvalGlobals } from '@incremental-html/reactivity';
+        import { Motion } from '@incremental-html/motion';
+        import { navigator } from '@incremental-html/navigator';
         setEvalGlobals({
-            $: querySelector
+            Motion,
+            navigator
         })
         // for properties like prop:xxx or on:xxx
         startDomObserver();

@@ -1,0 +1,88 @@
+<!-- index.html -->
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Demo</title>
+    <link rel="shortcut icon" href="#" />
+    <style>
+        body {
+            padding: 50px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        .item {
+            padding: 10px 0;
+            border-bottom: 1px solid #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="items" style="border: 1px solid #ccc; height: 100%; width: 100%; position: relative; overflow: auto; padding: 0 10px;"
+        use:list="$List" list:virtualized>
+        <div id="item-1" class="item">Item 1</div>
+        <div id="item-2" class="item">Item 2</div>
+        <div id="item-3" class="item">Item 3</div>
+        <div id="item-4" class="item">Item 4</div>
+        <div id="item-5" class="item">Item 5</div>
+        <div id="item-6" class="item">Item 6</div>
+        <div id="item-7" class="item">Item 7</div>
+        <div id="item-8" class="item">Item 8</div>
+        <div id="item-9" class="item">Item 9</div>
+        <div id="item-10" class="item">Item 10</div>
+        <div id="item-11" class="item">Item 11</div>
+        <div id="item-12" class="item">Item 12</div>
+        <div id="item-13" class="item">Item 13</div>
+        <div id="item-14" class="item">Item 14</div>
+        <div id="item-15" class="item">Item 15</div>
+        <div id="item-16" class="item">Item 16</div>
+        <div id="item-17" class="item">Item 17</div>
+        <div id="item-18" class="item">Item 18</div>
+        <div id="item-19" class="item">Item 19</div>
+        <div id="item-20" class="item">Item 20</div>
+        <div id="item-21" class="item">Item 21</div>
+        <div id="item-22" class="item">Item 22</div>
+        <div id="item-23" class="item">Item 23</div>
+        <div id="item-24" class="item">Item 24</div>
+        <div id="item-25" class="item">Item 25</div>
+        <div id="item-26" class="item">Item 26</div>
+        <div id="item-27" class="item">Item 27</div>
+        <div id="item-28" class="item">Item 28</div>
+        <div id="item-29" class="item">Item 29</div>
+        <div id="item-30" class="item">Item 30</div>
+        <div use:loader="$List.Loader" loader:load="$fakeLoad" style="padding: 10px; width: 100%; text-align: center;">
+            <span prop:style.display="this.parentNode.loader.isLoading ? 'inline' : 'none'">Loading...</span>
+            <span prop:text-content="this.parentNode.loader.loadError ? `Error: ${this.parentNode.loader.loadError}` : ''"></span>
+        </div>
+    </div>
+    <script type="module">
+        import { render } from '@incremental-html/template';
+        import { startDomObserver, setEvalGlobals, ref, reactive, queryFeature } from '@incremental-html/reactivity';
+        import { List } from '@incremental-html/headlessui';
+        let counter = 31;
+        async function fakeLoad() {
+            const lines = ['<div id="items">']
+            for (let i = 0; i < 20; i++) {
+                const id = counter++;
+                // lines.push(`<div id="item-${id}" class="item">Item ${id}</div>`);
+                lines.push(`<div id="item-${id}" class="item"><img src="https://picsum.photos/200/${id}"></img></div>`);
+            }
+            lines.push(`
+            <div use:loader="$List.Loader" loader:load="$fakeLoad" style="padding: 10px; width: 100%; text-align: center;">
+                <span prop:style.display="this.parentNode.loader.isLoading ? 'inline' : 'none'">Loading...</span>
+                <span prop:text-content="this.parentNode.loader.loadError ? \`Error: \${this.parentNode.loader.loadError}\` : ''"></span>
+            </div>
+            </div>`);
+            return lines.join('\n');
+        }
+        setEvalGlobals({ List, fakeLoad });
+        // for properties like prop:xxx or on:xxx
+        startDomObserver();
+    </script>
+</body>
+
+</html>

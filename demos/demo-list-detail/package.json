@@ -4,6 +4,7 @@
     "version": "1.0.0",
     "dependencies": {
         "@incremental-html/reactivity": "workspace:*",
+        "@incremental-html/navigator": "workspace:*",
         "@incremental-html/motion": "workspace:*"
     },
     "devDependencies": {
