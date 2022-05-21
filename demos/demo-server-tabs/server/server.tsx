@@ -13,30 +13,28 @@ server.get('/', async (req, resp) => {
     }, {
         icon: '🧀', label: 'Cheese'
     }];
-    const jsx = <>
-        <div class="window">
-            <nav>
-                <ul>
-                    {tabs.map(({ label, icon }) =>
-                        <li class={label === selectedTab ? 'selected' : ''} data-label={label} on:click="$navigator.replace('/?tab=' + this.dataset.label)">
-                            <span>{icon}{label}</span>
-                            {label === selectedTab ? <div class="underline" use:motion="$Motion" motion:layout-id="'underline'"></div> : undefined}
-                        </li>)}
-                </ul>
-            </nav>
-            <main>
-                <div id={selectedTab}
-                    use:motion="$Motion" motion:initial="{ opacity: 0, y: 20 }" motion:animate="{ opacity: 1, y: 0 }" 
-                    motion:exit="{ opacity: 0, y: -20 }" motion:transition="{ duration: 0.5 }">
-                    {{
-                        Tomato: '🍅',
-                        Lettuce: '🥬',
-                        Cheese: '🧀'
-                    }[selectedTab]}
-                </div>
-            </main>
-        </div>
-    </>
+    const jsx = <div class="window">
+        <nav>
+            <ul>
+                {tabs.map(({ label, icon }) =>
+                    <li class={label === selectedTab ? 'selected' : ''} data-label={label} on:click="$navigator.replace('/?tab=' + this.dataset.label)">
+                        <span>{icon}{label}</span>
+                        {label === selectedTab ? <div class="underline" use:motion="$Motion" motion:layout-id="'underline'"></div> : undefined}
+                    </li>)}
+            </ul>
+        </nav>
+        <main>
+            <div id={selectedTab}
+                use:motion="$Motion" motion:initial="{ opacity: 0, y: 20 }" motion:animate="{ opacity: 1, y: 0 }"
+                motion:exit="{ opacity: 0, y: -20 }" motion:transition="{ duration: 0.5 }">
+                {{
+                    Tomato: '🍅',
+                    Lettuce: '🥬',
+                    Cheese: '🧀'
+                }[selectedTab]}
+            </div>
+        </main>
+    </div>
     await sendHtml(resp, jsx);
 })
 
@@ -46,7 +44,7 @@ async function sendHtml(resp: Response, jsx: any) {
         throw new Error('maker not found, can not inject server generated content');
     }
     resp.write(config.indexHtml.substring(0, markerPos));
-    resp.write(await jsx);
+    resp.write(await jsxToHtml(jsx));
     resp.write(config.indexHtml.substring(markerPos));
     resp.end();
 }

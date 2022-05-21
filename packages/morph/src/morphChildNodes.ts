@@ -21,18 +21,20 @@ morphChildNodes.beforeRemove = (el: Element): Promise<void> | void => { };
 morphChildNodes.morphProperties = (oldEl: Element, newEl: Element) => { };
 
 function commitNewChildNodes(el: Element) {
+    const removeProgress = (el as any).$removeProgress;
+    if (removeProgress) {
+        const removeProgressPromise = Promise.all(removeProgress);
+        delete (el as any).$removeProgress;
+        removeProgressPromise.finally(() => {
+            commitNewChildNodes(el);
+        });
+        return;
+    }
     const newChildren = (el as any).$newChildNodes;
     if (newChildren !== undefined) {
         delete (el as any).$newChildNodes;
     }
-    const removeProgress = (el as any).$removeProgress;
-    if (removeProgress) {
-        Promise.all(removeProgress).finally(() => {
-            moveOrInsertNewChildren(el, newChildren);
-        });
-    } else {
-        moveOrInsertNewChildren(el, newChildren);
-    }
+    moveOrInsertNewChildren(el, newChildren);
     if (newChildren !== undefined) {
         for (const child of newChildren) {
             commitNewChildNodes(child);
