@@ -54,7 +54,13 @@ function moveOrInsertNewChildren(el: Element, newChildren: Node[] | undefined) {
     }
     for (let i = newChildren.length - 1; i >= 0; i--) {
         const next = newChildren[i + 1];
-        el.insertBefore(newChildren[i]!, next as Node);
+        const newNode = newChildren[i]!;
+        el.insertBefore(newNode, next as Node);
+        if ((newNode as any).$reused) {
+            morphAttributes(newNode as Element, (newNode as any).$reused);
+            morphChildNodes.morphProperties(newNode as Element, (newNode as any).$reused);
+            delete (newNode as any).$reused;
+        }
     }
 }
 
@@ -119,11 +125,10 @@ function tryReuse(oldChildren: Map<any, Node>, id: any, newNode: Node) {
         return newNode;
     }
     oldChildren.delete(id);
-    morphAttributes(oldNode as Element, newNode as Element);
+    (oldNode as any).$reused = newNode;
     if ((oldNode as HTMLElement).tagName !== 'TEXTAREA') {
         removeIncompatibleChildNodes(oldNode as Element, newNode as Element);
     }
-    morphChildNodes.morphProperties(oldNode as Element, newNode as Element);
     return oldNode;
 }
 

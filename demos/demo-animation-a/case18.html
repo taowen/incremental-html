@@ -1,0 +1,83 @@
+<!-- index.html -->
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Demo</title>
+    <link rel="shortcut icon" href="#" />
+    <style>
+        html,
+        body {
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(250deg, #7b2ff7, #f107a3);
+            background-repeat: no-repeat;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .App {
+            font-family: sans-serif;
+            text-align: center;
+        }
+
+        .switch {
+            width: 160px;
+            height: 100px;
+            background-color: rgba(255, 255, 255, 0.4);
+            display: flex;
+            justify-content: flex-start;
+            border-radius: 50px;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .switch[data-isOn="true"] {
+            justify-content: flex-end;
+        }
+
+        .handle {
+            width: 80px;
+            height: 80px;
+            background-color: white;
+            border-radius: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="switch" data-ison="false" on:click="
+        $morph(this, () => {
+            if (this.dataset.ison === 'false') {
+                this.dataset.ison='true';
+            } else {
+                this.dataset.ison='false';
+            }
+        })">
+        <div class="handle" use:motion="$Motion" motion:layout motion:transition="{
+            type: 'spring',
+            stiffness: 700,
+            damping: 30
+          }"></div>
+    </div>
+    <script type="module">
+        import { render } from '@incremental-html/template';
+        import { morph } from '@incremental-html/morph';
+        import { startDomObserver, setEvalGlobals, ref, reactive } from '@incremental-html/reactivity';
+        import { Motion } from '@incremental-html/motion';
+        setEvalGlobals({ Motion, morph, reactive, ref, render });
+        // for properties like prop:xxx or on:xxx
+        startDomObserver();
+    </script>
+</body>
+
+</html>

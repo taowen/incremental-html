@@ -1,7 +1,5 @@
 import { AnimationType, createAnimationState, HTMLProjectionNode, htmlVisualElement, makeVisualState, MeasureLayoutWithContext, MotionContextProps, MotionProps, useFocusGesture, useHoverGesture, usePanGesture, useProjection, useTapGesture, useViewport, VisualElementDragControls } from '@incremental-html/framer-motion';
-import { Feature, queryFeature } from '@incremental-html/reactivity';
-
-let nextProjectionId = 1;
+import { Feature, nextTick, queryFeature } from '@incremental-html/reactivity';
 
 export class Motion extends Feature<MotionProps> {
     private inheritedProps: MotionContextProps = this.create(() => {
@@ -35,7 +33,6 @@ export class Motion extends Feature<MotionProps> {
             parent
         });
         visualElement.animationState = createAnimationState(visualElement);
-        useProjection(nextProjectionId++, this.props, {}, visualElement, HTMLProjectionNode);
         return visualElement;
     })
     public setLayoutAnimationBlocked(isBlocked: boolean) {
@@ -44,11 +41,11 @@ export class Motion extends Feature<MotionProps> {
             this.visualElement.projection!.target = undefined;
         }
     }
-    public readonly dragControls = new VisualElementDragControls(this.visualElement);
     public get mergedProps(): any {
         return { ...this.props, ...this.inheritedProps, visualElement: this.visualElement }
     }
     public _1 = this.onMount(() => {
+        useProjection(undefined, this.mergedProps, {}, this.visualElement, HTMLProjectionNode);
         if (this.mergedProps.drag && this.mergedProps.dragListener !== false) {
             Object.assign(this.element.style, {
                 userSelect: 'none',
@@ -56,13 +53,17 @@ export class Motion extends Feature<MotionProps> {
             })
         }
         this.visualElement.mount(this.element);
-        MeasureLayoutWithContext.componentDidMount(this.mergedProps);
-        this.dragControls.addListeners();
+        new VisualElementDragControls(this.visualElement).addListeners();
         // when initial animation is disabled, we need to render the styles
         this.visualElement.syncRender();
+        // need to wait for all projection nodes registered to root
+        // then start layout animation to fix distortion using tree scale
+        nextTick().then(() => {
+            MeasureLayoutWithContext.componentDidMount(this.mergedProps);
+        });
         const unmount = () => {
-            this.visualElement.unmount();
             MeasureLayoutWithContext.componentWillUnmount(this.mergedProps);
+            this.visualElement.unmount();
         }
         return () => {
             if (!this.mergedProps.exit) {
@@ -114,7 +115,7 @@ export class Motion extends Feature<MotionProps> {
             return;
         }
         const ancestors: HTMLElement[] = [];
-        let parent = this.element.parentElement;
+        let parent = this.element;
         while (parent) {
             ancestors.push(parent);
             parent.addEventListener('beforeMorph', this.beforeMorph);
@@ -122,7 +123,7 @@ export class Motion extends Feature<MotionProps> {
             if (parent === document.body) {
                 break;
             }
-            parent = parent.parentElement;
+            parent = parent.parentElement!;
         }
         return () => {
             for (const parent of ancestors) {

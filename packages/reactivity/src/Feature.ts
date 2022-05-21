@@ -56,10 +56,7 @@ export class Feature<Props extends Record<string, any>> {
         const getFunc = descriptor?.get;
         if (getFunc && !descriptor.set) {
             const computedProp = computed(() => {
-                if ((this as any)[`${propName}__cache`]?.unmount) {
-                    (this as any)[`${propName}__cache`].unmount();
-                }
-                return (this as any)[`${propName}__cache`] = getFunc.call(this);
+                return getFunc.call(this);
             });
             descriptor.get = () => {
                 return computedProp.value;
@@ -79,7 +76,7 @@ export class Feature<Props extends Record<string, any>> {
 
     protected effect(fn: () => void | (() => void)) {
         let onStop: any;
-        return effect(() => {
+        const e = effect(() => {
             if (onStop) {
                 onStop();
             }
@@ -90,22 +87,23 @@ export class Feature<Props extends Record<string, any>> {
                     onStop();
                 }
             }
-        }).effect;
+        });
+        return { __unmount__: () => e.effect.stop() }
     }
 
     protected onMount(fn: () => void | (() => void)) {
-        const unmount = fn();
-        return { unmount }
+        const __unmount__ = fn();
+        return { __unmount__ }
     }
 
     protected create<T>(fn: () => T): T {
         return fn();
     }
 
-    public unmount() {
+    public __unmount__() {
         const promises = [];
         for (const v of Object.values(this)) {
-            const unmount = (v as any)?.unmount || (v as any)?.stop;
+            const unmount = (v as any)?.__unmount__;
             if (unmount) {
                 const promise = unmount.call(v);
                 if (promise) {

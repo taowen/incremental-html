@@ -2,9 +2,9 @@ import { AnimatePresence, motion } from 'framer-motion';
 import * as React from 'react';
 import LoremIpsum, { Avatar } from "react-lorem-ipsum";
 import { BrowserRouter, Link, Route, Routes, useParams } from "react-router-dom";
-import './case17.css';
 
 export function Case17() {
+  import('./case17.css');
   return <div className="container">
     <Header />
     <Routes>
@@ -20,7 +20,7 @@ function Store() {
 
   return (
     <>
-      <List selectedId={params.id} />
+      { !params.id && <List selectedId={params.id} /> }
       <AnimatePresence>
         {params.id && imageHasLoaded && <Item id={params.id} key="item" />}
       </AnimatePresence>
@@ -84,7 +84,7 @@ const Header = () => (
 function List({ selectedId }: { selectedId?: string }) {
   return (
     <ul className="card-list">
-      {items.map(card => (
+      {items.slice(0, 1).map(card => (
         <Card key={card.id} {...card} isSelected={card.id === selectedId} />
       ))}
     </ul>

@@ -90,9 +90,9 @@
 
 <body>
     <ul>
-        <template id="list-item" use:reorder="$Reorder" reorder:initial="'initial'" reorder:while-not-at-origin="'drag'" reorder:variants="{ 
-            initial: { boxShadow: '0px 0px 0px rgba(0,0,0,0.8)' },
-            drag: { boxShadow: '5px 5px 10px rgba(0,0,0,0.3)' }
+        <template id="list-item" use:reorder="$Reorder" reorder:initial="'withoutShadow'" reorder:while-not-at-origin="'withShadow'" reorder:variants="{ 
+            withoutShadow: { boxShadow: '0px 0px 0px rgba(0,0,0,0.8)' },
+            withShadow: { boxShadow: '5px 5px 10px rgba(0,0,0,0.3)' }
          }"></template>
         <li id="🍅 Tomato" copy-from="#list-item">
             <span>🍅 Tomato</span>

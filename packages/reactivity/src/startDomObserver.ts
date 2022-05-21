@@ -8,13 +8,13 @@ import { notifyNodeSubscribers } from './subscribeNode';
 
 let nextId = 1;
 
-export function startDomObserver() {
-    return mountElement(document.body);
+export function startDomObserver(root?: Element) {
+    return mountElement(root || document.body);
 }
 
-export function stopDomObserver() {
+export function stopDomObserver(root?: Element) {
     mutationObserver.disconnect();
-    delete (document.body as any).$xid;
+    delete (root || document.body as any).$xid;
 }
 
 morphChildNodes.morphProperties = (oldEl, newEl) => {
@@ -35,11 +35,11 @@ morphChildNodes.beforeRemove = (el) => {
 export const mutationObserver = new MutationObserver((mutationList) => {
     let toNotify: Set<string> | undefined;
     for (const mutation of mutationList) {
-        if (mutation.attributeName === 'style') {
-            // avoid animation trigger observer recompute
-            continue;
-        }
         if (mutation.attributeName) {
+            if (mutation.attributeName === 'style') {
+                // avoid animation trigger observer recompute
+                continue;
+            }
             if (!toNotify) {
                 toNotify = new Set();
             }
@@ -82,8 +82,9 @@ function unmountElement(element: Element): Promise<void> | void {
     }
     const promises = [];
     if ((element as any).$features) {
-        for (const feature of (element as any).$features.values()) {
-            const promise = feature.unmount();
+        const features: Map<any, Feature<any>> = (element as any).$features;
+        for (const feature of features.values()) {
+            const promise = feature.__unmount__();
             if (promise) {
                 promises.push(promise);
             }
