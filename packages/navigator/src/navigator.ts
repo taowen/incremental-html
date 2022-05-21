@@ -18,12 +18,14 @@ export const navigator = {
      */
     async reload(url?: string) {
         const pageState = this.pageState;
-        const resp = await (pageState ? fetch(url || window.location.href, {
+        const respText = await (pageState ? sequentialFetch(url || window.location.href, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(pageState)
-        }) : fetch(url || window.location.href));
-        const respText = await resp.text();
+        }) : sequentialFetch(url || window.location.href));
+        if (respText === null) {
+            return;
+        }
         applyHtml(respText);
     },
     /**
@@ -31,8 +33,10 @@ export const navigator = {
      * @param url providing new page content
      */
     async replace(url: string) {
-        const resp = await fetch(url);
-        const respText = await resp.text();
+        const respText = await sequentialFetch(url);
+        if (respText === null) {
+            return;
+        }
         applyHtml(respText);
         window.history.replaceState(respText, '', url);
     },
@@ -41,8 +45,10 @@ export const navigator = {
      * @param url redirect to
      */
     async assign(url: string) {
-        const resp = await fetch(url);
-        const respText = await resp.text();
+        const respText = await sequentialFetch(url);
+        if (respText === null) {
+            return;
+        }
         window.history.replaceState(document.documentElement.innerHTML, '', window.location.href);
         window.addEventListener('popstate', onPopState);
         applyHtml(respText);
@@ -59,6 +65,39 @@ export const navigator = {
      */
     set href(url: string) {
         this.assign(url);
+    }
+}
+
+/**
+ * only one inflight request is allowed
+ * because all the request will refresh the same browser page
+ * if there is a later request started, we are sure it will return a more fresh result
+ */
+let inflightRequest: AbortController | undefined;
+
+async function sequentialFetch(url: string, options?: RequestInit): Promise<string | null> {
+    if (inflightRequest) {
+        inflightRequest.abort();
+    }
+    const controller = new AbortController();
+    inflightRequest = controller;
+    try {
+        const resp = await fetch(url, {...options, signal: controller.signal });
+        const respText = await resp.text();
+        if (!respText) {
+            throw new Error(`response of ${url} is empty`)
+        }
+        return respText;
+    } catch(e) {
+        if (controller.signal.aborted) {
+            return null;
+        } else {
+            throw e;
+        }
+    } finally {
+        if (inflightRequest === controller) {
+            inflightRequest = undefined;
+        }
     }
 }
 

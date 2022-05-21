@@ -37,8 +37,6 @@ server.post('/delete', async(req, resp) => {
 })
 
 server.get('/item', async(req, resp) => {
-    resp.write('<html>');
-    await new Promise(resolve => setTimeout(resolve, 1000));
     const jsx = <html>
         <head>
             <meta http-equiv="content-type" content="text/html; charset=utf-8" />
@@ -54,6 +52,7 @@ server.get('/item', async(req, resp) => {
 })
 
 server.get('/', async (req, resp) => {
+    await new Promise<void>(resolve => setTimeout(resolve, 1000));
     const form = createForm({} as NewTodoForm);
     const jsx = <html>
         <head>
@@ -93,7 +92,7 @@ server.get('/', async (req, resp) => {
 });
 
 async function sendHtml(resp: Response, jsx: any) {
-    let result = await jsx;
+    let result = await jsxToHtml(jsx);
     if (result) {
         result = "<!DOCTYPE html>" + result;
     }

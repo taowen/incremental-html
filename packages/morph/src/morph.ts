@@ -1,4 +1,4 @@
-export async function morph(node: Element, cb: () => void) {
+export function morph(node: Element, cb: () => void) {
     node.dispatchEvent(new Event('beforeMorph'));
     try {
         cb();
