@@ -91,9 +91,12 @@ export class Feature<Props extends Record<string, any>> {
         return { __unmount__: () => e.effect.stop() }
     }
 
-    protected onMount(fn: () => void | (() => void)) {
+    protected onMount(fn: () => void | Promise<void> | (() => void)) {
         const __unmount__ = fn();
-        return { __unmount__ }
+        if (typeof __unmount__ === 'function') {
+            return { __unmount__ }
+        }
+        return undefined;
     }
 
     protected create<T>(fn: () => T): T {

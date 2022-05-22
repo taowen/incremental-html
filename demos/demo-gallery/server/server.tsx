@@ -9,7 +9,7 @@ server.use(bodyParser.json());
 
 server.get('/gallery', async (req, resp) => {
     await sendHtml(resp, <div id="gallery">
-        {range(20, i => <img class="mb-4 mt-4" src={`/images/${i + 1}.jpg`} />)}
+        {range(20, i => <div><img class="pt-4" src={`/images/${i + 1}.jpg`} /></div>)}
     </div>)
 })
 
@@ -24,7 +24,7 @@ server.get('/', async (req, resp) => {
                 <div class="inline-flex items-center mr-4 align-center">#Fav 0</div>
             </ul>
         </div>
-        <div id="gallery" class="flex-1 overflow-y-auto flex flex-row justify-center gap-4" use:list="$List" list:masonry-columns="2">
+        <div id="gallery" class="flex-1 overflow-y-auto flex flex-row justify-center gap-4" use:list="$List" list:masonry-columns="3">
             <div use:loader="$List.Loader" loader:url="'/gallery'">Load more...</div>
         </div>
     </main>)
