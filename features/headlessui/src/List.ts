@@ -86,10 +86,7 @@ class MasonryColumn extends Feature<{ virtualized: boolean, measureVisibleRange:
         let tail = 0;
         const inViewItems = [];
         for (const item of this.items) {
-            let itemHeight = (item as any).$cachedHeight;
-            if (itemHeight === undefined) {
-                (item as any).$cachedHeight = itemHeight = item.getBoundingClientRect().height;
-            }
+            let itemHeight = (item as any).$cachedHeight || 0;
             let inView = false;
             if (top > max) {
                 tail += itemHeight;
@@ -127,8 +124,8 @@ class MasonryColumn extends Feature<{ virtualized: boolean, measureVisibleRange:
         morphChildNodes(this.element, [this.headPlaceholder, ...inViewItems, this.tailPlaceholder]);
     }
 
-    public imagesLoaded() {
-        const images = this.element.querySelectorAll('img');
+    public imagesLoaded(item: Element) {
+        const images = item.querySelectorAll('img');
         if (images.length === 0) {
             return undefined;
         }
@@ -149,10 +146,10 @@ class MasonryColumn extends Feature<{ virtualized: boolean, measureVisibleRange:
     }
 
     public async calcHeight() {
-        await this.imagesLoaded();
         let height = 0;
         for (const item of this.items) {
             if ((item as any).$cachedHeight === undefined) {
+                await this.imagesLoaded(item);
                 (item as any).$cachedHeight = item.getBoundingClientRect().height;
             }
             height += (item as any).$cachedHeight

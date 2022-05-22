@@ -24,7 +24,7 @@ server.get('/', async (req, resp) => {
                 <div class="inline-flex items-center mr-4 align-center">#Fav 0</div>
             </ul>
         </div>
-        <div id="gallery" class="flex-1 overflow-y-auto flex flex-row justify-center gap-4" use:list="$List" list:masonry-columns="3">
+        <div id="gallery" class="flex-1 overflow-y-auto flex flex-row justify-center gap-4" use:list="$List" list:masonry-columns="2">
             <div use:loader="$List.Loader" loader:url="'/gallery'">Load more...</div>
         </div>
     </main>)
