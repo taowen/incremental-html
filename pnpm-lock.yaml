@@ -109,6 +109,7 @@ importers:
     specifiers:
       '@incremental-html/headlessui': workspace:*
       '@incremental-html/jsx-to-html': workspace:*
+      '@incremental-html/navigator': workspace:*
       '@incremental-html/reactivity': workspace:*
       '@types/express': ^4.17.13
       autoprefixer: ^10.4.5
@@ -120,6 +121,7 @@ importers:
     dependencies:
       '@incremental-html/headlessui': link:../../features/headlessui
       '@incremental-html/jsx-to-html': link:../../packages/jsx-to-html
+      '@incremental-html/navigator': link:../../packages/navigator
       '@incremental-html/reactivity': link:../../packages/reactivity
       body-parser: 1.20.0
       express: 5.0.0-beta.1

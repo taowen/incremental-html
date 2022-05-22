@@ -14,19 +14,32 @@ server.get('/gallery', async (req, resp) => {
 })
 
 server.get('/', async (req, resp) => {
+    const tab = req.query.tab as string || 'columns1'
     await sendHtml(resp, <main class="flex flex-col h-screen">
         <div class="grow-0 shrink-0 basis-auto border-b border-gray-200 dark:border-gray-700">
             <ul class="flex h-12 -mb-px text-sm font-medium gap-2" role="tablist">
-                <Tab selected controls="columns1" label="1 Column" />
-                <Tab controls="columns2" label="2 Columns" />
-                <Tab controls="columns3" label="3 Columns" />
+                <Tab tab={tab} controls="columns1" label="1 Column" />
+                <Tab tab={tab} controls="columns2" label="2 Columns" />
+                <Tab tab={tab} controls="columns3" label="3 Columns" />
                 <div class="grow"></div>
                 <div class="inline-flex items-center mr-4 align-center">#Fav 0</div>
             </ul>
         </div>
-        <div id="gallery" class="flex-1 overflow-y-auto flex flex-row justify-center gap-4" use:list="$List" list:masonry-columns="2">
-            <div use:loader="$List.Loader" loader:url="'/gallery'">Load more...</div>
-        </div>
+        {tab === 'columns1' && <div id="columns1">
+            <div id="gallery" class="flex-1 overflow-y-auto ml-4" use:list="$List">
+                <div use:loader="$List.Loader" loader:url="'/gallery'">Load more...</div>
+            </div>
+        </div>}
+        {tab === 'columns2' && <div id="columns2">
+            <div id="gallery" class="flex-1 overflow-y-auto flex flex-row ml-4 gap-4" use:list="$List" list:masonry-columns="2">
+                <div use:loader="$List.Loader" loader:url="'/gallery'">Load more...</div>
+            </div>
+        </div>}
+        {tab === 'columns3' && <div id="columns3">
+            <div id="gallery" class="flex-1 overflow-y-auto flex flex-row ml-4 gap-4" use:list="$List" list:masonry-columns="3">
+                <div use:loader="$List.Loader" loader:url="'/gallery'">Load more...</div>
+            </div>
+        </div>}
     </main>)
 })
 
@@ -38,16 +51,18 @@ function range(times: number, cb: (index: number) => any) {
     return result;
 }
 
-function Tab({ selected, controls, label }: { selected?: boolean, controls: string, label: string }) {
-    if (selected) {
+function Tab({ tab, controls, label }: { tab?: string, controls: string, label: string }) {
+    if (tab === controls) {
         return <li role="presentation">
             <button class="inline-flex items-center pl-4 pr-4 h-full rounded-t-lg border-b-2 border-blue-600"
-                type="button" role="tab" aria-controls={controls} aria-selected="true">{label}</button>
+                type="button" role="tab" aria-controls={controls} aria-selected="true"
+                on:click={`$navigator.href = '/?tab=${controls}'`}>{label}</button>
         </li>
     } else {
         return <li role="presentation">
             <button class="inline-flex items-center pl-4 pr-4 h-full rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-                type="button" role="tab" aria-controls={controls} aria-selected="false">{label}</button>
+                type="button" role="tab" aria-controls={controls} aria-selected="false"
+                on:click={`$navigator.href = '/?tab=${controls}'`}>{label}</button>
         </li>
     }
 }

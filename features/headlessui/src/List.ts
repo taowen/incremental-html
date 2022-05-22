@@ -201,6 +201,11 @@ export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?
     }
 
     private _ = this.onMount(async () => {
+        this.element.addEventListener('shouldMorph', (e) => {
+            // list children will not be updated when navigator wide reload
+            // use list.reload(item) to reload individual item
+            e.preventDefault();
+        })
         for (const item of this.initItems) {
             await this.addItem(item);
         }

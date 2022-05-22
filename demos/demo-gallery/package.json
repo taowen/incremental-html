@@ -4,8 +4,9 @@
     "version": "1.0.0",
     "dependencies": {
         "@incremental-html/jsx-to-html": "workspace:*",
-        "@incremental-html/headlessui": "workspace:*",
         "@incremental-html/reactivity": "workspace:*",
+        "@incremental-html/navigator": "workspace:*",
+        "@incremental-html/headlessui": "workspace:*",
         "body-parser": "^1.20.0",
         "express": "^5.0.0-beta.1"
     },
