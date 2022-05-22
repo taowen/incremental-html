@@ -7,6 +7,12 @@ const server = express.Router();
 server.use(bodyParser.urlencoded({ extended: false }));
 server.use(bodyParser.json());
 
+server.get('/gallery', async (req, resp) => {
+    await sendHtml(resp, <div id="gallery">
+        {range(20, i => <img class="mb-4 mt-4" src={`/images/${i + 1}.jpg`} />)}
+    </div>)
+})
+
 server.get('/', async (req, resp) => {
     await sendHtml(resp, <main class="flex flex-col h-screen">
         <div class="grow-0 shrink-0 basis-auto border-b border-gray-200 dark:border-gray-700">
@@ -18,18 +24,19 @@ server.get('/', async (req, resp) => {
                 <div class="inline-flex items-center mr-4 align-center">#Fav 0</div>
             </ul>
         </div>
-        <div class="flex-1 overflow-y-auto flex flex-row justify-center gap-4" use:list="$List" list:masonry-columns="2">
-            <img class="mb-4 mt-4" src="/images/1.jpg"/>
-            <img class="mb-4 mt-4" src="/images/2.jpg"/>
-            <img class="mb-4 mt-4" src="/images/3.jpg"/>
-            <img class="mb-4 mt-4" src="/images/4.jpg"/>
-            <img class="mb-4 mt-4" src="/images/5.jpg"/>
-            <img class="mb-4 mt-4" src="/images/6.jpg"/>
-            <img class="mb-4 mt-4" src="/images/7.jpg"/>
-            <img class="mb-4 mt-4" src="/images/8.jpg"/>
+        <div id="gallery" class="flex-1 overflow-y-auto flex flex-row justify-center gap-4" use:list="$List" list:masonry-columns="2">
+            <div use:loader="$List.Loader" loader:url="'/gallery'">Load more...</div>
         </div>
     </main>)
 })
+
+function range(times: number, cb: (index: number) => any) {
+    const result = [];
+    for (let i = 0; i < times; i++) {
+        result.push(cb(i));
+    }
+    return result;
+}
 
 function Tab({ selected, controls, label }: { selected?: boolean, controls: string, label: string }) {
     if (selected) {

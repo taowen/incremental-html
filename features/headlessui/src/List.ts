@@ -144,7 +144,7 @@ class MasonryColumn extends Feature<{ virtualized: boolean, measureVisibleRange:
     public calcHeight() {
         let height = 0;
         for (const item of this.items) {
-            height += (item as any).$cachedHeight || 0
+            height += (item as any).$cachedHeight || 100
         }
         return height;
     }
