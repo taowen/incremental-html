@@ -18,15 +18,15 @@ server.get('/', async (req, resp) => {
                 <div class="inline-flex items-center mr-4 align-center">#Fav 0</div>
             </ul>
         </div>
-        <div class="flex-1 overflow-y-auto">
-            <img class="m-4" src="/images/1.jpg"/>
-            <img class="m-4" src="/images/2.jpg"/>
-            <img class="m-4" src="/images/3.jpg"/>
-            <img class="m-4" src="/images/4.jpg"/>
-            <img class="m-4" src="/images/5.jpg"/>
-            <img class="m-4" src="/images/6.jpg"/>
-            <img class="m-4" src="/images/7.jpg"/>
-            <img class="m-4" src="/images/8.jpg"/>
+        <div class="flex-1 overflow-y-auto flex flex-row justify-center gap-4" use:list="$List" list:masonry-columns="2">
+            <img class="mb-4 mt-4" src="/images/1.jpg"/>
+            <img class="mb-4 mt-4" src="/images/2.jpg"/>
+            <img class="mb-4 mt-4" src="/images/3.jpg"/>
+            <img class="mb-4 mt-4" src="/images/4.jpg"/>
+            <img class="mb-4 mt-4" src="/images/5.jpg"/>
+            <img class="mb-4 mt-4" src="/images/6.jpg"/>
+            <img class="mb-4 mt-4" src="/images/7.jpg"/>
+            <img class="mb-4 mt-4" src="/images/8.jpg"/>
         </div>
     </main>)
 })

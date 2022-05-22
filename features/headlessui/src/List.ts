@@ -89,6 +89,7 @@ class MasonryColumn extends Feature<{ virtualized: boolean, measureVisibleRange:
         if (!skipAppendChild) {
             this.element.appendChild(item);
         }
+        (item as any).$cachedHeight = item.getBoundingClientRect().height;
         this.resizeObserver.observe(item);
     }
 
