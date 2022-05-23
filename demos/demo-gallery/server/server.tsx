@@ -25,8 +25,8 @@ function GalleryImages({ query }: { query: Request['query'] }) {
     const images = range(from, from + count).filter(imageId => imageId < 20);
     const loadMore = new URLSearchParams({ ...query as any, from: images[images.length - 1], count: from === 0 ? count + 1 : count });
     return <>
-        {images.map(imageId => <GalleryImage imageId={imageId} reloadUrl={`'/?${new URLSearchParams({ ...query as any, from: imageId, count: 1 })}'`} />)}
-        {images.length > 1 ? <div use:loader="$List.Loader" loader:url={`'/?${loadMore}'`} /> : undefined}
+        {images.map(imageId => <GalleryImage imageId={imageId} reloadUrl={'/?' + new URLSearchParams({ ...query as any, from: imageId, count: 1 })} />)}
+        {images.length > 1 ? <div use:loader="$List.Loader" loader:url={'/?' + loadMore} /> : undefined}
     </>
 }
 

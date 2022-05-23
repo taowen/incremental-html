@@ -2,6 +2,11 @@ import { morphAttributes, morphChildNodes } from "@incremental-html/morph";
 import { Feature, getFeature, mountElement, queryFeature, reactive } from "@incremental-html/reactivity";
 
 class ListLoader extends Feature<{ url?: string, load?: () => Promise<string> }> {
+
+    protected isStringProp(propName: string): boolean {
+        return propName === 'url';
+    }
+
     private state = reactive({
         isLoading: false,
         loadError: undefined as any
@@ -49,10 +54,16 @@ class ListLoader extends Feature<{ url?: string, load?: () => Promise<string> }>
 }
 
 class ListReloader extends Feature<{ url?: string, load?: () => Promise<string> }> {
+
+    protected isStringProp(propName: string): boolean {
+        return propName === 'url';
+    }
+
     private state = reactive({
         isLoading: false,
         loadError: undefined as any
     })
+
     public get isLoading() {
         return this.state.isLoading;
     }
@@ -99,7 +110,7 @@ class MasonryColumn extends Feature<{ list: List, virtualized: boolean, measureV
     })
 
     public removeLoader(loader: ListLoader) {
-        if (this.items[this.items.length -1] === loader.element) {
+        if (this.items[this.items.length - 1] === loader.element) {
             this.items.length -= 1;
         }
     }
@@ -221,6 +232,10 @@ export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?
     public static Loader = ListLoader;
     public static Reloader = ListReloader;
 
+    protected isStringProp(propName: string): boolean {
+        return propName === 'masonryColumnClass' || propName === 'masonryColumnStyle';
+    }
+
     private initItems = this.create(() => {
         let child = this.element.firstChild;
         const items = [];
@@ -251,7 +266,7 @@ export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?
             columnEl.setAttribute('style', this.props.masonryColumnStyle || '');
             columnEl.className = this.props.masonryColumnClass || '';
             this.element.appendChild(columnEl);
-            columns.push(new MasonryColumn(columnEl, () => ({ list: this, virtualized: !!this.props.virtualized, measureVisibleRange: this.measureVisibleRange  })));
+            columns.push(new MasonryColumn(columnEl, () => ({ list: this, virtualized: !!this.props.virtualized, measureVisibleRange: this.measureVisibleRange })));
         }
         return columns;
     })

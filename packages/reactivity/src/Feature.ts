@@ -28,13 +28,23 @@ export class Feature<Props extends Record<string, any>> {
             const props: Record<string, any> = {};
             for (let i = 0; i < element.attributes.length; i++) {
                 const attr = element.attributes[i];
-                if (attr.name.startsWith(prefix)) {
-                    const propName = camelize(attr.name.substring(prefix.length));
-                    if (attr.value) {
-                        props[propName] = evalExpr(attr.value, element);
+                if (!attr.name.startsWith(prefix)) {
+                    continue;
+                }
+                const propName = camelize(attr.name.substring(prefix.length));
+                if (attr.value) {
+                    if (this.isStringProp(propName)) {
+                        const attrValue = attr.value.trim();
+                        if (attrValue.startsWith("'") || attrValue.startsWith('"') || attrValue.startsWith('`')) {
+                            props[propName] = evalExpr(attr.value, element);
+                        } else {
+                            props[propName] = attr.value;
+                        }
                     } else {
-                        props[propName] = true;
+                        props[propName] = evalExpr(attr.value, element);
                     }
+                } else {
+                    props[propName] = true;
                 }
             }
             return props;
@@ -42,6 +52,10 @@ export class Feature<Props extends Record<string, any>> {
         this.makeGettersCached();
         // invalidate queryFeature, trigger re-run
         getInstanceCounter(this.constructor).value += 1;
+    }
+
+    protected isStringProp(propName: string) {
+        return false;
     }
 
     private makeGettersCached() {
@@ -64,7 +78,7 @@ export class Feature<Props extends Record<string, any>> {
             Object.defineProperty(this, propName, descriptor);
         }
     }
-    
+
     public get props(): Props {
         return this.computedProps.value as Props;
     }
@@ -132,7 +146,7 @@ function getInstanceCounter(featureClass: any): Ref<number> {
     }
 }
 
-export function getFeature<T>(element: Node | null | undefined, featureClass: { new (element: Element, prefix: string): T; }): T | undefined {
+export function getFeature<T>(element: Node | null | undefined, featureClass: { new(element: Element, prefix: string): T; }): T | undefined {
     if (!featureClass) {
         throw new Error('can not getFeature of undefined featureClass')
     }
@@ -143,7 +157,7 @@ export function getFeature<T>(element: Node | null | undefined, featureClass: { 
     return undefined;
 }
 
-export function queryFeature<T>(element: Node | null | undefined, featureClass: { new (element: Element, prefix: string): T; }): T | undefined {
+export function queryFeature<T>(element: Node | null | undefined, featureClass: { new(element: Element, prefix: string): T; }): T | undefined {
     if (!featureClass) {
         throw new Error('can not queryFeature of undefined featureClass')
     }
