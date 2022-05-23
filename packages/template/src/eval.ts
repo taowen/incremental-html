@@ -1,7 +1,23 @@
-let evalGlobals = (window as any).$evalGlobals = (window as any).$evalGlobals || {
-    globalKeys: [] as string[],
-    globalValues: [] as any[]
-}
+declare const global: any;
+
+let evalGlobals = (() => {
+    if (typeof window !== 'undefined') {
+        return (window as any).$evalGlobals = (window as any).$evalGlobals || {
+            globalKeys: [] as string[],
+            globalValues: [] as any[]
+        }
+    }
+    if (typeof global !== 'undefined') {
+        return (global as any).$evalGlobals = (global as any).$evalGlobals || {
+            globalKeys: [] as string[],
+            globalValues: [] as any[]
+        }
+    }
+    return {
+        globalKeys: [] as string[],
+        globalValues: [] as any[]
+    }
+})();
 
 export function setEvalGlobals(kv: Record<string, any>) {
     for (const [k, v] of Object.entries(kv)) {

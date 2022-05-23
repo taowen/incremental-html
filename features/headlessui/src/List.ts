@@ -1,5 +1,5 @@
 import { morphChildNodes } from "@incremental-html/morph";
-import { Feature, queryFeature, reactive } from "@incremental-html/reactivity";
+import { Feature, getFeature, mountElement, reactive } from "@incremental-html/reactivity";
 
 class ListLoader extends Feature<{ url?: string, load?: () => Promise<string> }> {
     private state = reactive({
@@ -12,7 +12,9 @@ class ListLoader extends Feature<{ url?: string, load?: () => Promise<string> }>
     public get loadError() {
         return this.state.loadError;
     }
-    private _ = this.onMount(() => {
+    private list?: List;
+    public attachToList(list: List) {
+        this.list = list;
         const intersectionObserver = new IntersectionObserver((entries) => {
             if (entries[0].isIntersecting) {
                 intersectionObserver.disconnect();
@@ -23,8 +25,7 @@ class ListLoader extends Feature<{ url?: string, load?: () => Promise<string> }>
         return () => {
             intersectionObserver.disconnect();
         }
-    });
-    private list = queryFeature(this.element, List);
+    }
     private async load() {
         if (!this.list) {
             return;
@@ -212,18 +213,27 @@ export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?
     })
 
     private async addItem(item: HTMLElement) {
-        if (this.columns.length === 1) {
-            return this.columns[0].addItem(item, true);
-        }
-        let minHeight = await this.columns[0].calcHeight();
-        let pickedColumn = this.columns[0];
-        for (let i = 1; i < this.columns.length; i++) {
-            const column = this.columns[i];
-            if (await column.calcHeight() < minHeight) {
-                pickedColumn = column;
+        try {
+            if (this.columns.length === 1) {
+                this.columns[0].addItem(item, true);
+                return;
+            }
+            let minHeight = await this.columns[0].calcHeight();
+            let pickedColumn = this.columns[0];
+            for (let i = 1; i < this.columns.length; i++) {
+                const column = this.columns[i];
+                if (await column.calcHeight() < minHeight) {
+                    pickedColumn = column;
+                }
+            }
+            pickedColumn.addItem(item);
+        } finally {
+            mountElement(item);
+            const listLoader = getFeature(item, ListLoader);
+            if (listLoader) {
+                listLoader.attachToList(this);
             }
         }
-        pickedColumn.addItem(item);
     }
 
     public async load(loader: ListLoader, respText: string) {

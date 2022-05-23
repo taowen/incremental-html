@@ -32,7 +32,7 @@ morphChildNodes.beforeRemove = (el) => {
     return unmountElement(el);
 };
 
-export const mutationObserver = new MutationObserver((mutationList) => {
+export const mutationObserver: MutationObserver = typeof MutationObserver === 'undefined' ? undefined as any : new MutationObserver((mutationList) => {
     let toNotify: Set<string> | undefined;
     for (const mutation of mutationList) {
         if (mutation.attributeName) {
@@ -105,7 +105,7 @@ function unmountElement(element: Element): Promise<void> | void {
     }
 }
 
-function mountElement(element: Element) {
+export function mountElement(element: Element) {
     if ((element as any).$xid) {
         return (element as any).$xid;
     }

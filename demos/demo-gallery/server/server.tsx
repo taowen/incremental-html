@@ -1,5 +1,4 @@
 import { jsxToHtml } from '@incremental-html/jsx-to-html';
-import '@incremental-html/headlessui';
 import bodyParser from 'body-parser';
 import express, { Response } from 'express';
 
@@ -9,8 +8,15 @@ server.use(bodyParser.urlencoded({ extended: false }));
 server.use(bodyParser.json());
 
 server.get('/gallery', async (req, resp) => {
+    if (!req.query.from || !req.query.to) {
+        resp.status(400).end();
+        return;
+    }
+    const from = Number(req.query.from)
+    const to = Number(req.query.to)
     await sendHtml(resp, <div id="gallery">
-        {range(20, i => <div><img class="pt-4" src={`/images/${i + 1}.jpg`} /></div>)}
+        {range(from, to, i => <div><img class="pt-4" src={`/images/${i + 1}.jpg`} /></div>)}
+        {to < 20 && <div use:loader="$List.Loader" loader:url={`'/gallery?from=${to}&to=${to+10}'`}>Load more...</div>}
     </div>)
 })
 
@@ -28,25 +34,25 @@ server.get('/', async (req, resp) => {
         </div>
         {tab === 'columns1' && <div id="columns1">
             <div id="gallery" class="flex-1 overflow-y-auto ml-4" use:list="$List">
-                <div use:loader="$List.Loader" loader:url="'/gallery'">Load more...</div>
+                <div use:loader="$List.Loader" loader:url="'/gallery?from=0&to=10'">Load more...</div>
             </div>
         </div>}
         {tab === 'columns2' && <div id="columns2">
             <div id="gallery" class="flex-1 overflow-y-auto flex flex-row ml-4 gap-4" use:list="$List" list:masonry-columns="2">
-                <div use:loader="$List.Loader" loader:url="'/gallery'">Load more...</div>
+                <div use:loader="$List.Loader" loader:url="'/gallery?from=0&to=10'">Load more...</div>
             </div>
         </div>}
         {tab === 'columns3' && <div id="columns3">
             <div id="gallery" class="flex-1 overflow-y-auto flex flex-row ml-4 gap-4" use:list="$List" list:masonry-columns="3">
-                <div use:loader="$List.Loader" loader:url="'/gallery'">Load more...</div>
+                <div use:loader="$List.Loader" loader:url="'/gallery?from=0&to=10'">Load more...</div>
             </div>
         </div>}
     </main>)
 })
 
-function range(times: number, cb: (index: number) => any) {
+function range(from: number, to: number, cb: (index: number) => any) {
     const result = [];
-    for (let i = 0; i < times; i++) {
+    for (let i = from; i < to; i++) {
         result.push(cb(i));
     }
     return result;

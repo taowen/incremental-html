@@ -132,6 +132,14 @@ function getInstanceCounter(featureClass: any): Ref<number> {
     }
 }
 
+export function getFeature<T>(element: Node | null | undefined, featureClass: { new (element: Element, prefix: string): T; }): T | undefined {
+    const features = (element as any)?.$features;
+    if (features) {
+        return features.get(featureClass);
+    }
+    return undefined;
+}
+
 export function queryFeature<T>(element: Node | null | undefined, featureClass: { new (element: Element, prefix: string): T; }): T | undefined {
     getInstanceCounter(featureClass).value; // will run queryFeature again when new feature created
     if (element?.nodeType !== 1) {
