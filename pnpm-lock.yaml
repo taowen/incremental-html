@@ -324,6 +324,7 @@ importers:
 
   features/headlessui:
     specifiers:
+      '@incremental-html/jsx-to-html': workspace:*
       '@incremental-html/morph': workspace:*
       '@incremental-html/reactivity': workspace:*
       '@incremental-html/template': workspace:*
@@ -332,6 +333,7 @@ importers:
       typedoc: ^0.22.15
       typescript: ^4.5.5
     dependencies:
+      '@incremental-html/jsx-to-html': link:../../packages/jsx-to-html
       '@incremental-html/morph': link:../../packages/morph
       '@incremental-html/reactivity': link:../../packages/reactivity
       '@incremental-html/template': link:../../packages/template

@@ -7,6 +7,7 @@
     "types": "index.d.ts",
     "dependencies": {
         "@incremental-html/reactivity": "workspace:*",
+        "@incremental-html/jsx-to-html": "workspace:*",
         "@incremental-html/morph": "workspace:*",
         "@incremental-html/template": "workspace:*"
     },

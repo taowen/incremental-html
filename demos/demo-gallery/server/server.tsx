@@ -36,14 +36,13 @@ function GalleryImage({ imageId }: { imageId: number }) {
     return <div id={`image-${imageId}`} class="relative">
         <img class="pt-4" src={`/images/${imageId}.jpg`} />
         {favImages.has(imageId)
-            ? <div class="absolute left-1 bottom-1 text-black"
+            ? <div class="absolute left-1 bottom-1 text-black" style={{ color: 'red'}}
                 use:reloader="$List.Reloader" reloader:url={`'/gallery?from=${imageId}&to=${imageId + 1}'`}
                 data-image-id={imageId} on:click="
                     await fetch('/unfav', { body: JSON.stringify({ imageId: Number(this.dataset.imageId) }), method: 'POST', 
                         headers: { 'Content-Type': 'application/json' } });
                     $queryFeature(this, $List.Reloader).reload();
-                    $navigator.reload();
-                    ">
+                    $navigator.reload();">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 fill-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
@@ -54,8 +53,7 @@ function GalleryImage({ imageId }: { imageId: number }) {
                     await fetch('/fav', { body: JSON.stringify({ imageId: Number(this.dataset.imageId) }), method: 'POST', 
                         headers: { 'Content-Type': 'application/json' } });
                     $queryFeature(this, $List.Reloader).reload();
-                    $navigator.reload();
-                    ">
+                    $navigator.reload();">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 fill-tranparent hover:fill-red-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
