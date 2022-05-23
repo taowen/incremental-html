@@ -180,9 +180,11 @@ class MasonryColumn extends Feature<{ list: List, virtualized: boolean, measureV
         this.tailPlaceholder.style.minHeight = `${tail}px`;
         this.tailPlaceholder.style.minWidth = '100%';
         const refresh = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting) {
-                refresh.disconnect();
-                this.compact();
+            for (const entry of entries) {
+                if (entry.isIntersecting) {
+                    refresh.disconnect();
+                    this.compact();
+                }
             }
         });
         if (head > 0) {
