@@ -4,7 +4,7 @@
     "description": "reusable ui components without style",
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
-    "types": "dist/esm/index.d.ts",
+    "types": "index.d.ts",
     "dependencies": {
         "@incremental-html/reactivity": "workspace:*",
         "@incremental-html/morph": "workspace:*",

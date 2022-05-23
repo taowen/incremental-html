@@ -1,4 +1,5 @@
 import { jsxToHtml } from '@incremental-html/jsx-to-html';
+import '@incremental-html/headlessui';
 import bodyParser from 'body-parser';
 import express, { Response } from 'express';
 
