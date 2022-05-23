@@ -84,7 +84,7 @@ class ListReloader extends Feature<{ url?: string, load?: () => Promise<string> 
 
 let nextId = 1;
 
-class MasonryColumn extends Feature<{ virtualized: boolean, measureVisibleRange: () => readonly [number, number] }> {
+class MasonryColumn extends Feature<{ list: List, virtualized: boolean, measureVisibleRange: () => readonly [number, number] }> {
     public readonly items: HTMLElement[] = [];
     private headPlaceholder = this.create(() => {
         const headPlaceholder = document.createElement('div');
@@ -114,6 +114,7 @@ class MasonryColumn extends Feature<{ virtualized: boolean, measureVisibleRange:
                 if (oldItem.id === newItem.id) {
                     // the newItem do not need to be inserted
                     // update oldItem in place with newItem data
+                    newItems.splice(i, 1);
                     morphAttributes(oldItem, newItem);
                     morphChildNodes(oldItem, newItem);
                     break;
@@ -129,6 +130,11 @@ class MasonryColumn extends Feature<{ virtualized: boolean, measureVisibleRange:
         this.items.push(item);
         if (!skipAppendChild) {
             this.element.appendChild(item);
+        }
+        mountElement(item);
+        const listLoader = getFeature(item, ListLoader);
+        if (listLoader) {
+            listLoader.activate(this.props.list);
         }
     }
 
@@ -235,7 +241,7 @@ export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?
 
     private columns = this.create(() => {
         if (!this.props.masonryColumns) {
-            return [new MasonryColumn(this.element, () => ({ virtualized: !!this.props.virtualized, measureVisibleRange: this.measureVisibleRange }))];
+            return [new MasonryColumn(this.element, () => ({ list: this, virtualized: !!this.props.virtualized, measureVisibleRange: this.measureVisibleRange }))];
         }
         this.element.innerHTML = '';
         const columnsCount = this.props.masonryColumns!;
@@ -245,7 +251,7 @@ export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?
             columnEl.setAttribute('style', this.props.masonryColumnStyle || '');
             columnEl.className = this.props.masonryColumnClass || '';
             this.element.appendChild(columnEl);
-            columns.push(new MasonryColumn(columnEl, () => ({ virtualized: !!this.props.virtualized, measureVisibleRange: this.measureVisibleRange  })));
+            columns.push(new MasonryColumn(columnEl, () => ({ list: this, virtualized: !!this.props.virtualized, measureVisibleRange: this.measureVisibleRange  })));
         }
         return columns;
     })
@@ -261,32 +267,28 @@ export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?
             e.preventDefault();
         })
         for (const item of this.initItems) {
-            await this.addItem(item);
+            if (this.columns.length === 1) {
+                this.columns[0].addItem(item, true);
+            } else {
+                await this.addItem(item);
+            }
         }
     })
 
     private async addItem(item: HTMLElement) {
-        try {
-            if (this.columns.length === 1) {
-                this.columns[0].addItem(item, true);
-                return;
-            }
-            let minHeight = await this.columns[0].calcHeight();
-            let pickedColumn = this.columns[0];
-            for (let i = 1; i < this.columns.length; i++) {
-                const column = this.columns[i];
-                if (await column.calcHeight() < minHeight) {
-                    pickedColumn = column;
-                }
-            }
-            pickedColumn.addItem(item);
-        } finally {
-            mountElement(item);
-            const listLoader = getFeature(item, ListLoader);
-            if (listLoader) {
-                listLoader.activate(this);
+        if (this.columns.length === 1) {
+            this.columns[0].addItem(item);
+            return;
+        }
+        let minHeight = await this.columns[0].calcHeight();
+        let pickedColumn = this.columns[0];
+        for (let i = 1; i < this.columns.length; i++) {
+            const column = this.columns[i];
+            if (await column.calcHeight() < minHeight) {
+                pickedColumn = column;
             }
         }
+        pickedColumn.addItem(item);
     }
 
     public async load(loader: ListLoader, respText: string) {
@@ -302,6 +304,7 @@ export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?
             await this.addItem(newItem);
         }
         for (const column of this.columns) {
+            await column.calcHeight();
             column.compact();
         }
     }

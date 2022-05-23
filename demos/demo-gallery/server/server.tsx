@@ -1,6 +1,6 @@
 import { jsxToHtml } from '@incremental-html/jsx-to-html';
 import bodyParser from 'body-parser';
-import express, { Response } from 'express';
+import express, { Request, Response } from 'express';
 
 export const config = { indexHtml: '' }
 const server = express.Router();
@@ -19,25 +19,23 @@ server.post('/fav', async (req, resp) => {
     resp.end('ok');
 })
 
-server.get('/gallery', async (req, resp) => {
-    if (!req.query.from || !req.query.to) {
-        resp.status(400).end();
-        return;
-    }
-    const from = Number(req.query.from)
-    const to = Number(req.query.to)
-    await sendHtml(resp, <div id="gallery">
-        {range(from, to, i => <GalleryImage imageId={i} />)}
-        {to < 20 && <div use:loader="$List.Loader" loader:url={`'/gallery?from=${to}&to=${to + 10}'`}></div>}
-    </div>)
-})
+function GalleryImages({ query }: { query: Request['query'] }) {
+    const from = Number(query.from || 0)
+    const count = Number(query.count || 5)
+    const images = range(from, from + count).filter(imageId => imageId < 20);
+    const loadMore = new URLSearchParams({ ...query as any, from: images[images.length - 1], count: from === 0 ? count + 1 : count });
+    return <>
+        {images.map(imageId => <GalleryImage imageId={imageId} reloadUrl={`'/?${new URLSearchParams({ ...query as any, from: imageId, count: 1 })}'`} />)}
+        {images.length > 1 ? <div use:loader="$List.Loader" loader:url={`'/?${loadMore}'`} /> : undefined}
+    </>
+}
 
-function GalleryImage({ imageId }: { imageId: number }) {
+function GalleryImage({ imageId, reloadUrl }: { imageId: number, reloadUrl: string }) {
     return <div id={`image-${imageId}`} class="relative">
         <img class="pt-4" src={`/images/${imageId}.jpg`} />
         {favImages.has(imageId)
-            ? <div class="absolute left-1 bottom-1 text-black" style={{ color: 'red'}}
-                use:reloader="$List.Reloader" reloader:url={`'/gallery?from=${imageId}&to=${imageId + 1}'`}
+            ? <div class="absolute left-1 bottom-1 text-black"
+                use:reloader="$List.Reloader" reloader:url={reloadUrl}
                 data-image-id={imageId} on:click="
                     await fetch('/unfav', { body: JSON.stringify({ imageId: Number(this.dataset.imageId) }), method: 'POST', 
                         headers: { 'Content-Type': 'application/json' } });
@@ -48,7 +46,7 @@ function GalleryImage({ imageId }: { imageId: number }) {
                 </svg>
             </div>
             : <div class="absolute left-1 bottom-1 mix-blend-difference text-white hover:mix-blend-normal hover:text-black"
-                use:reloader="$List.Reloader" reloader:url={`'/gallery?from=${imageId}&to=${imageId + 1}'`}
+                use:reloader="$List.Reloader" reloader:url={reloadUrl}
                 data-image-id={imageId} on:click="
                     await fetch('/fav', { body: JSON.stringify({ imageId: Number(this.dataset.imageId) }), method: 'POST', 
                         headers: { 'Content-Type': 'application/json' } });
@@ -73,28 +71,22 @@ server.get('/', async (req, resp) => {
                 <div class="inline-flex items-center mr-4 align-center">#Fav {favImages.size}</div>
             </ul>
         </div>
-        {tab === 'columns1' ? <div id="columns1" class="flex-1 overflow-y-auto ml-4">
-            <div id="gallery" use:list="$List">
-                <div use:loader="$List.Loader" loader:url="'/gallery?from=0&to=10'"></div>
-            </div>
+        {tab === 'columns1' ? <div id="columns1" class="flex-1 overflow-y-auto ml-4" use:list="$List">
+            <GalleryImages query={req.query} />
         </div> : undefined}
-        {tab === 'columns2' ? <div id="columns2" class="flex-1 overflow-y-auto ml-4">
-            <div id="gallery" class="flex flex-row gap-4" use:list="$List" list:masonry-columns="2">
-                <div use:loader="$List.Loader" loader:url="'/gallery?from=0&to=10'"></div>
-            </div>
+        {tab === 'columns2' ? <div id="columns2" class="flex-1 overflow-y-auto ml-4 flex flex-row gap-4" use:list="$List" list:masonry-columns="2">
+            <GalleryImages query={req.query} />
         </div> : undefined}
-        {tab === 'columns3' ? <div id="columns3" class="flex-1 overflow-y-auto ml-4">
-            <div id="gallery" class="flex flex-row gap-4" use:list="$List" list:masonry-columns="3">
-                <div use:loader="$List.Loader" loader:url="'/gallery?from=0&to=10'"></div>
-            </div>
+        {tab === 'columns3' ? <div id="columns3" class="flex-1 overflow-y-auto ml-4 flex flex-row gap-4" use:list="$List" list:masonry-columns="3">
+            <GalleryImages query={req.query} />
         </div> : undefined}
     </main>)
 })
 
-function range(from: number, to: number, cb: (index: number) => any) {
+function range(from: number, to: number) {
     const result = [];
     for (let i = from; i < to; i++) {
-        result.push(cb(i));
+        result.push(i);
     }
     return result;
 }
