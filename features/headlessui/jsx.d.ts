@@ -4,5 +4,7 @@ declare namespace JsxToHtml {
         ['list:masonry-columns']?: string,
         ['use:loader']?: string,
         ['loader:url']?: string,
+        ['use:reloader']?: string,
+        ['reloader:url']?: string,
     }
 }

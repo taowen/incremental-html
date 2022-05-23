@@ -59,7 +59,7 @@ async function renderElement(ctx: {
 
 async function renderChild(ctx: { __writer: WritableStreamDefaultWriter, [key: string]: any }, node: any): Promise<void> {
     node = await node;
-    if (!node) {
+    if (node === null || node === undefined) {
         return;
     }
     const { __writer } = ctx;

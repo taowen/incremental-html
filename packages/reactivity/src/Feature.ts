@@ -133,6 +133,9 @@ function getInstanceCounter(featureClass: any): Ref<number> {
 }
 
 export function getFeature<T>(element: Node | null | undefined, featureClass: { new (element: Element, prefix: string): T; }): T | undefined {
+    if (!featureClass) {
+        throw new Error('can not getFeature of undefined featureClass')
+    }
     const features = (element as any)?.$features;
     if (features) {
         return features.get(featureClass);
@@ -141,6 +144,9 @@ export function getFeature<T>(element: Node | null | undefined, featureClass: { 
 }
 
 export function queryFeature<T>(element: Node | null | undefined, featureClass: { new (element: Element, prefix: string): T; }): T | undefined {
+    if (!featureClass) {
+        throw new Error('can not queryFeature of undefined featureClass')
+    }
     getInstanceCounter(featureClass).value; // will run queryFeature again when new feature created
     if (element?.nodeType !== 1) {
         return undefined;

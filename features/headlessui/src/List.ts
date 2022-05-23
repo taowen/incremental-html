@@ -1,5 +1,5 @@
-import { morphChildNodes } from "@incremental-html/morph";
-import { Feature, getFeature, mountElement, reactive } from "@incremental-html/reactivity";
+import { morphAttributes, morphChildNodes } from "@incremental-html/morph";
+import { Feature, getFeature, mountElement, queryFeature, reactive } from "@incremental-html/reactivity";
 
 class ListLoader extends Feature<{ url?: string, load?: () => Promise<string> }> {
     private state = reactive({
@@ -13,7 +13,7 @@ class ListLoader extends Feature<{ url?: string, load?: () => Promise<string> }>
         return this.state.loadError;
     }
     private list?: List;
-    public attachToList(list: List) {
+    public activate(list: List) {
         this.list = list;
         const intersectionObserver = new IntersectionObserver((entries) => {
             if (entries[0].isIntersecting) {
@@ -48,6 +48,40 @@ class ListLoader extends Feature<{ url?: string, load?: () => Promise<string> }>
     }
 }
 
+class ListReloader extends Feature<{ url?: string, load?: () => Promise<string> }> {
+    private state = reactive({
+        isLoading: false,
+        loadError: undefined as any
+    })
+    public get isLoading() {
+        return this.state.isLoading;
+    }
+    public get loadError() {
+        return this.state.loadError;
+    }
+    public async reload() {
+        const list = queryFeature(this.element, List);
+        if (!list) {
+            return;
+        }
+        try {
+            if (this.props.url) {
+                this.state.isLoading = true;
+                const resp = await fetch(this.props.url);
+                const respText = await resp.text();
+                list.reload(respText);
+            } else if (this.props.load) {
+                this.state.isLoading = true;
+                list.reload(await this.props.load());
+            }
+        } catch (e) {
+            this.state.loadError = e;
+        } finally {
+            this.state.isLoading = false;
+        }
+    }
+}
+
 let nextId = 1;
 
 class MasonryColumn extends Feature<{ virtualized: boolean, measureVisibleRange: () => readonly [number, number] }> {
@@ -67,6 +101,24 @@ class MasonryColumn extends Feature<{ virtualized: boolean, measureVisibleRange:
     public removeLoader(loader: ListLoader) {
         if (this.items[this.items.length -1] === loader.element) {
             this.items.length -= 1;
+        }
+    }
+
+    public reload(newItems: HTMLElement[]) {
+        for (let i = newItems.length - 1; i >= 0; i--) {
+            const newItem = newItems[i];
+            if (!newItem.id) {
+                continue;
+            }
+            for (const oldItem of this.items) {
+                if (oldItem.id === newItem.id) {
+                    // the newItem do not need to be inserted
+                    // update oldItem in place with newItem data
+                    morphAttributes(oldItem, newItem);
+                    morphChildNodes(oldItem, newItem);
+                    break;
+                }
+            }
         }
     }
 
@@ -160,7 +212,8 @@ class MasonryColumn extends Feature<{ virtualized: boolean, measureVisibleRange:
 }
 
 export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?: string; masonryColumnStyle?: string; virtualized?: boolean }> {
-    public static Loader = ListLoader
+    public static Loader = ListLoader;
+    public static Reloader = ListReloader;
 
     private initItems = this.create(() => {
         let child = this.element.firstChild;
@@ -203,8 +256,8 @@ export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?
 
     private _ = this.onMount(async () => {
         this.element.addEventListener('shouldMorph', (e) => {
-            // list children will not be updated when navigator wide reload
-            // use list.reload(item) to reload individual item
+            // list children will not be updated when $navigator.reload()
+            // use $queryFeature(this, $List.Reloader).reload() to reload individual item
             e.preventDefault();
         })
         for (const item of this.initItems) {
@@ -231,32 +284,19 @@ export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?
             mountElement(item);
             const listLoader = getFeature(item, ListLoader);
             if (listLoader) {
-                listLoader.attachToList(this);
+                listLoader.activate(this);
             }
         }
     }
 
     public async load(loader: ListLoader, respText: string) {
-        if (!this.element.id) {
-            console.error('List does not have id', this.element);
-            return;
-        }
-        const parsed = document.createElement('html');
-        parsed.innerHTML = respText;
-        const newList = parsed.querySelector('#' + this.element.id);
-        if (!newList) {
-            console.error(`List #${this.element.id} not found in response`, respText);
-            return;
-        }
+        const newItems = this.parseRespText(respText);
         for (const column of this.columns) {
             column.removeLoader(loader);
         }
         loader.element.parentElement!.removeChild(loader.element);
-        let newItem = newList.firstElementChild as HTMLElement;
-        const newItems = [];
-        while (newItem) {
-            newItems.push(newItem);
-            newItem = newItem.nextElementSibling as HTMLElement;
+        for (const column of this.columns) {
+            column.reload(newItems);
         }
         for (const newItem of newItems) {
             await this.addItem(newItem);
@@ -264,5 +304,33 @@ export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?
         for (const column of this.columns) {
             column.compact();
         }
+    }
+
+    public async reload(respText: string) {
+        const newItems = this.parseRespText(respText);
+        for (const column of this.columns) {
+            column.reload(newItems);
+        }
+    }
+
+    private parseRespText(respText: string) {
+        if (!this.element.id) {
+            console.error('List does not have id', this.element);
+            return [];
+        }
+        const parsed = document.createElement('html');
+        parsed.innerHTML = respText;
+        const newList = parsed.querySelector('#' + this.element.id);
+        if (!newList) {
+            console.error(`List #${this.element.id} not found in response`, respText);
+            return [];
+        }
+        let newItem = newList.firstElementChild as HTMLElement;
+        const newItems = [];
+        while (newItem) {
+            newItems.push(newItem);
+            newItem = newItem.nextElementSibling as HTMLElement;
+        }
+        return newItems;
     }
 }
