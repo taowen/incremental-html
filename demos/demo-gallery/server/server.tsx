@@ -28,7 +28,7 @@ server.get('/gallery', async (req, resp) => {
     const to = Number(req.query.to)
     await sendHtml(resp, <div id="gallery">
         {range(from, to, i => <GalleryImage imageId={i} />)}
-        {to < 20 && <div use:loader="$List.Loader" loader:url={`'/gallery?from=${to}&to=${to + 10}'`}>Load more...</div>}
+        {to < 20 && <div use:loader="$List.Loader" loader:url={`'/gallery?from=${to}&to=${to + 10}'`}></div>}
     </div>)
 })
 
@@ -41,7 +41,7 @@ function GalleryImage({ imageId }: { imageId: number }) {
                 data-image-id={imageId} on:click="
                     await fetch('/unfav', { body: JSON.stringify({ imageId: Number(this.dataset.imageId) }), method: 'POST', 
                         headers: { 'Content-Type': 'application/json' } });
-                    $queryFeature(this, $List.Reloader).reload();
+                    // $queryFeature(this, $List.Reloader).reload();
                     $navigator.reload();
                     ">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 fill-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
@@ -53,7 +53,7 @@ function GalleryImage({ imageId }: { imageId: number }) {
                 data-image-id={imageId} on:click="
                     await fetch('/fav', { body: JSON.stringify({ imageId: Number(this.dataset.imageId) }), method: 'POST', 
                         headers: { 'Content-Type': 'application/json' } });
-                    $queryFeature(this, $List.Reloader).reload();
+                    // $queryFeature(this, $List.Reloader).reload();
                     $navigator.reload();
                     ">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 fill-tranparent hover:fill-red-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
@@ -75,19 +75,19 @@ server.get('/', async (req, resp) => {
                 <div class="inline-flex items-center mr-4 align-center">#Fav {favImages.size}</div>
             </ul>
         </div>
-        {tab === 'columns1' ? <div id="columns1">
-            <div id="gallery" class="flex-1 overflow-y-auto ml-4" use:list="$List">
-                <div use:loader="$List.Loader" loader:url="'/gallery?from=0&to=10'">Load more...</div>
+        {tab === 'columns1' ? <div id="columns1" class="flex-1 overflow-y-auto ml-4">
+            <div id="gallery" use:list="$List">
+                <div use:loader="$List.Loader" loader:url="'/gallery?from=0&to=10'"></div>
             </div>
         </div> : undefined}
-        {tab === 'columns2' ? <div id="columns2">
-            <div id="gallery" class="flex-1 overflow-y-auto flex flex-row ml-4 gap-4" use:list="$List" list:masonry-columns="2">
-                <div use:loader="$List.Loader" loader:url="'/gallery?from=0&to=10'">Load more...</div>
+        {tab === 'columns2' ? <div id="columns2" class="flex-1 overflow-y-auto ml-4">
+            <div id="gallery" class="flex flex-row gap-4" use:list="$List" list:masonry-columns="2">
+                <div use:loader="$List.Loader" loader:url="'/gallery?from=0&to=10'"></div>
             </div>
         </div> : undefined}
-        {tab === 'columns3' ? <div id="columns3">
-            <div id="gallery" class="flex-1 overflow-y-auto flex flex-row ml-4 gap-4" use:list="$List" list:masonry-columns="3">
-                <div use:loader="$List.Loader" loader:url="'/gallery?from=0&to=10'">Load more...</div>
+        {tab === 'columns3' ? <div id="columns3" class="flex-1 overflow-y-auto ml-4">
+            <div id="gallery" class="flex flex-row gap-4" use:list="$List" list:masonry-columns="3">
+                <div use:loader="$List.Loader" loader:url="'/gallery?from=0&to=10'"></div>
             </div>
         </div> : undefined}
     </main>)
