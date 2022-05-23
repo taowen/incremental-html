@@ -41,7 +41,7 @@ function GalleryImage({ imageId }: { imageId: number }) {
                 data-image-id={imageId} on:click="
                     await fetch('/unfav', { body: JSON.stringify({ imageId: Number(this.dataset.imageId) }), method: 'POST', 
                         headers: { 'Content-Type': 'application/json' } });
-                    // $queryFeature(this, $List.Reloader).reload();
+                    $queryFeature(this, $List.Reloader).reload();
                     $navigator.reload();
                     ">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 fill-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
@@ -53,7 +53,7 @@ function GalleryImage({ imageId }: { imageId: number }) {
                 data-image-id={imageId} on:click="
                     await fetch('/fav', { body: JSON.stringify({ imageId: Number(this.dataset.imageId) }), method: 'POST', 
                         headers: { 'Content-Type': 'application/json' } });
-                    // $queryFeature(this, $List.Reloader).reload();
+                    $queryFeature(this, $List.Reloader).reload();
                     $navigator.reload();
                     ">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 fill-tranparent hover:fill-red-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">

@@ -16,6 +16,7 @@ importers:
       '@incremental-html/headlessui': workspace:*
       '@incremental-html/morph': workspace:*
       '@incremental-html/motion': workspace:*
+      '@incremental-html/navigator': workspace:*
       '@incremental-html/reactivity': workspace:*
       '@incremental-html/template': workspace:*
       typescript: ^4.5.5
@@ -25,6 +26,7 @@ importers:
       '@incremental-html/headlessui': link:../../features/headlessui
       '@incremental-html/morph': link:../../packages/morph
       '@incremental-html/motion': link:../../features/motion
+      '@incremental-html/navigator': link:../../packages/navigator
       '@incremental-html/reactivity': link:../../packages/reactivity
       '@incremental-html/template': link:../../packages/template
     devDependencies:

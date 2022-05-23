@@ -54,10 +54,16 @@ function moveOrInsertNewChildren(el: Element, newChildren: Node[] | undefined) {
     if (!newChildren) {
         return;
     }
+    let oldNode = el.lastChild;
     for (let i = newChildren.length - 1; i >= 0; i--) {
-        const next = newChildren[i + 1];
+        const next = newChildren[i + 1]!;
         const newNode = newChildren[i]!;
-        el.insertBefore(newNode, next as Node);
+        if (oldNode === newNode) {
+            // keep old node in original place to avoid losing scroll position
+            oldNode = oldNode.previousSibling;
+        } else {
+            el.insertBefore(newNode, next as Node);
+        }
         if ((newNode as any).$reused) {
             morphAttributes(newNode as Element, (newNode as any).$reused);
             morphChildNodes.morphProperties(newNode as Element, (newNode as any).$reused);
@@ -122,6 +128,11 @@ function removeIncompatibleChildNodes(oldEl: Element, newEl: Element | Node[]) {
 
 function tryReuse(oldChildren: Map<any, Node>, id: any, newNode: Node) {
     const oldNode = oldChildren.get(id);
+    if (newNode.nodeType === 3 && oldNode?.nodeType === 3) {
+        oldChildren.delete(id);
+        oldNode.nodeValue = newNode.nodeValue;
+        return oldNode;
+    }
     if (newNode.nodeType !== 1 || !oldNode || oldNode.nodeType !== newNode.nodeType
         || (oldNode as HTMLElement).tagName !== (newNode as HTMLElement).tagName) {
         return newNode;
