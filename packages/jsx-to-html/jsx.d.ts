@@ -236,6 +236,7 @@ declare namespace JsxToHtml {
 
         class?: any
         style?: StyleValue
+        ['render:if']?: string
         ['prop:style']?: string
         ['prop:inner-html']?: string
         ['prop:disabled']?: string

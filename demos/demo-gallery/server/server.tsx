@@ -19,14 +19,45 @@ server.post('/fav', async (req, resp) => {
     resp.end('ok');
 })
 
+server.get('/', async (req, resp) => {
+    if (req.query.from) {
+        await new Promise<void>(resolve => setTimeout(resolve, 1000));
+    }
+    const tab = req.query.tab as string || 'columns1'
+    await sendHtml(resp, <main class="flex flex-col h-screen">
+        <div class="grow-0 shrink-0 basis-auto border-b border-gray-200 dark:border-gray-700">
+            <ul class="flex h-12 -mb-px text-sm font-medium gap-2" role="tablist">
+                <Tab tab={tab} controls="columns1" label="1 Column" />
+                <Tab tab={tab} controls="columns2" label="2 Columns" />
+                <Tab tab={tab} controls="columns3" label="3 Columns" />
+                <div class="grow"></div>
+                <div class="inline-flex items-center mr-4 align-center">#Fav {favImages.size}</div>
+            </ul>
+        </div>
+        {tab === 'columns1' ? <div id="columns1" class="flex-1 overflow-y-auto" use:list="$List" list:masonry-column-class="ml-4">
+            <GalleryImages query={req.query} />
+        </div> : undefined}
+        {tab === 'columns2' ? <div id="columns2" class="flex-1 overflow-y-auto" use:list="$List" list:masonry-column-class="ml-4" list:masonry-columns="2">
+            <GalleryImages query={req.query} />
+        </div> : undefined}
+        {tab === 'columns3' ? <div id="columns3" class="flex-1 overflow-y-auto" use:list="$List" list:masonry-column-class="ml-4" list:masonry-columns="3">
+            <GalleryImages query={req.query} />
+        </div> : undefined}
+    </main>)
+})
+
 function GalleryImages({ query }: { query: Request['query'] }) {
     const from = Number(query.from || 0)
     const count = Number(query.count || 5)
     const images = range(from, from + count).filter(imageId => imageId < 20);
-    const loadMore = new URLSearchParams({ ...query as any, from: images[images.length - 1], count: from === 0 ? count + 1 : count });
+    const loadMore = <div use:loader="$List.Loader" class="ml-8" 
+        loader:url={'/?' + new URLSearchParams({ ...query as any, from: images[images.length - 1], count: from === 0 ? count + 1 : count })} >
+            <div render:if="this.$props.isLoading">Loading...</div>
+            <div render:if="this.$props.loadError" on:click="$queryFeature(this, $List.Loader).load()">Load failed, click to retry</div>
+        </div>;
     return <>
         {images.map(imageId => <GalleryImage imageId={imageId} reloadUrl={'/?' + new URLSearchParams({ ...query as any, from: imageId, count: 1 })} />)}
-        {images.length > 1 ? <div use:loader="$List.Loader" loader:url={'/?' + loadMore} /> : undefined}
+        {images.length > 1 ? loadMore : <div use:loader="$List.Loader" class="ml-8">Reached end</div>}
     </>
 }
 
@@ -58,30 +89,6 @@ function GalleryImage({ imageId, reloadUrl }: { imageId: number, reloadUrl: stri
             </div>}
     </div>
 }
-
-server.get('/', async (req, resp) => {
-    const tab = req.query.tab as string || 'columns1'
-    await sendHtml(resp, <main class="flex flex-col h-screen">
-        <div class="grow-0 shrink-0 basis-auto border-b border-gray-200 dark:border-gray-700">
-            <ul class="flex h-12 -mb-px text-sm font-medium gap-2" role="tablist">
-                <Tab tab={tab} controls="columns1" label="1 Column" />
-                <Tab tab={tab} controls="columns2" label="2 Columns" />
-                <Tab tab={tab} controls="columns3" label="3 Columns" />
-                <div class="grow"></div>
-                <div class="inline-flex items-center mr-4 align-center">#Fav {favImages.size}</div>
-            </ul>
-        </div>
-        {tab === 'columns1' ? <div id="columns1" class="flex-1 overflow-y-auto ml-4" use:list="$List">
-            <GalleryImages query={req.query} />
-        </div> : undefined}
-        {tab === 'columns2' ? <div id="columns2" class="flex-1 overflow-y-auto ml-4 flex flex-row gap-4" use:list="$List" list:masonry-columns="2">
-            <GalleryImages query={req.query} />
-        </div> : undefined}
-        {tab === 'columns3' ? <div id="columns3" class="flex-1 overflow-y-auto ml-4 flex flex-row gap-4" use:list="$List" list:masonry-columns="3">
-            <GalleryImages query={req.query} />
-        </div> : undefined}
-    </main>)
-})
 
 function range(from: number, to: number) {
     const result = [];

@@ -30,6 +30,8 @@ load from and save to server
 * [ ] multiple concurrent actions, end up with a consistent final state
 * [ ] go back to previous page without reload waiting
 * [ ] avoid multi page form, prefer minimal data entry initially, grow the form gradually as user provided more information
+* [ ] optimistic ui
+* [ ] xss and csrf prevention
 
 client-side form behavior
 
@@ -48,12 +50,13 @@ common pan gestures and animation
 * [ ] [Relocate] use drag and drap to re-locate item to different group
 * [ ] [ConnectedPath] continuously keep path visually connected to items at one/both ends while dragging
 * [ ] show current and next page side by side with transition animation, if no loading required
-* [ ] use FLIP layout animation to avoid content suddenly appear/disappear
+* [ ] use layout animation to avoid content suddenly appear/disappear
 
 common javascript based rendering
 
 * [ ] use masonry to layout double columns, use screen space more efficiently
 * [ ] virtualized list and table
+* [ ] avoid flash of unstyled content
 
 common in page navigation
 

@@ -1,5 +1,4 @@
-import { morphAttributes, morphChildNodes } from '@incremental-html/morph';
-import { effect, Feature, queryFeature, reactive } from '@incremental-html/reactivity';
+import { effect, Feature, queryFeature, reactive, scheduleChange, unmountElement } from '@incremental-html/reactivity';
 import { render } from '@incremental-html/template';
 
 export class TabGroup extends Feature<{ selectedIndex?: number }> {
@@ -65,7 +64,7 @@ export class TabPanel extends Feature<{}> {
             tabGroup.unmounting.length = 0;
             await unmounting;
         } else {
-            const promise = morphChildNodes.beforeRemove(this.currentElement);
+            const promise = unmountElement(this.currentElement);
             if (promise) {
                 tabGroup.unmounting.push(promise);
                 await promise;
@@ -100,8 +99,8 @@ export class Tab extends Feature<{}> {
     }
     private _ = this.effect(() => {
         const newElement = render(this.template, { selected: this.selected })[0] as Element;
-        morphAttributes(this.element, newElement);
-        morphChildNodes(this.element, newElement);
+        scheduleChange(this.element, 'attributes', newElement);
+        scheduleChange(this.element, 'childNodes', newElement);
     });
     public onClick = this.on('click', () => {
         this.tabGroup.store.selectedIndex = this.index;

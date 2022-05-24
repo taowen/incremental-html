@@ -1,4 +1,4 @@
-import { morph, morphChildNodes, morphInnerHTML } from '@incremental-html/morph';
+import { morph, morphAttributes, morphChildNodes, morphInnerHTML } from '@incremental-html/morph';
 import { computed, ComputedRef, effect, isRef, ReactiveEffectRunner } from '@vue/reactivity';
 import { copyFrom } from './copyFrom';
 import { callEventHandlerAsync, evalExpr } from './eval';
@@ -65,7 +65,7 @@ export const mutationObserver: MutationObserver = typeof MutationObserver === 'u
     }
 });
 
-function unmountElement(element: Element): Promise<void> | void {
+export function unmountElement(element: Element): Promise<void> | void {
     if ((element as any).$unmounted) {
         return;
     }
@@ -162,32 +162,33 @@ export function mountElement(element: Element) {
                 callEventHandlerAsync(element, eventName, ...args);
             })
         } else if (attr.name.startsWith('prop:')) {
-            let computedProps = (element as any).$computedProps;
-            if (!computedProps) {
-                (element as any).$computedProps = computedProps = {};
-            }
             const propName = camelize(attr.name.substring('prop:'.length));
-            const computedProp = computed(() => {
-                let value = undefined;
-                try {
-                    value = evalExpr(attr.value, element);
-                } catch (e) {
-                    console.error(`failed to eval ${attr.name} of `, element, e);
-                }
-                return value;
-            });
-            computedProps[propName] = computedProp;
+            let bindings = (element as any).$bindings;
+            if (!bindings) {
+                (element as any).$bindings = bindings = {};
+            }
             if (isExistingProp(element, propName)) {
-                // existing DOM node property, make a data binding here
-                let bindings = (element as any).$bindings;
-                if (!bindings) {
-                    (element as any).$bindings = bindings = {};
-                }
                 bindings[propName] = effect(() => {
-                    computedProp.value; // subscribe
-                    markDirty(element, propName); // delay the actual DOM changes to next tick
+                    try {
+                        const value = evalExpr(attr.value, element);
+                        scheduleChange(element, propName, value);
+                    } catch (e) {
+                        console.error(`failed to eval ${attr.name} of `, element, e);
+                    }
                 });
             } else {
+                let computedProps = (element as any).$computedProps;
+                if (!computedProps) {
+                    (element as any).$computedProps = computedProps = {};
+                }
+                const computedProp = computed(() => {
+                    try {
+                        return evalExpr(attr.value, element);
+                    } catch (e) {
+                        console.error(`failed to eval ${attr.name} of `, element, e);
+                    }
+                });
+                computedProps[propName] = computedProp;
                 // define new property
                 Object.defineProperty(element, propName, {
                     enumerable: true,
@@ -249,12 +250,12 @@ function createFeature(featureClass: any, element: Element, featureName: string)
 let scheduler: { current: Promise<void> | undefined } = { current: undefined };
 const dirtyElements = new Set<Element>();
 
-function markDirty(element: Element, propName: string) {
+export function scheduleChange(element: Element, propName: string, propValue:any) {
     let dirtyProps = (element as any).$dirtyProps;
     if (!dirtyProps) {
-        (element as any).$dirtyProps = dirtyProps = new Set<string>();
+        (element as any).$dirtyProps = dirtyProps = new Map<string, any>();
     }
-    dirtyProps.add(propName);
+    dirtyProps.set(propName, propValue);
     dirtyElements.add(element);
     schedule();
 }
@@ -278,27 +279,14 @@ function applyChanges() {
     const toApply = [...dirtyElements];
     dirtyElements.clear();
     for (const el of toApply) {
-        const computedProps = (el as any).$computedProps;
-        const dirtyProps: Set<string> = (el as any).$dirtyProps
-        if (!computedProps || !dirtyProps) {
-            continue;
-        }
-        const innerHtmlIsDirty = dirtyProps.delete('innerHtml')
-        const childNodesIsDirty = dirtyProps.delete('childNodes')
-        const toApplyProps = [...dirtyProps];
-        dirtyProps.clear();
-        if (toApplyProps.length > 0) {
+        const dirtyProps: Map<string, any> = (el as any).$dirtyProps;
+        if (dirtyProps && dirtyProps.size > 0) {
             morph(el, () => {
-                for (const propName of toApplyProps) {
-                    setNodeProperty(el, propName, computedProps[propName].value);
+                for (const [propName, propValue] of dirtyProps.entries()) {
+                    setNodeProperty(el, propName, propValue);
                 }
             })
-        }
-        if (innerHtmlIsDirty) {
-            morphInnerHTML(el, computedProps.innerHtml.value);
-        }
-        if (childNodesIsDirty) {
-            morphChildNodes(el, computedProps.childNodes.value);
+            dirtyProps.clear();
         }
     }
 }
@@ -325,6 +313,18 @@ function setNodeProperty(node: Element, name: string, value: any) {
         } else {
             node.className = node.className + value;
         }
+        return;
+    }
+    if (name === 'innerHtml') {
+        morphInnerHTML(node, value);
+        return;
+    }
+    if (name === 'childNodes') {
+        morphChildNodes(node, value);
+        return;
+    }
+    if (name === 'attributes') {
+        morphAttributes(node, value);
         return;
     }
     Reflect.set(node, name, value);

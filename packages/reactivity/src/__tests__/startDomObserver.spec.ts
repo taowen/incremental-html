@@ -24,7 +24,7 @@ test('copy from', async () => {
     expect(document.querySelector('p')!.outerHTML).toBe('<p title="hello"></p>');
 })
 
-test('prop: can update dom existing property on change', async () => {
+test('can update dom existing property on change', async () => {
     setEvalGlobals({ ref })
     document.body.innerHTML = `<p id="abc" prop:text-ref="$ref('hello')" prop:text-content="this.textRef.value"></p>`;
     await nextTick();

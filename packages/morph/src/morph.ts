@@ -1,8 +1,17 @@
+let morphing = false;
+
 export function morph(node: Element, cb: () => void) {
-    node.dispatchEvent(new Event('beforeMorph'));
+    const topLevel = !morphing;
+    if (topLevel) {
+        morphing = true;
+        node.dispatchEvent(new Event('beforeMorph'));
+    }
     try {
         cb();
     } finally {
-        node.dispatchEvent(new Event('afterMorph'));
+        if (topLevel) {
+            morphing = false;
+            node.dispatchEvent(new Event('afterMorph'));
+        }
     }
 }

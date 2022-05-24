@@ -1,15 +1,22 @@
 import { morphAttributes, morphChildNodes } from "@incremental-html/morph";
-import { Feature, getFeature, mountElement, queryFeature, reactive } from "@incremental-html/reactivity";
+import { Feature, getFeature, mountElement, queryFeature, reactive, scheduleChange } from "@incremental-html/reactivity";
+import { render } from "@incremental-html/template";
 
 class ListLoader extends Feature<{ url?: string, load?: () => Promise<string> }> {
 
     protected isStringProp(propName: string): boolean {
         return propName === 'url';
+
     }
+    private template = this.create(() => {
+        const template = document.createElement('template');
+        template.content.appendChild(this.element.cloneNode(true));
+        return template;
+    })
 
     private state = reactive({
         isLoading: false,
-        loadError: undefined as any
+        loadError: null as any
     })
     public get isLoading() {
         return this.state.isLoading;
@@ -20,6 +27,9 @@ class ListLoader extends Feature<{ url?: string, load?: () => Promise<string> }>
     private list?: List;
     public activate(list: List) {
         this.list = list;
+        if (!this.props.url && !this.props.load) {
+            return;
+        }
         const intersectionObserver = new IntersectionObserver((entries) => {
             if (entries[0].isIntersecting) {
                 intersectionObserver.disconnect();
@@ -37,20 +47,31 @@ class ListLoader extends Feature<{ url?: string, load?: () => Promise<string> }>
         }
         try {
             if (this.props.url) {
+                this.state.loadError = null;
                 this.state.isLoading = true;
                 const resp = await fetch(this.props.url);
+                if (!resp.ok) {
+                    throw new Error('server returned ' + resp.status);
+                }
                 const respText = await resp.text();
-                this.list.load(this, respText);
+                this.list.load(respText);
             } else if (this.props.load) {
                 this.state.isLoading = true;
-                this.list.load(this, await this.props.load());
+                this.list.load(await this.props.load());
             }
+            this.element.parentElement!.removeChild(this.element);
         } catch (e) {
             this.state.loadError = e;
         } finally {
             this.state.isLoading = false;
         }
     }
+    
+    private _ = this.effect(() => {
+        const newElement = render(this.template, { isLoading: this.isLoading, loadError: this.loadError })[0] as Element;
+        scheduleChange(this.element, 'attributes', newElement);
+        scheduleChange(this.element, 'childNodes', newElement);
+    });
 }
 
 class ListReloader extends Feature<{ url?: string, load?: () => Promise<string> }> {
@@ -79,6 +100,9 @@ class ListReloader extends Feature<{ url?: string, load?: () => Promise<string> 
             if (this.props.url) {
                 this.state.isLoading = true;
                 const resp = await fetch(this.props.url);
+                if (!resp.ok) {
+                    throw new Error('server returned ' + resp.status);
+                }
                 const respText = await resp.text();
                 list.reload(respText);
             } else if (this.props.load) {
@@ -95,7 +119,7 @@ class ListReloader extends Feature<{ url?: string, load?: () => Promise<string> 
 
 let nextId = 1;
 
-class MasonryColumn extends Feature<{ list: List, virtualized: boolean, measureVisibleRange: () => readonly [number, number] }> {
+class MasonryColumn extends Feature<{ virtualized: boolean, measureVisibleRange: () => readonly [number, number] }> {
     public readonly items: HTMLElement[] = [];
     private headPlaceholder = this.create(() => {
         const headPlaceholder = document.createElement('div');
@@ -108,12 +132,6 @@ class MasonryColumn extends Feature<{ list: List, virtualized: boolean, measureV
         return tailPlaceholder;
 
     })
-
-    public removeLoader(loader: ListLoader) {
-        if (this.items[this.items.length - 1] === loader.element) {
-            this.items.length -= 1;
-        }
-    }
 
     public reload(newItems: HTMLElement[]) {
         for (let i = newItems.length - 1; i >= 0; i--) {
@@ -141,11 +159,6 @@ class MasonryColumn extends Feature<{ list: List, virtualized: boolean, measureV
         this.items.push(item);
         if (!skipAppendChild) {
             this.element.appendChild(item);
-        }
-        mountElement(item);
-        const listLoader = getFeature(item, ListLoader);
-        if (listLoader) {
-            listLoader.activate(this.props.list);
         }
     }
 
@@ -257,18 +270,20 @@ export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?
     }
 
     private columns = this.create(() => {
-        if (!this.props.masonryColumns) {
-            return [new MasonryColumn(this.element, () => ({ list: this, virtualized: !!this.props.virtualized, measureVisibleRange: this.measureVisibleRange }))];
-        }
+        const columnsHolder = document.createElement('div');
+        columnsHolder.style.width = '100%';
+        columnsHolder.style.display = 'flex';
+        columnsHolder.style.flexDirection = 'row';
         this.element.innerHTML = '';
-        const columnsCount = this.props.masonryColumns!;
+        this.element.appendChild(columnsHolder);
+        const columnsCount = this.props.masonryColumns! || 1;
         const columns = [];
         for (let i = 0; i < columnsCount; i++) {
             const columnEl = document.createElement('div');
             columnEl.setAttribute('style', this.props.masonryColumnStyle || '');
             columnEl.className = this.props.masonryColumnClass || '';
-            this.element.appendChild(columnEl);
-            columns.push(new MasonryColumn(columnEl, () => ({ list: this, virtualized: !!this.props.virtualized, measureVisibleRange: this.measureVisibleRange })));
+            columnsHolder.appendChild(columnEl);
+            columns.push(new MasonryColumn(columnEl, () => ({ virtualized: !!this.props.virtualized, measureVisibleRange: this.measureVisibleRange })));
         }
         return columns;
     })
@@ -284,17 +299,18 @@ export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?
             e.preventDefault();
         })
         for (const item of this.initItems) {
-            if (this.columns.length === 1) {
-                this.columns[0].addItem(item, true);
-            } else {
-                await this.addItem(item);
-            }
+            await this.addItem(item);
         }
     })
 
     private async addItem(item: HTMLElement) {
-        if (this.columns.length === 1) {
-            this.columns[0].addItem(item);
+        if (item.hasAttribute('use:loader')) {
+            this.element.insertBefore(item, null);
+            mountElement(item);
+            const listLoader = getFeature(item, ListLoader);
+            if (listLoader) {
+                listLoader.activate(this);
+            }
             return;
         }
         let minHeight = await this.columns[0].calcHeight();
@@ -308,12 +324,8 @@ export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?
         pickedColumn.addItem(item);
     }
 
-    public async load(loader: ListLoader, respText: string) {
+    public async load(respText: string) {
         const newItems = this.parseRespText(respText);
-        for (const column of this.columns) {
-            column.removeLoader(loader);
-        }
-        loader.element.parentElement!.removeChild(loader.element);
         for (const column of this.columns) {
             column.reload(newItems);
         }
