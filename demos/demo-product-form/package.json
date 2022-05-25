@@ -7,7 +7,7 @@
         "@incremental-html/reactivity": "workspace:*",
         "@incremental-html/form-object": "workspace:*",
         "@incremental-html/navigator": "workspace:*",
-        "@incremental-html/submit-form": "workspace:*",
+        "@incremental-html/headlessui": "workspace:*",
         "express": "^5.0.0-beta.1",
         "body-parser": "^1.12.0"
     },

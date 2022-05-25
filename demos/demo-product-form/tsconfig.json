@@ -21,6 +21,7 @@
         ]
     },
     "include": [
+        "client/**/*.ts",
         "server/**/*.ts",
         "server/**/*.tsx",
         "server/**/*.d.ts",

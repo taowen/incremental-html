@@ -3,6 +3,7 @@ import { jsxToHtml } from '@incremental-html/jsx-to-html';
 import bodyParser from 'body-parser';
 import express, { Response } from 'express';
 
+export const config = { indexHtml: '' }
 interface ProductForm {
     name: string;
     description: string;
@@ -75,9 +76,7 @@ async function ProductFormPage({ form }: { form: NewForm<ProductForm> }) {
             <link rel="shortcut icon" href="#" />
         </head>
         <body>
-            <form method="post" action="/save" on:submit="
-                await $submitForm(this);
-            ">
+            <form method="post" action="/save" use:fetcher="$Fetcher" on:submit="await this.fetcher.submit();">
                 <fieldset style="display: flex; flex-direction: column;">
                     <div>
                         <label for={form.idOf('name')}>name</label>
@@ -157,17 +156,16 @@ async function NoVariantForm({ form }: { form: NewForm<ProductForm> }) {
 /**
  * send html response to client with optional page state
  * @param resp express response object
- * @param html string or Promise<string>
+ * @param jsx jsx element
  * @param pageState if provided, HTTP PUT of the same url need to handled to accept client updated pageState
  */
-async function sendHtml(resp: Response, html: any, pageState?: any) {
-    html = await html;
+async function sendHtml(resp: Response, jsx: any, pageState?: any) {
+    let html = config.indexHtml;
+    html = html.replace('<!--app-html-->', await jsxToHtml(jsx))
     const toInject = [];
     if (pageState) {
         toInject.push(`<template class="page-state">${JSON.stringify(pageState)}</template>`);
     }
-    toInject.push('<script type="module" src="./client/client-entry.js"></script>');
-    html = "<!DOCTYPE html>" + html;
     html = html.replace('</body>', toInject.join('\n') + '</body>');
     resp.status(200).set({ 'Content-Type': 'text/html' }).end(html);
 }

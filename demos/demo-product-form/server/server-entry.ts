@@ -1,10 +1,11 @@
 import express from 'express';
-import handle from './server';
 import path from 'path';
+import server, { config } from './server';
+import fs from 'fs';
 
-const server = express()
-server.use('/client', express.static(path.join(__dirname, 'client')))
-server.use(handle);
-server.listen(3000, () => {
-    console.log('http://localhost:3000')
-});
+config.indexHtml = fs.readFileSync(path.join(__dirname, 'client', 'index.html'), 'utf-8');
+
+const app = express();
+app.use('/assets', express.static(path.join(__dirname, 'client', 'assets')));
+app.use(server);
+app.listen(3000);

@@ -1,6 +1,5 @@
 import { morphAttributes, morphChildNodes } from "@incremental-html/morph";
-import { Feature, getFeature, mountElement, closestFeature, reactive, scheduleChange } from "@incremental-html/reactivity";
-import { render } from "@incremental-html/template";
+import { Feature, getFeature, mountElement, closestFeature, reactive } from "@incremental-html/reactivity";
 
 class ListLoader extends Feature<{ url?: string, load?: () => Promise<string> }> {
 
