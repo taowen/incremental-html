@@ -3,9 +3,6 @@
   "files": [],
   "references": [
   {
-    "path": "./packages/submit-form/esm.tsconfig.json"
-  },
-  {
     "path": "./packages/template/esm.tsconfig.json"
   },
   {

@@ -3,9 +3,6 @@
     "files": [],
     "references": [
     {
-      "path": "./packages/submit-form/cjs.tsconfig.json"
-    },
-    {
       "path": "./packages/template/cjs.tsconfig.json"
     },
     {
