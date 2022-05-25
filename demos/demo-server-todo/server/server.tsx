@@ -8,9 +8,10 @@ interface NewTodoForm {
     task: string;
 }
 
+let nextId = 1;
 const todoItems = [
-    'fix bike',
-    'buy tomato'
+    { id: nextId++, task: 'fix bike'},
+    { id: nextId++, task: 'buy tomato' }
 ]
 
 const server = express();
@@ -25,15 +26,18 @@ server.post('/add', async (req, resp) => {
     if (form.sendErrors(resp, 'validation failed')) {
         return;
     }
-    todoItems.push(form.task);
+    todoItems.push({ id: nextId++, task: form.task });
     return resp.json({ data: 'ok' });
 })
 
 server.post('/delete', async (req, resp) => {
     // await new Promise<void>(resolve => setTimeout(resolve, 3000));
-    const index = todoItems.indexOf(req.body.task);
-    if (index !== -1) {
-        todoItems.splice(index, 1);
+    for (let i = 0; i < todoItems.length; i++) {
+        const todoItem = todoItems[i];
+        if (todoItem.id === req.body.id) {
+            todoItems.splice(i, 1);
+            break;
+        }
     }
     return resp.json({ data: 'ok' });
 })
@@ -56,11 +60,12 @@ server.get('/item', async (req, resp) => {
 server.get('/', async (req, resp) => {
     const form = createForm({} as NewTodoForm);
     const jsx = <div class="m-4">
-        <ul class="flex flex-col gap-2 w-96">
-            {todoItems.map(task => <TodoItem task={task} />)}
+        <ul class="flex flex-col gap-2 w-96" use:motion-config="$Motion.Config" motion-config:block-initial-animation>
+            {todoItems.map(item => <TodoItem item={item} />)}
             <li id="add" class="bg-blue-200 rounded p-2" use:motion="$Motion" motion:layout>
                 <form class="flex flex-row grow items-center justify-between" id="newTodo" method="post" action="/add" use:fetcher="$Fetcher" on:submit="
                     await this.fetcher.submit();
+                    $closestFeature(this, $Motion.Config).blockInitialAnimation = false;
                     await $navigator.reload();
                     this.reset();
                 ">
@@ -73,20 +78,20 @@ server.get('/', async (req, resp) => {
     await sendHtml(resp, jsx);
 });
 
-function TodoItem({ task }: { task: string }) {
-    return <li id={`task-${task}`} class="bg-blue-200 rounded p-2 flex flex-row grow items-center justify-between" 
+function TodoItem({ item }: { item: { id: number, task: string } }) {
+    return <li id={`item-${item.id}`} class="bg-blue-200 rounded p-2 flex flex-row grow items-center justify-between" 
         use:motion='$Motion' motion:layout motion:initial="{ opacity: 0, scale: 0.98 }" 
             motion:animate="{ opacity: 1, scale: 1, transition: { ease: 'easeIn' } }" 
             motion:exit="{ opacity: 0, scale: 0.98, transition: { ease: 'easeOut' } }">
-        <a href={`/item?task=${encodeURIComponent(task)}`}
+        <a href={`/item?task=${encodeURIComponent(item.id)}`}
             on:click="$navigator.href = this.href;">
-            {task}
+            {item.task}
         </a>
         <button use:fetcher="$Fetcher" on:click={`
         await this.fetcher.submit('/delete', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ task: '${task}' })
+            body: JSON.stringify({ id: ${item.id} })
         });
         await $navigator.reload();
         `}>x</button>
