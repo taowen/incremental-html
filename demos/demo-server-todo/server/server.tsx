@@ -3,6 +3,7 @@ import { jsxToHtml } from '@incremental-html/jsx-to-html';
 import bodyParser from 'body-parser';
 import express, { Request, Response } from 'express';
 
+export const config = { indexHtml: '' }
 interface NewTodoForm {
     task: string;
 }
@@ -52,7 +53,6 @@ server.get('/item', async(req, resp) => {
 })
 
 server.get('/', async (req, resp) => {
-    await new Promise<void>(resolve => setTimeout(resolve, 1000));
     const form = createForm({} as NewTodoForm);
     const jsx = <html>
         <head>
@@ -61,8 +61,8 @@ server.get('/', async (req, resp) => {
             <link rel="shortcut icon" href="#" />
         </head>
         <body>
-            <form id="newTodo" method="post" action="/add" on:submit="
-            await $submitForm(this);
+            <form id="newTodo" method="post" action="/add" use:fetcher="$Fetcher" on:submit="
+            await this.fetcher.submit();
             await $navigator.reload();
             this.reset();
         ">
@@ -92,19 +92,9 @@ server.get('/', async (req, resp) => {
 });
 
 async function sendHtml(resp: Response, jsx: any) {
-    let result = await jsxToHtml(jsx);
-    if (result) {
-        result = "<!DOCTYPE html>" + result;
-    }
-    if (result) {
-        result = result.replace('</body>', '<script type="module" src="./client/client-entry.js"></script></body>');
-    }
-    if (!resp.statusCode) {
-        resp.status(200).set({ 'Content-Type': 'text/html' })
-    }
-    resp.end(result);
+    let html = config.indexHtml;
+    html = html.replace('<!--app-html-->', await jsxToHtml(jsx))
+    resp.status(200).set({ 'Content-Type': 'text/html' }).end(html);
 }
 
-export default async function (req: Request, resp: Response) {
-    return await server(req, resp);
-}
+export default server;

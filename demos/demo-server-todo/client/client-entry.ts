@@ -1,10 +1,10 @@
 // client side entry
 import { startDomObserver, setEvalGlobals } from '@incremental-html/reactivity';
-import { submitForm } from '@incremental-html/submit-form';
+import { Fetcher } from '@incremental-html/headlessui';
 import { navigator } from '@incremental-html/navigator';
 
 setEvalGlobals({
-    submitForm,
+    Fetcher,
     navigator
 })
 startDomObserver();
