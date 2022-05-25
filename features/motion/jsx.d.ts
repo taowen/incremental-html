@@ -3,6 +3,7 @@ declare namespace JsxToHtml {
         ['use:motion']?: string,
         ['motion:animate']?: string,
         ['motion:exit']?: string,
+        ['motion:layout']?: boolean,
         ['motion:layout-id']?: string,
         ['motion:transition']?: string,
         ['motion:initial']?: string

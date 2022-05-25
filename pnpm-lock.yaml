@@ -252,6 +252,7 @@ importers:
       '@incremental-html/form-object': workspace:*
       '@incremental-html/headlessui': workspace:*
       '@incremental-html/jsx-to-html': workspace:*
+      '@incremental-html/motion': workspace:*
       '@incremental-html/navigator': workspace:*
       '@incremental-html/reactivity': workspace:*
       '@types/express': ^4.17.13
@@ -266,6 +267,7 @@ importers:
       '@incremental-html/form-object': link:../../packages/form-object
       '@incremental-html/headlessui': link:../../features/headlessui
       '@incremental-html/jsx-to-html': link:../../packages/jsx-to-html
+      '@incremental-html/motion': link:../../features/motion
       '@incremental-html/navigator': link:../../packages/navigator
       '@incremental-html/reactivity': link:../../packages/reactivity
       '@unocss/preset-uno': 0.34.1
@@ -1353,6 +1355,7 @@ packages:
     resolution: {integrity: sha512-ik4Dh0CEFa3yZuSY7C8ct4X1wRb50RHjZvp8exyDmWoUpMq/nKB6op9MRnPASAcMFeXs2pMnFYlNwg5rPiw3xQ==}
     dependencies:
       '@unocss/core': 0.34.1
+    dev: false
 
   /@unocss/preset-mini/0.34.1:
     resolution: {integrity: sha512-pEL+/55RfRTfpUplCVzC1l0gLy5cGR1lRSduNz91+FqHmxmyw/rzEoZl0+KhlcNTKWGJY6pM/UYQ3AcbNu5n9w==}

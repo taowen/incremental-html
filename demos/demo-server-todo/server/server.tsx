@@ -30,7 +30,7 @@ server.post('/add', async (req, resp) => {
 })
 
 server.post('/delete', async (req, resp) => {
-    await new Promise<void>(resolve => setTimeout(resolve, 3000));
+    // await new Promise<void>(resolve => setTimeout(resolve, 3000));
     const index = todoItems.indexOf(req.body.task);
     if (index !== -1) {
         todoItems.splice(index, 1);
@@ -58,7 +58,7 @@ server.get('/', async (req, resp) => {
     const jsx = <div class="m-4">
         <ul class="flex flex-col gap-2 w-96">
             {todoItems.map(task => <TodoItem task={task} />)}
-            <li class="bg-blue-200 rounded p-2">
+            <li id="add" class="bg-blue-200 rounded p-2" use:motion="$Motion" motion:layout>
                 <form class="flex flex-row grow items-center justify-between" id="newTodo" method="post" action="/add" use:fetcher="$Fetcher" on:submit="
                     await this.fetcher.submit();
                     await $navigator.reload();
@@ -74,7 +74,10 @@ server.get('/', async (req, resp) => {
 });
 
 function TodoItem({ task }: { task: string }) {
-    return <li class="bg-blue-200 rounded p-2 flex flex-row grow items-center justify-between">
+    return <li id={`task-${task}`} class="bg-blue-200 rounded p-2 flex flex-row grow items-center justify-between" 
+        use:motion='$Motion' motion:layout motion:initial="{ opacity: 0, scale: 0.98 }" 
+            motion:animate="{ opacity: 1, scale: 1, transition: { ease: 'easeIn' } }" 
+            motion:exit="{ opacity: 0, scale: 0.98, transition: { ease: 'easeOut' } }">
         <a href={`/item?task=${encodeURIComponent(task)}`}
             on:click="$navigator.href = this.href;">
             {task}
