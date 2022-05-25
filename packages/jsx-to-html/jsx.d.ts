@@ -239,6 +239,7 @@ declare namespace JsxToHtml {
         ['display:block']?: string
         ['display:inline']?: string
         ['render:if']?: string
+        ['style:opacity']?: string
         ['prop:style']?: string
         ['prop:inner-html']?: string
         ['prop:disabled']?: string

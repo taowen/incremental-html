@@ -31,7 +31,7 @@ server.post('/add', async (req, resp) => {
 })
 
 server.post('/delete', async (req, resp) => {
-    // await new Promise<void>(resolve => setTimeout(resolve, 3000));
+    await new Promise<void>(resolve => setTimeout(resolve, 3000));
     for (let i = 0; i < todoItems.length; i++) {
         const todoItem = todoItems[i];
         if (todoItem.id === req.body.id) {
@@ -80,14 +80,14 @@ server.get('/', async (req, resp) => {
 
 function TodoItem({ item }: { item: { id: number, task: string } }) {
     return <li id={`item-${item.id}`} class="bg-blue-200 rounded p-2 flex flex-row grow items-center justify-between" 
-        use:motion='$Motion' motion:layout motion:initial="{ opacity: 0, scale: 0.98 }" 
+            use:motion='$Motion' motion:layout motion:initial="{ opacity: 0, scale: 0.98 }" 
             motion:animate="{ opacity: 1, scale: 1, transition: { ease: 'easeIn' } }" 
             motion:exit="{ opacity: 0, scale: 0.98, transition: { ease: 'easeOut' } }">
         <a href={`/item?task=${encodeURIComponent(item.id)}`}
             on:click="$navigator.href = this.href;">
             {item.task}
         </a>
-        <button use:fetcher="$Fetcher" on:click={`
+        <button use:fetcher="$Fetcher" prop:disabled="this.fetcher.isSubmitting" prop:text-content="this.fetcher.isSubmitting ? 'deleting...' : 'x'" on:click={`
         await this.fetcher.submit('/delete', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
