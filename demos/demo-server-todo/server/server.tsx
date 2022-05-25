@@ -1,7 +1,7 @@
 import { createForm, decodeForm } from '@incremental-html/form-object';
 import { jsxToHtml } from '@incremental-html/jsx-to-html';
 import bodyParser from 'body-parser';
-import express, { Request, Response } from 'express';
+import express, { Response } from 'express';
 
 export const config = { indexHtml: '' }
 interface NewTodoForm {
@@ -29,7 +29,8 @@ server.post('/add', async (req, resp) => {
     return resp.json({ data: 'ok' });
 })
 
-server.post('/delete', async(req, resp) => {
+server.post('/delete', async (req, resp) => {
+    await new Promise<void>(resolve => setTimeout(resolve, 3000));
     const index = todoItems.indexOf(req.body.task);
     if (index !== -1) {
         todoItems.splice(index, 1);
@@ -37,7 +38,7 @@ server.post('/delete', async(req, resp) => {
     return resp.json({ data: 'ok' });
 })
 
-server.get('/item', async(req, resp) => {
+server.get('/item', async (req, resp) => {
     const jsx = <html>
         <head>
             <meta http-equiv="content-type" content="text/html; charset=utf-8" />
@@ -61,35 +62,38 @@ server.get('/', async (req, resp) => {
             <link rel="shortcut icon" href="#" />
         </head>
         <body>
+            <ul>
+                {todoItems.map(task => <TodoItem task={task} />)}
+            </ul>
             <form id="newTodo" method="post" action="/add" use:fetcher="$Fetcher" on:submit="
-            await this.fetcher.submit();
-            await $navigator.reload();
-            this.reset();
-        ">
+                await this.fetcher.submit();
+                await $navigator.reload();
+                this.reset();
+            ">
                 <input type="text" name={form.nameOf('task')} />
                 <button>add todo</button>
             </form>
-            <ul>
-                {
-                    todoItems.map(todoItem => <li>
-                        <a href={`/item?task=${encodeURIComponent(todoItem)}`}
-                        on:click="$navigator.href = this.href;">
-                            {todoItem}
-                        </a>
-                        <button on:click={`
-                            await fetch('/delete', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ task: '${todoItem}' })
-                            });
-                            await $navigator.reload();
-                    `}>x</button></li>)
-                }
-            </ul>
         </body>
     </html>;
     await sendHtml(resp, jsx);
 });
+
+function TodoItem({ task }: { task: string }) {
+    return <li>
+        <a href={`/item?task=${encodeURIComponent(task)}`}
+            on:click="$navigator.href = this.href;">
+            {task}
+        </a>
+        <button use:fetcher="$Fetcher" on:click={`
+            await this.fetcher.submit('/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: ${JSON.stringify({ task })}
+            });
+            await $navigator.reload();
+        `}>x</button>
+    </li>
+}
 
 async function sendHtml(resp: Response, jsx: any) {
     let html = config.indexHtml;
