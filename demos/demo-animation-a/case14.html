@@ -77,10 +77,10 @@
     </div>
     <script type="module">
         import { render } from '@incremental-html/template';
-        import { startDomObserver, setEvalGlobals, ref, reactive, queryFeature } from '@incremental-html/reactivity';
+        import { startDomObserver, setEvalGlobals, ref, reactive, closestFeature } from '@incremental-html/reactivity';
         import { motionValue } from '@incremental-html/framer-motion';
         import { Scroll, Motion } from '@incremental-html/motion';
-        setEvalGlobals({ Scroll, Motion, reactive, ref, render, queryFeature });
+        setEvalGlobals({ Scroll, Motion, reactive, ref, render, closestFeature });
         // for properties like prop:xxx or on:xxx
         startDomObserver();
     </script>

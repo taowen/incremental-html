@@ -1,4 +1,4 @@
-import { effect, Feature, queryFeature, reactive, scheduleChange, unmountElement } from '@incremental-html/reactivity';
+import { effect, Feature, closestFeature, reactive, scheduleChange, unmountElement } from '@incremental-html/reactivity';
 import { render } from '@incremental-html/template';
 
 export class TabGroup extends Feature<{ selectedIndex?: number }> {
@@ -44,7 +44,7 @@ export class TabPanel extends Feature<{}> {
     })
     private index = this.tabGroup.registerPanel(this);
     private get tabGroup() {
-        const tabGroup = queryFeature(this.currentElement, TabGroup);
+        const tabGroup = closestFeature(this.currentElement, TabGroup);
         if (!tabGroup) {
             throw new Error('use:tab-panel requires use:tab-group in its ancestor element');
         }
@@ -88,7 +88,7 @@ export class Tab extends Feature<{}> {
     })
     private index = this.tabGroup.registerTab(this);
     private get tabGroup() {
-        const tabGroup = queryFeature(this.element, TabGroup);
+        const tabGroup = closestFeature(this.element, TabGroup);
         if (!tabGroup) {
             throw new Error('use:tab-panel requires use:tab-group in its ancestor element');
         }

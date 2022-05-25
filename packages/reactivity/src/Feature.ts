@@ -50,7 +50,7 @@ export class Feature<Props extends Record<string, any>> {
             return props;
         })
         this.makeGettersCached();
-        // invalidate queryFeature, trigger re-run
+        // invalidate closestFeature, trigger re-run
         getInstanceCounter(this.constructor).value += 1;
     }
 
@@ -157,21 +157,21 @@ export function getFeature<T>(element: Node | null | undefined, featureClass: { 
     return undefined;
 }
 
-export function queryFeature<T>(element: Node | null | undefined, featureClass: { new(element: Element, prefix: string): T; }): T | undefined {
+export function closestFeature<T>(element: Node | null | undefined, featureClass: { new(element: Element, prefix: string): T; }): T | undefined {
     if (!featureClass) {
-        throw new Error('can not queryFeature of undefined featureClass')
+        throw new Error('can not closestFeature of undefined featureClass')
     }
-    getInstanceCounter(featureClass).value; // will run queryFeature again when new feature created
+    getInstanceCounter(featureClass).value; // will run closestFeature again when new feature created
     if (element?.nodeType !== 1) {
         return undefined;
     }
     const features = (element as any).$features;
     if (!features) {
-        return queryFeature(element.parentElement!, featureClass);
+        return closestFeature(element.parentElement!, featureClass);
     }
     const feature = features.get(featureClass)
     if (!feature) {
-        return queryFeature(element.parentElement!, featureClass);
+        return closestFeature(element.parentElement!, featureClass);
     }
     return feature;
 }

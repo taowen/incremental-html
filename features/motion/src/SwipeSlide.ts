@@ -1,4 +1,4 @@
-import { MotionProps, motionValue, addPointerEvent, animate } from "@incremental-html/framer-motion";
+import { MotionProps, motionValue, animate } from "@incremental-html/framer-motion";
 import { Feature, Ref, ref } from "@incremental-html/reactivity";
 import { Motion } from "./Motion";
 
@@ -68,7 +68,7 @@ export class SwipeSlide extends Feature<MotionProps> {
         const motion = new Motion(this.element, () => this.mergedProps);
         return () => {
             unsubscribe();
-            return motion.unmount();
+            return motion.__unmount__();
         }
     });
 }

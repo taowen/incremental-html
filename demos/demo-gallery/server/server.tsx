@@ -52,8 +52,8 @@ function GalleryImages({ query }: { query: Request['query'] }) {
     const images = range(from, from + count).filter(imageId => imageId < 20);
     const loadMore = <div use:loader="$List.Loader" class="ml-8" 
         loader:url={'/?' + new URLSearchParams({ ...query as any, from: images[images.length - 1], count: from === 0 ? count + 1 : count })} >
-            <div display:block="$queryFeature(this, $List.Loader).isLoading">Loading...</div>
-            <div prop:loader="$queryFeature(this, $List.Loader)" display:block="this.loader.loadError" on:click="this.loader.load()">Load failed, click to retry</div>
+            <div display:block="$closestFeature(this, $List.Loader).isLoading">Loading...</div>
+            <div prop:loader="$closestFeature(this, $List.Loader)" display:block="this.loader.loadError" on:click="this.loader.load()">Load failed, click to retry</div>
         </div>;
     return <>
         {images.map(imageId => <GalleryImage imageId={imageId} reloadUrl={'/?' + new URLSearchParams({ ...query as any, from: imageId, count: 1 })} />)}
@@ -70,7 +70,7 @@ function GalleryImage({ imageId, reloadUrl }: { imageId: number, reloadUrl: stri
                 data-image-id={imageId} on:click="
                     await fetch('/unfav', { body: JSON.stringify({ imageId: Number(this.dataset.imageId) }), method: 'POST', 
                         headers: { 'Content-Type': 'application/json' } });
-                    $queryFeature(this, $List.Reloader).reload();
+                    $closestFeature(this, $List.Reloader).reload();
                     $navigator.reload();">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 fill-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -81,7 +81,7 @@ function GalleryImage({ imageId, reloadUrl }: { imageId: number, reloadUrl: stri
                 data-image-id={imageId} on:click="
                     await fetch('/fav', { body: JSON.stringify({ imageId: Number(this.dataset.imageId) }), method: 'POST', 
                         headers: { 'Content-Type': 'application/json' } });
-                    $queryFeature(this, $List.Reloader).reload();
+                    $closestFeature(this, $List.Reloader).reload();
                     $navigator.reload();">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 fill-tranparent hover:fill-red-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />

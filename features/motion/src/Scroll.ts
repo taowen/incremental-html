@@ -1,6 +1,6 @@
 import { animate, MotionProps, motionValue } from "@incremental-html/framer-motion";
 import { morphChildNodes } from "@incremental-html/morph";
-import { Feature, queryFeature, Ref, ref } from "@incremental-html/reactivity";
+import { Feature, closestFeature, Ref, ref } from "@incremental-html/reactivity";
 import { render } from "@incremental-html/template";
 import { Motion } from "./Motion";
 
@@ -21,7 +21,7 @@ class ScrollPullable extends Feature<MotionProps & { handle?: () => Promise<void
         }
     })
     private get scroll() {
-        const scroll = queryFeature(this.element, Scroll);
+        const scroll = closestFeature(this.element, Scroll);
         if (!scroll) {
             throw new Error('can not use Scroll.Pullable without Scroll');
         }

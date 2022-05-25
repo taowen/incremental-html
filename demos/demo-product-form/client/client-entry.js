@@ -6,7 +6,5 @@ import { navigator } from '@incremental-html/navigator';
 setEvalGlobals({
     submitForm,
     navigator,
-    // demo js bundle chunking
-    MyFeature: () => import('./MyFeature')
 })
 startDomObserver();

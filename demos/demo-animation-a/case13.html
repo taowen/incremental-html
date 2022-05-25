@@ -457,10 +457,10 @@
     <div data-target="left" class="side-nav side-nav--left"></div>
     <script type="module">
         import { render } from '@incremental-html/template';
-        import { startDomObserver, setEvalGlobals, ref, reactive, queryFeature, querySelector } from '@incremental-html/reactivity';
+        import { startDomObserver, setEvalGlobals, ref, reactive, closestFeature, querySelector } from '@incremental-html/reactivity';
         import { motionValue, useTransform } from '@incremental-html/framer-motion';
         import { SwipeSlide, Motion } from '@incremental-html/motion';
-        setEvalGlobals({ SwipeSlide, Motion, reactive, ref, render, queryFeature, useTransform, $: querySelector });
+        setEvalGlobals({ SwipeSlide, Motion, reactive, ref, render, closestFeature, useTransform, $: querySelector });
         // for properties like prop:xxx or on:xxx
         startDomObserver();
     </script>

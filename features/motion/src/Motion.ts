@@ -1,9 +1,9 @@
 import { AnimationType, createAnimationState, HTMLProjectionNode, htmlVisualElement, makeVisualState, MeasureLayoutWithContext, MotionContextProps, MotionProps, useFocusGesture, useHoverGesture, usePanGesture, useProjection, useTapGesture, useViewport, VisualElementDragControls } from '@incremental-html/framer-motion';
-import { Feature, nextTick, queryFeature } from '@incremental-html/reactivity';
+import { Feature, nextTick, closestFeature } from '@incremental-html/reactivity';
 
 export class Motion extends Feature<MotionProps> {
     private inheritedProps: MotionContextProps = this.create(() => {
-        const parentMotion = queryFeature(this.element.parentElement, Motion);
+        const parentMotion = closestFeature(this.element.parentElement, Motion);
         if (!parentMotion) {
             return {};
         }
@@ -26,7 +26,7 @@ export class Motion extends Feature<MotionProps> {
     })
     private visualElement = this.create(() => {
         const visualState = makeVisualState(this.props, this.inheritedProps, null);
-        const parent = queryFeature(this.element.parentElement, Motion)?.visualElement;
+        const parent = closestFeature(this.element.parentElement, Motion)?.visualElement;
         const visualElement = htmlVisualElement({
             visualState,
             props: this.props,

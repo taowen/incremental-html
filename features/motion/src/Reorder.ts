@@ -1,6 +1,6 @@
-import { animate, Axis, isMotionValue, MotionProps, motionValue, useTransform, animationControls } from "@incremental-html/framer-motion";
+import { Axis, isMotionValue, MotionProps, motionValue, useTransform, animationControls } from "@incremental-html/framer-motion";
 import { morph } from "@incremental-html/morph";
-import { Feature, queryFeature, ref } from "@incremental-html/reactivity";
+import { Feature, closestFeature, ref } from "@incremental-html/reactivity";
 import { Motion } from "./Motion";
 
 function useDefaultMotionValue(value: any, defaultValue: number = 0) {
@@ -22,7 +22,7 @@ export class Reorder extends Feature<MotionProps & { whileNotAtOrigin?: string }
         return latestX || latestY ? 1 : "unset";
     });
     private axis = this.create(() => {
-        const group: any = queryFeature(this.element, Reorder.Group);
+        const group: any = closestFeature(this.element, Reorder.Group);
         if (!group) {
             return 'y';
         }
@@ -63,7 +63,7 @@ export class Reorder extends Feature<MotionProps & { whileNotAtOrigin?: string }
         let item = this.element.nextSibling;
         while (item) {
             if (item.nodeType === 1) {
-                const reorder = queryFeature(item as Element, Reorder);
+                const reorder = closestFeature(item as Element, Reorder);
                 if (reorder) {
                     return reorder;
                 }
@@ -79,7 +79,7 @@ export class Reorder extends Feature<MotionProps & { whileNotAtOrigin?: string }
         let item = this.element.previousSibling;
         while (item) {
             if (item.nodeType === 1) {
-                const reorder = queryFeature(item as Element, Reorder);
+                const reorder = closestFeature(item as Element, Reorder);
                 if (reorder) {
                     return reorder;
                 }
@@ -144,10 +144,5 @@ export class Reorder extends Feature<MotionProps & { whileNotAtOrigin?: string }
             onLayoutMeasure: this.onLayoutMeasure
         }
     }
-    private _2 = this.onMount(() => {
-        const motion = new Motion(this.element, () => this.mergedProps);
-        return () => {
-            return motion.unmount();
-        }
-    })
+    private _2 = new Motion(this.element, () => this.mergedProps);
 }

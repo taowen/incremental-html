@@ -75,7 +75,7 @@ async function ProductFormPage({ form }: { form: NewForm<ProductForm> }) {
             <link rel="shortcut icon" href="#" />
         </head>
         <body>
-            <form use:MyFeature="$MyFeature" method="post" action="/save" on:submit="
+            <form method="post" action="/save" on:submit="
                 await $submitForm(this);
             ">
                 <fieldset style="display: flex; flex-direction: column;">

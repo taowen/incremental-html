@@ -58,7 +58,7 @@
     </div>
     <script type="module">
         import { render } from '@incremental-html/template';
-        import { startDomObserver, setEvalGlobals, ref, reactive, queryFeature } from '@incremental-html/reactivity';
+        import { startDomObserver, setEvalGlobals, ref, reactive, closestFeature } from '@incremental-html/reactivity';
         import { List } from '@incremental-html/headlessui';
         setEvalGlobals({ List });
         // for properties like prop:xxx or on:xxx

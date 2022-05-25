@@ -14,12 +14,7 @@ class SwipeAction extends Feature<{ reveal: SwipeActions, x: MotionValue<number>
     private rebasedX = useTransform(this.props.x, (value) => {
         return value - this.rebaseOffset;
     });
-    private _ = this.onMount(() => {
-        const motion = new Motion(this.element, () => ({ style: { x: this.rebasedX } }));
-        return () => {
-            return motion.unmount();
-        }
-    })
+    private _ = new Motion(this.element, () => ({ style: { x: this.rebasedX } }))
 }
 
 export class SwipeActions extends Feature<MotionProps & { trailing?: string | HTMLTemplateElement, leading?: string | HTMLTemplateElement }> {

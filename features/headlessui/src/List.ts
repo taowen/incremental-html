@@ -1,5 +1,5 @@
 import { morphAttributes, morphChildNodes } from "@incremental-html/morph";
-import { Feature, getFeature, mountElement, queryFeature, reactive, scheduleChange } from "@incremental-html/reactivity";
+import { Feature, getFeature, mountElement, closestFeature, reactive, scheduleChange } from "@incremental-html/reactivity";
 import { render } from "@incremental-html/template";
 
 class ListLoader extends Feature<{ url?: string, load?: () => Promise<string> }> {
@@ -81,7 +81,7 @@ class ListReloader extends Feature<{ url?: string, load?: () => Promise<string> 
         return this.state.loadError;
     }
     public async reload() {
-        const list = queryFeature(this.element, List);
+        const list = closestFeature(this.element, List);
         if (!list) {
             return;
         }
@@ -284,7 +284,7 @@ export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?
     private _ = this.onMount(async () => {
         this.element.addEventListener('shouldMorph', (e) => {
             // list children will not be updated when $navigator.reload()
-            // use $queryFeature(this, $List.Reloader).reload() to reload individual item
+            // use $closestFeature(this, $List.Reloader).reload() to reload individual item
             e.preventDefault();
         })
         for (const item of this.initItems) {
