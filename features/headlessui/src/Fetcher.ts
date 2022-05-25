@@ -11,6 +11,10 @@ export class Fetcher extends Feature<{}> {
         return this.state.error;
     }
 
+    public set error(newValue: any) {
+        this.state.error = newValue;
+    }
+
     public get isSubmitting() {
         return this.state.isSubmitting;
     }

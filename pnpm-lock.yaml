@@ -275,9 +275,9 @@ importers:
   demos/demo-signup:
     specifiers:
       '@incremental-html/form-object': workspace:*
+      '@incremental-html/headlessui': workspace:*
       '@incremental-html/jsx-to-html': workspace:*
       '@incremental-html/reactivity': workspace:*
-      '@incremental-html/submit-form': workspace:*
       '@types/express': ^4.17.13
       '@types/node': ^17.0.34
       body-parser: ^1.12.0
@@ -286,9 +286,9 @@ importers:
       vite: ^2.9.1
     dependencies:
       '@incremental-html/form-object': link:../../packages/form-object
+      '@incremental-html/headlessui': link:../../features/headlessui
       '@incremental-html/jsx-to-html': link:../../packages/jsx-to-html
       '@incremental-html/reactivity': link:../../packages/reactivity
-      '@incremental-html/submit-form': link:../../packages/submit-form
       body-parser: 1.19.2
       express: 5.0.0-beta.1
     devDependencies:

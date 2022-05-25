@@ -27,8 +27,8 @@ export function GET() {
         </head>
         <body>
             <main>
-                <form method="post" on:submit="
-                await $submitForm(event.target);
+                <form method="post" use:fetcher="$Fetcher" on:submit="
+                await this.fetcher.submit();
                 ">
                     <h2>Subscribe!</h2>
                     <p>Don't miss any of the action!</p>
@@ -39,17 +39,17 @@ export function GET() {
                             type="email"
                             name={form.nameOf('email')}
                             placeholder="you@example.com"
-                            on:input="this.closest('form').setAttribute('error', '')"
+                            on:input="$closestFeature(this, $Fetcher).error = null"
                         />
                         <button type="submit" 
-                            prop:submitting="$(this.closest('form')).getAttribute('submitting')"
+                            prop:submitting="$closestFeature(this, $Fetcher).isSubmitting"
                             prop:text-content="this.submitting ? 'Subscribing...' : 'Subscribe'"
                             prop:disabled="this.submitting ? true : false">
                         </button>
                     </fieldset>
 
                     <p id="error-message" 
-                        prop:text-content="$(this.closest('form')).getAttribute('error') || '\xa0'">
+                        prop:text-content="$closestFeature(this, $Fetcher).error || '\xa0'">
                     </p>
                 </form>
             </main>

@@ -1,11 +1,12 @@
 const express = require('express');
 const { createServer: createViteServer } = require('vite');
+const fs = require('fs');
+const path = require('path');
 
-const root = process.cwd();
 async function main() {
-    const server = express()
+    const app = express()
+    // auto reload in dev mode
     const vite = await createViteServer({
-        root,
         server: {
             middlewareMode: 'ssr',
             watch: {
@@ -15,12 +16,14 @@ async function main() {
                 interval: 100
             }
         }
-    })
-    server.use(vite.middlewares);
-    server.all('/(.*)', async (req, resp) => {
+    });
+    app.use(vite.middlewares);
+    app.all('/(.*)', async (req, resp) => {
         req.url = req.originalUrl;
         console.log(req.method, req.url);
-        const { default: handle } = await vite.ssrLoadModule('./server/server-entry.ts');
+        const { default: handle, config } = await vite.ssrLoadModule('./server/server.ts');
+        config.indexHtml = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf-8');
+        config.indexHtml = await vite.transformIndexHtml(req.url, config.indexHtml);
         handle(req, resp, (e) => {
             if (e) {
                 vite.ssrFixStacktrace(e)
@@ -31,7 +34,7 @@ async function main() {
             }
         });
     })
-    server.listen(3000, () => {
+    app.listen(3000, () => {
         console.log('http://localhost:3000')
     });
 }
