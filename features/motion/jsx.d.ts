@@ -8,5 +8,6 @@ declare namespace JsxToHtml {
         ['motion:layout-id']?: string,
         ['motion:transition']?: string,
         ['motion:initial']?: string
+        ['use:reorder']?: string
     }
 }

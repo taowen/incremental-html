@@ -65,7 +65,7 @@ server.get('/', async (req, resp) => {
             <li id="add" class="bg-blue-200 rounded p-2" use:motion="$Motion" motion:layout>
                 <form class="flex flex-row grow items-center justify-between" id="newTodo" method="post" action="/add" use:fetcher="$Fetcher" on:submit="
                     await this.fetcher.submit();
-                    $closestFeature(this, $Motion.Config).blockInitialAnimation = false;
+                    this.closest('ul').motionConfig.blockInitialAnimation = false;
                     await $navigator.reload();
                     this.reset();
                 ">
@@ -80,7 +80,7 @@ server.get('/', async (req, resp) => {
 
 function TodoItem({ item }: { item: { id: number, task: string } }) {
     return <li id={`item-${item.id}`} class="bg-blue-200 rounded p-2 flex flex-row grow items-center justify-between" 
-            use:motion='$Motion' motion:layout motion:initial="{ opacity: 0, scale: 0.98 }" 
+            use:motion='$Reorder' motion:initial="{ opacity: 0, scale: 0.98 }" 
             motion:animate="{ opacity: 1, scale: 1, transition: { ease: 'easeIn' } }" 
             motion:exit="{ opacity: 0, scale: 0.98, transition: { ease: 'easeOut' } }">
         <a href={`/item?task=${encodeURIComponent(item.id)}`}

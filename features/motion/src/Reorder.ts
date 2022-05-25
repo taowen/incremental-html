@@ -144,5 +144,5 @@ export class Reorder extends Feature<MotionProps & { whileNotAtOrigin?: string }
             onLayoutMeasure: this.onLayoutMeasure
         }
     }
-    private _2 = new Motion(this.element, () => this.mergedProps);
+    public motion = new Motion(this.element, () => this.mergedProps);
 }

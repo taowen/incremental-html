@@ -117,7 +117,12 @@ export class Feature<Props extends Record<string, any>> {
         return fn();
     }
 
+    private isUnmounting = false;
     public __unmount__() {
+        if (this.isUnmounting) {
+            return;
+        }
+        this.isUnmounting = true;
         const promises = [];
         for (const v of Object.values(this)) {
             const unmount = (v as any)?.__unmount__;
