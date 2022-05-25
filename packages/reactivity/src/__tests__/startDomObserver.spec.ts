@@ -18,6 +18,27 @@ test('set textContent', async () => {
     expect(document.getElementById('abc')!.textContent).toBe('hello');
 })
 
+test('set display conditionally', async () => {
+    document.body.innerHTML = `<p id="abc" display:block="true"></p>`;
+    await nextTick();
+    expect(document.getElementById('abc')!.style.display).toBe('block');
+    document.body.innerHTML = `<p id="abc" display:block="false"></p>`;
+    await nextTick();
+    expect(document.getElementById('abc')!.style.display).toBe('none');
+})
+
+test('set style partially', async () => {
+    document.body.innerHTML = `<p id="abc" style:color="'red'"></p>`;
+    await nextTick();
+    expect(document.getElementById('abc')!.style.color).toBe('red');
+})
+
+test('set class partially', async () => {
+    document.body.innerHTML = `<p id="abc" class:part1="'ml-4'" class:part2="'mt-4'"></p>`;
+    await nextTick();
+    expect(document.getElementById('abc')!.className).toBe('ml-4 mt-4');
+})
+
 test('copy from', async () => {
     document.body.innerHTML = `<template id="tpl1" title="hello"></template><p copy-from="#tpl1"></p>`;
     await nextTick();

@@ -55,7 +55,7 @@
         <div id="item-29" class="item">Item 29</div>
         <div id="item-30" class="item">Item 30</div>
         <div use:loader="$List.Loader" loader:load="$fakeLoad" style="padding: 10px; width: 100%; text-align: center;">
-            <span prop:style.display="this.parentNode.loader.isLoading ? 'inline' : 'none'">Loading...</span>
+            <span display:inline="this.parentNode.loader.isLoading">Loading...</span>
             <span prop:text-content="this.parentNode.loader.loadError ? `Error: ${this.parentNode.loader.loadError}` : ''"></span>
         </div>
     </div>
@@ -73,7 +73,7 @@
             }
             lines.push(`
             <div use:loader="$List.Loader" loader:load="$fakeLoad" style="padding: 10px; width: 100%; text-align: center;">
-                <span prop:style.display="this.parentNode.loader.isLoading ? 'inline' : 'none'">Loading...</span>
+                <span display:inline="this.parentNode.loader.isLoading">Loading...</span>
                 <span prop:text-content="this.parentNode.loader.loadError ? \`Error: \${this.parentNode.loader.loadError}\` : ''"></span>
             </div>
             </div>`);

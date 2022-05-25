@@ -437,19 +437,19 @@
         </div>
         <ul class="nav">
             <li data-target="1" class="nav__slide nav__slide--1" 
-                prop:class.active="$('.slider').slide.isActive('.slide:nth-child(1)') && 'nav-active'"
+                class:active="$('.slider').slide.isActive('.slide:nth-child(1)') && 'nav-active'"
                 on:click="$('.slider').slide.setActive('.slide:nth-child(1)')"></li>
             <li data-target="2" class="nav__slide nav__slide--2" 
-                prop:class.active="$('.slider').slide.isActive('.slide:nth-child(2)') && 'nav-active'"
+                class:active="$('.slider').slide.isActive('.slide:nth-child(2)') && 'nav-active'"
                 on:click="$('.slider').slide.setActive('.slide:nth-child(2)')"></li>
             <li data-target="3" class="nav__slide nav__slide--3"
-                prop:class.active="$('.slider').slide.isActive('.slide:nth-child(3)') && 'nav-active'"
+                class:active="$('.slider').slide.isActive('.slide:nth-child(3)') && 'nav-active'"
                 on:click="$('.slider').slide.setActive('.slide:nth-child(3)')"></li>
             <li data-target="4" class="nav__slide nav__slide--4"
-                prop:class.active="$('.slider').slide.isActive('.slide:nth-child(4)') && 'nav-active'"
+                class:active="$('.slider').slide.isActive('.slide:nth-child(4)') && 'nav-active'"
                 on:click="$('.slider').slide.setActive('.slide:nth-child(4)')"></li>
             <li data-target="5" class="nav__slide nav__slide--5"
-                prop:class.active="$('.slider').slide.isActive('.slide:nth-child(5)') && 'nav-active'"
+                class:active="$('.slider').slide.isActive('.slide:nth-child(5)') && 'nav-active'"
                 on:click="$('.slider').slide.setActive('.slide:nth-child(5)')"></li>
         </ul>
     </div>

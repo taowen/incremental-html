@@ -15,7 +15,7 @@
     <button on:click="
     const counter = document.body.counter;
     counter.value = Number(counter.value) + 1">+</button>
-    <p prop:style.color="Number(document.body.counter.value) > 100 ? 'red' : 'black'" 
+    <p style:color="Number(document.body.counter.value) > 100 ? 'red' : 'black'" 
         prop:inner-html="`value is: ${document.body.counter.value}`" />
     <script type="module">
         import { startDomObserver, ref, setEvalGlobals } from '@incremental-html/reactivity';

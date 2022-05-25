@@ -14,7 +14,7 @@
     ">-</button>
     <input id="counter" value="99" />
     <button on:click="$('#counter').value = parseInt($('#counter').value) + 1">+</button>
-    <p prop:style.color="$('#counter').value > 100 ? 'red' : 'black'" 
+    <p style:color="$('#counter').value > 100 ? 'red' : 'black'" 
         prop:inner-html="`value is: ${$('#counter').value}`" />
     <script type="module">
         import { startDomObserver, querySelector, setEvalGlobals } from '@incremental-html/reactivity';

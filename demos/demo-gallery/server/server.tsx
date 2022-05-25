@@ -52,8 +52,8 @@ function GalleryImages({ query }: { query: Request['query'] }) {
     const images = range(from, from + count).filter(imageId => imageId < 20);
     const loadMore = <div use:loader="$List.Loader" class="ml-8" 
         loader:url={'/?' + new URLSearchParams({ ...query as any, from: images[images.length - 1], count: from === 0 ? count + 1 : count })} >
-            <div render:if="this.$props.isLoading">Loading...</div>
-            <div render:if="this.$props.loadError" on:click="$queryFeature(this, $List.Loader).load()">Load failed, click to retry</div>
+            <div display:block="$queryFeature(this, $List.Loader).isLoading">Loading...</div>
+            <div prop:loader="$queryFeature(this, $List.Loader)" display:block="this.loader.loadError" on:click="this.loader.load()">Load failed, click to retry</div>
         </div>;
     return <>
         {images.map(imageId => <GalleryImage imageId={imageId} reloadUrl={'/?' + new URLSearchParams({ ...query as any, from: imageId, count: 1 })} />)}

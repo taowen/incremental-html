@@ -163,40 +163,13 @@ export function mountElement(element: Element) {
             })
         } else if (attr.name.startsWith('prop:')) {
             const propName = camelize(attr.name.substring('prop:'.length));
-            let bindings = (element as any).$bindings;
-            if (!bindings) {
-                (element as any).$bindings = bindings = {};
-            }
-            if (isExistingProp(element, propName)) {
-                bindings[propName] = effect(() => {
-                    try {
-                        const value = evalExpr(attr.value, element);
-                        scheduleChange(element, propName, value);
-                    } catch (e) {
-                        console.error(`failed to eval ${attr.name} of `, element, e);
-                    }
-                });
-            } else {
-                let computedProps = (element as any).$computedProps;
-                if (!computedProps) {
-                    (element as any).$computedProps = computedProps = {};
-                }
-                const computedProp = computed(() => {
-                    try {
-                        return evalExpr(attr.value, element);
-                    } catch (e) {
-                        console.error(`failed to eval ${attr.name} of `, element, e);
-                    }
-                });
-                computedProps[propName] = computedProp;
-                // define new property
-                Object.defineProperty(element, propName, {
-                    enumerable: true,
-                    get() {
-                        return computedProp.value;
-                    }
-                })
-            }
+            mountElementProp(element, propName, attr);
+        } else if (attr.name.startsWith('display:')) {
+            mountElementPropBinding(element, attr.name, attr);
+        } else if (attr.name.startsWith('style:')) {
+            mountElementPropBinding(element, attr.name, attr);
+        } else if (attr.name.startsWith('class:')) {
+            mountElementPropBinding(element, attr.name, attr);
         } else if (attr.name.startsWith('use:')) {
             let featureClass = evalExpr(attr.value, element);
             const featureName = attr.name.substring('use:'.length);
@@ -213,6 +186,47 @@ export function mountElement(element: Element) {
         subtree: false
     });
     return xid;
+}
+
+function mountElementProp(element: Element, propName: string, attr: Attr) {
+    if (isExistingProp(element, propName)) {
+        mountElementPropBinding(element, propName, attr);
+    } else {
+        let computedProps = (element as any).$computedProps;
+        if (!computedProps) {
+            (element as any).$computedProps = computedProps = {};
+        }
+        const computedProp = computed(() => {
+            try {
+                return evalExpr(attr.value, element);
+            } catch (e) {
+                console.error(`failed to eval ${attr.name} of `, element, e);
+            }
+        });
+        computedProps[propName] = computedProp;
+        // define new property
+        Object.defineProperty(element, propName, {
+            enumerable: true,
+            get() {
+                return computedProp.value;
+            }
+        })
+    }
+}
+
+function mountElementPropBinding(element: Element, propName: string, attr: Attr) {
+    let bindings = (element as any).$bindings;
+    if (!bindings) {
+        (element as any).$bindings = bindings = {};
+    }
+    bindings[propName] = effect(() => {
+        try {
+            const value = evalExpr(attr.value, element);
+            scheduleChange(element, propName, value);
+        } catch (e) {
+            console.error(`failed to eval ${attr.name} of `, element, e);
+        }
+    });
 }
 
 function isExistingProp(obj: any, propName: string): any {
@@ -296,23 +310,28 @@ export function nextTick(): Promise<void> {
 }
 
 function setNodeProperty(node: Element, name: string, value: any) {
-    if (name.startsWith('style.')) {
-        Reflect.set((node as HTMLElement).style, name.substring('style.'.length), value)
+    if (name.startsWith('display:')) {
+        (node as HTMLElement).style.display = value ? name.substring('display:'.length) : 'none';
         return;
     }
-    if (name === 'class') {
-        node.className = value;
+    if (name.startsWith('style:')) {
+        Reflect.set((node as HTMLElement).style, name.substring('style:'.length), value)
         return;
     }
-    if (name.startsWith('class.')) {
-        value = ' ' + value;
+    if (name.startsWith('class:')) {
         const oldClass = Reflect.get(node, name);
         Reflect.set(node, name, value);
         if (oldClass) {
             node.className = node.className.replace(oldClass, '') + value;
+        } else if (node.className) {
+            node.className = node.className + ' ' + value;
         } else {
-            node.className = node.className + value;
+            node.className = value;
         }
+        return;
+    }
+    if (name === 'class') {
+        node.className = value;
         return;
     }
     if (name === 'innerHtml') {

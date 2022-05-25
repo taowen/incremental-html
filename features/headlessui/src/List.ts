@@ -8,11 +8,6 @@ class ListLoader extends Feature<{ url?: string, load?: () => Promise<string> }>
         return propName === 'url';
 
     }
-    private template = this.create(() => {
-        const template = document.createElement('template');
-        template.content.appendChild(this.element.cloneNode(true));
-        return template;
-    })
 
     private state = reactive({
         isLoading: false,
@@ -65,13 +60,7 @@ class ListLoader extends Feature<{ url?: string, load?: () => Promise<string> }>
         } finally {
             this.state.isLoading = false;
         }
-    }
-    
-    private _ = this.effect(() => {
-        const newElement = render(this.template, { isLoading: this.isLoading, loadError: this.loadError })[0] as Element;
-        scheduleChange(this.element, 'attributes', newElement);
-        scheduleChange(this.element, 'childNodes', newElement);
-    });
+    }    
 }
 
 class ListReloader extends Feature<{ url?: string, load?: () => Promise<string> }> {
