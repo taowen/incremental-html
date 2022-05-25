@@ -55,42 +55,37 @@ server.get('/item', async (req, resp) => {
 
 server.get('/', async (req, resp) => {
     const form = createForm({} as NewTodoForm);
-    const jsx = <html>
-        <head>
-            <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-            <title>Manage Todos</title>
-            <link rel="shortcut icon" href="#" />
-        </head>
-        <body>
-            <ul>
-                {todoItems.map(task => <TodoItem task={task} />)}
-            </ul>
-            <form id="newTodo" method="post" action="/add" use:fetcher="$Fetcher" on:submit="
-                await this.fetcher.submit();
-                await $navigator.reload();
-                this.reset();
-            ">
-                <input type="text" name={form.nameOf('task')} />
-                <button>add todo</button>
+    const jsx = <div class="m-4">
+        <ul class="flex flex-col gap-2 w-96">
+            {todoItems.map(task => <TodoItem task={task} />)}
+            <li class="bg-blue-200 rounded p-2">
+                <form class="flex flex-row grow items-center justify-between" id="newTodo" method="post" action="/add" use:fetcher="$Fetcher" on:submit="
+                    await this.fetcher.submit();
+                    await $navigator.reload();
+                    this.reset();
+                ">
+                <input class="min-h-full p-1 rounded border border-blue-800" type="text" name={form.nameOf('task')} />
+                <button class="bg-blue-800 text-white rounded p-1 w-16">Add</button>
             </form>
-        </body>
-    </html>;
+            </li>
+        </ul>
+    </div>;
     await sendHtml(resp, jsx);
 });
 
 function TodoItem({ task }: { task: string }) {
-    return <li>
+    return <li class="bg-blue-200 rounded p-2 flex flex-row grow items-center justify-between">
         <a href={`/item?task=${encodeURIComponent(task)}`}
             on:click="$navigator.href = this.href;">
             {task}
         </a>
         <button use:fetcher="$Fetcher" on:click={`
-            await this.fetcher.submit('/delete', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: ${JSON.stringify({ task })}
-            });
-            await $navigator.reload();
+        await this.fetcher.submit('/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ task: '${task}' })
+        });
+        await $navigator.reload();
         `}>x</button>
     </li>
 }

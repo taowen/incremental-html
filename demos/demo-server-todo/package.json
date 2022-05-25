@@ -3,18 +3,21 @@
     "private": true,
     "version": "1.0.0",
     "dependencies": {
-        "@incremental-html/jsx-to-html": "workspace:*",
-        "@incremental-html/reactivity": "workspace:*",
         "@incremental-html/form-object": "workspace:*",
-        "@incremental-html/navigator": "workspace:*",
         "@incremental-html/headlessui": "workspace:*",
-        "express": "^5.0.0-beta.1",
-        "body-parser": "^1.12.0"
+        "@incremental-html/jsx-to-html": "workspace:*",
+        "@incremental-html/navigator": "workspace:*",
+        "@incremental-html/reactivity": "workspace:*",
+        "@unocss/preset-uno": "^0.34.1",
+        "@unocss/reset": "^0.34.1",
+        "@unocss/runtime": "^0.34.1",
+        "body-parser": "^1.12.0",
+        "express": "^5.0.0-beta.1"
     },
     "devDependencies": {
+        "@types/express": "^4.17.13",
         "typescript": "^4.5.5",
-        "vite": "^2.9.1",
-        "@types/express": "^4.17.13"
+        "vite": "^2.9.1"
     },
     "scripts": {
         "dev": "node dev.js"
