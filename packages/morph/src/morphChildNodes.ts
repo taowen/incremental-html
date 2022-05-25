@@ -138,9 +138,9 @@ function tryReuse(oldChildren: Map<any, Node>, id: any, newNode: Node) {
         return newNode;
     }
     oldChildren.delete(id);
+    (oldNode as any).$reused = newNode;
     // for feature like List, it will manage its children by itself
-    if (oldNode.dispatchEvent(new Event('shouldMorph',  { cancelable: true }))) {
-        (oldNode as any).$reused = newNode;
+    if (oldNode.dispatchEvent(new Event('shouldMorph', { cancelable: true }))) {
         if ((oldNode as HTMLElement).tagName !== 'TEXTAREA') {
             removeIncompatibleChildNodes(oldNode as Element, newNode as Element);
         }

@@ -87,14 +87,15 @@ function TodoItem({ item }: { item: { id: number, task: string } }) {
             on:click="$navigator.href = this.href;">
             {item.task}
         </a>
-        <button use:fetcher="$Fetcher" prop:disabled="this.fetcher.isSubmitting" prop:text-content="this.fetcher.isSubmitting ? 'deleting...' : 'x'" on:click={`
-        await this.fetcher.submit('/delete', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: ${item.id} })
-        });
-        await $navigator.reload();
-        `}>x</button>
+        <button use:fetcher="$Fetcher" prop:disabled="this.fetcher.isSubmitting" 
+            prop:text-content="this.fetcher.isSubmitting ? 'deleting...' : 'x'" 
+            data-item-id={item.id} on:click="
+            await this.fetcher.submit('/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: Number(this.dataset.itemId) })
+            });
+            await $navigator.reload();"/>
     </li>
 }
 

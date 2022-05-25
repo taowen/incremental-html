@@ -215,6 +215,9 @@ function mountElementProp(element: Element, propName: string, attr: Attr) {
 }
 
 function mountElementPropBinding(element: Element, propName: string, attr: Attr) {
+    if (propName === 'textContent' || propName === 'innerHtml' || propName === 'childNodes') {
+        element.addEventListener('shouldMorph', (e) => { e.preventDefault() });
+    }
     let bindings = (element as any).$bindings;
     if (!bindings) {
         (element as any).$bindings = bindings = {};
@@ -264,7 +267,7 @@ function createFeature(featureClass: any, element: Element, featureName: string)
 let scheduler: { current: Promise<void> | undefined } = { current: undefined };
 const dirtyElements = new Set<Element>();
 
-export function scheduleChange(element: Element, propName: string, propValue:any) {
+export function scheduleChange(element: Element, propName: string, propValue: any) {
     let dirtyProps = (element as any).$dirtyProps;
     if (!dirtyProps) {
         (element as any).$dirtyProps = dirtyProps = new Map<string, any>();
