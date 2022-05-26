@@ -1,5 +1,5 @@
 // client side entry
-import { Fetcher } from '@incremental-html/headlessui';
+import { Fetcher, Toast } from '@incremental-html/headlessui';
 import { navigator } from '@incremental-html/navigator';
 import { Motion, Reorder } from '@incremental-html/motion';
 import { closestFeature, setEvalGlobals, startDomObserver } from '@incremental-html/reactivity';
@@ -11,8 +11,9 @@ setEvalGlobals({
     Reorder,
     Motion,
     Fetcher,
+    Toast,
     closestFeature,
-    navigator
+    navigator,
 })
 startDomObserver();
 initUnocssRuntime({

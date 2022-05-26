@@ -8,7 +8,9 @@ declare namespace JsxToHtml {
         ['loader:url']?: string,
         ['use:reloader']?: string,
         ['reloader:url']?: string,
-        ['use:fetcher']?: string
+        ['use:fetcher']?: string,
+        ['use:toast']?: string
+        ['toast:duration']?: string
     }
 }
 

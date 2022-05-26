@@ -19,7 +19,6 @@ server.use(bodyParser.urlencoded({ extended: false }));
 server.use(bodyParser.json());
 
 server.post('/add', async (req, resp) => {
-    await new Promise<void>(resolve => setTimeout(resolve, 1000));
     const form = decodeForm<NewTodoForm>(req.body);
     if (!form.task) {
         form.setError('task', 'task is required');
@@ -65,11 +64,13 @@ server.get('/item', async (req, resp) => {
 
 server.get('/', async (req, resp) => {
     const form = createForm({} as NewTodoForm);
-    const jsx = <div class="m-4">
+    const jsx = <>
+    <div class="m-4">
         <ul class="flex flex-col gap-2 w-96" use:motion-config="$Motion.Config" motion-config:block-initial-animation>
             {todoItems.map(item => <TodoItem item={item} />)}
             <li id="add" class="bg-blue-200 rounded p-2" use:motion="$Motion" motion:layout>
                 <form class="flex flex-row grow items-center justify-between" id="newTodo" method="post" action="/add" use:fetcher="$Fetcher" on:submit="
+                    document.querySelector('#success-toast').toast.show({ content: 'hello' });
                     await this.fetcher.submit();
                     this.closest('ul').motionConfig.blockInitialAnimation = false;
                     await $navigator.reload();
@@ -86,7 +87,17 @@ server.get('/', async (req, resp) => {
                 </form>
             </li>
         </ul>
-    </div>;
+    </div>
+    <div class="absolute bottom-4 right-4 flex flex-col gap-2 items-end">
+        <template id="success-toast" use:toast="$Toast" toast:duration="3000">
+            <div class="rounded bg-red-300 px-3 py-1" prop:text-content="this.$props.content" 
+            use:motion="$Motion" motion:layout
+            motion:initial="{ opacity: 0, y: 50, scale: 0.3 }"
+            motion:animate="{ opacity: 1, y: 0, scale: 1 }"
+            motion:exit="{ opacity: 0, y: 20, scale: 0.5 }"/>
+        </template>
+    </div>
+    </>;
     await sendHtml(resp, jsx);
 });
 

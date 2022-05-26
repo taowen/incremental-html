@@ -111,9 +111,6 @@ export function mountElement(element: Element) {
     }
     const xid = `n${nextId++}`;
     (element as any).$xid = xid;
-    if (element.tagName === 'TEMPLATE') {
-        return;
-    }
     const copyFromSelector = element.getAttribute('copy-from');
     if (copyFromSelector) {
         const template = document.querySelector(copyFromSelector);
