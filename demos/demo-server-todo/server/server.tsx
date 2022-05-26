@@ -10,7 +10,7 @@ interface NewTodoForm {
 
 let nextId = 1;
 const todoItems = [
-    { id: nextId++, task: 'fix bike'},
+    { id: nextId++, task: 'fix bike' },
     { id: nextId++, task: 'buy tomato' }
 ]
 
@@ -69,9 +69,9 @@ server.get('/', async (req, resp) => {
                     await $navigator.reload();
                     this.reset();
                 ">
-                <input class="min-h-full p-1 rounded border border-blue-800" type="text" name={form.nameOf('task')} />
-                <button class="bg-blue-800 text-white rounded p-1 w-16">Add</button>
-            </form>
+                    <input class="min-h-full p-1 rounded border border-blue-800" type="text" name={form.nameOf('task')} />
+                    <button class="bg-blue-800 text-white rounded p-1 w-16">Add</button>
+                </form>
             </li>
         </ul>
     </div>;
@@ -79,23 +79,30 @@ server.get('/', async (req, resp) => {
 });
 
 function TodoItem({ item }: { item: { id: number, task: string } }) {
-    return <li id={`item-${item.id}`} class="bg-blue-200 rounded p-2 flex flex-row grow items-center justify-between" 
-            use:motion='$Reorder' motion:initial="{ opacity: 0, scale: 0.98 }" 
-            motion:animate="{ opacity: 1, scale: 1, transition: { ease: 'easeIn' } }" 
-            motion:exit="{ opacity: 0, scale: 0.98, transition: { ease: 'easeOut' } }">
+    return <li id={`item-${item.id}`} class="bg-blue-200 rounded p-2 flex flex-row grow items-center justify-between"
+        use:motion='$Reorder' motion:initial="{ opacity: 0, scale: 0.98 }"
+        motion:animate="{ opacity: 1, scale: 1, transition: { ease: 'easeIn' } }"
+        motion:exit="{ opacity: 0, scale: 0.98, transition: { ease: 'easeOut' } }">
         <a href={`/item?task=${encodeURIComponent(item.id)}`}
             on:click="$navigator.href = this.href;">
             {item.task}
         </a>
-        <button use:fetcher="$Fetcher" prop:disabled="this.fetcher.isSubmitting" 
-            prop:text-content="this.fetcher.isSubmitting ? 'deleting...' : 'x'" 
+        <button use:fetcher="$Fetcher" prop:disabled="this.fetcher.isSubmitting"
             data-item-id={item.id} on:click="
             await this.fetcher.submit('/delete', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: Number(this.dataset.itemId) })
             });
-            await $navigator.reload();"/>
+            await $navigator.reload();">
+            <svg display:inline="this.parentNode.fetcher.isSubmitting" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <svg display:inline="!this.parentNode.fetcher.isSubmitting"  class="h-5 w-5 text-red-700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60">
+                <path stroke="currentColor" fill="currentColor" d="M34.2,30l13.5-13.4c.6-.6,.9-1.4,.9-2.2s-.4-1.5-.9-2c-1.3-1.1-3.2-1.1-4.2,0l-13.5,13.4-13.4-13.5c-.6-.6-1.4-.9-2.2-.9s-1.5,.4-2,.9c-.5,.6-.8,1.3-.8,2.1,0,.9,.3,1.6,.9,2.1l13.3,13.5-13.5,13.4c-.6,.6-.9,1.4-.9,2.2s.4,1.5,.9,2c.6,.5,1.3,.8,2.1,.8s1.6-.3,2.1-.9l13.5-13.3,13.4,13.5c.6,.6,1.3,.9,2.1,.9h.1c.8,0,1.5-.4,2-.9,1.1-1.2,1.1-3.1,.1-4.2l-13.5-13.5Z"></path>
+            </svg>
+        </button>
     </li>
 }
 

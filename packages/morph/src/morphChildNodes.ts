@@ -1,7 +1,7 @@
-import { morph } from "./morph";
+import { getMorphingProgress, morph } from "./morph";
 import { morphAttributes } from "./morphAttributes";
 
-export async function morphChildNodes(oldEl: Element, newEl: Element | Node[]) {
+export function morphChildNodes(oldEl: Element, newEl: Element | Node[]) {
     morph(oldEl, () => {
         removeIncompatibleChildNodes(oldEl, newEl);
         commitNewChildNodes(oldEl);
@@ -23,11 +23,12 @@ morphChildNodes.morphProperties = (oldEl: Element, newEl: Element) => { };
 function commitNewChildNodes(el: Element) {
     const removeProgress = (el as any).$removeProgress;
     if (removeProgress) {
-        const removeProgressPromise = Promise.all(removeProgress);
+        let removeProgressPromise = Promise.all(removeProgress);
         delete (el as any).$removeProgress;
-        removeProgressPromise.finally(() => {
+        removeProgressPromise = removeProgressPromise.finally(() => {
             commitNewChildNodes(el);
         });
+        getMorphingProgress()?.push(removeProgressPromise as any);
         return;
     }
     const newChildren = (el as any).$newChildNodes;

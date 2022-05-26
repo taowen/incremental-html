@@ -1,17 +1,26 @@
-let morphing = false;
+let morphing: Promise<void>[] | undefined;
 
-export function morph(node: Element, cb: () => void) {
+export function morph(element: Element, cb: () => void) {
     const topLevel = !morphing;
     if (topLevel) {
-        morphing = true;
-        node.dispatchEvent(new Event('beforeMorph'));
+        morphing = [];
+        element.dispatchEvent(new Event('beforeMorph'));
     }
     try {
         cb();
     } finally {
         if (topLevel) {
-            morphing = false;
-            node.dispatchEvent(new Event('afterMorph'));
+            postMorph(element, morphing!);
+            morphing = undefined;
         }
     }
+}
+
+async function postMorph(element: Element, morphingProgress: Promise<void>[]) {
+    await Promise.all(morphingProgress);
+    element.dispatchEvent(new Event('afterMorph'));
+}
+
+export function getMorphingProgress() {
+    return morphing;
 }

@@ -735,6 +735,7 @@ declare namespace JsxToHtml {
          * SVG Styling Attributes
          * @see https://www.w3.org/TR/SVG/styling.html#ElementSpecificStyling
          */
+        ['display:inline']?: string
         class?: any
         style?: string | CSSProperties
 
