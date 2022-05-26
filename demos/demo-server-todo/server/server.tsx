@@ -88,7 +88,7 @@ server.get('/', async (req, resp) => {
             </li>
         </ul>
     </div>
-    <div class="absolute bottom-4 right-4 flex flex-col gap-2 items-end">
+    <div class="absolute bottom-8 right-8 flex flex-col gap-2 items-end">
         <template id="success-toast" use:toast="$Toast" toast:duration="3000">
             <div class="rounded bg-red-300 px-3 py-1" prop:text-content="this.$props.content" 
             use:motion="$Motion" motion:layout
