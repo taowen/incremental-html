@@ -22,42 +22,54 @@ async function renderElement(ctx: {
         }
     }
     if (tag === Fragment) {
-        return await renderChild(ctx, children);
+        return await renderChild(children, ctx);
     }
     if (tag === 'context') {
-        return await renderChild({ ...ctx, ...props }, children);
+        return await renderChild(children, { ...ctx, ...props });
     }
     const { __writer } = ctx;
     if (typeof tag === 'string') {
         __writer.write('<');
         __writer.write(tag);
-        if (props) {
-            for (const [k, v] of Object.entries(props)) {
-                if (typeof v === 'boolean') {
-                    if (v) {
+        try {
+            if (props) {
+                for (let [k, v] of Object.entries(props)) {
+                    v = await v;
+                    if (typeof v === 'boolean') {
+                        if (v) {
+                            __writer.write(' ');
+                            __writer.write(k);
+                        }
+                    } else {
                         __writer.write(' ');
                         __writer.write(k);
+                        __writer.write('="');
+                        __writer.write(`${v}`);
+                        __writer.write('"');
                     }
-                } else {
-                    __writer.write(' ');
-                    __writer.write(k);
-                    __writer.write('="');
-                    __writer.write(`${v}`);
-                    __writer.write('"');
                 }
             }
+        } catch(e) {
+            __writer.write('>\n');
+            __writer.write('\n</');
+            __writer.write(tag);
+            __writer.write('>');
+            throw e;
         }
         __writer.write('>\n');
-        await renderChild(ctx, children);
-        __writer.write('\n</');
-        __writer.write(tag);
-        __writer.write('>');
+        try {
+            await renderChild(children, ctx);
+        } finally {
+            __writer.write('\n</');
+            __writer.write(tag);
+            __writer.write('>');
+        }
         return;
     }
     return await (tag as Function)({ ...props, children }, ctx)
 }
 
-async function renderChild(ctx: { __writer: WritableStreamDefaultWriter, [key: string]: any }, node: any): Promise<void> {
+export async function renderChild(node: any, ctx: { __writer: WritableStreamDefaultWriter, [key: string]: any }): Promise<void> {
     node = await node;
     if (node === null || node === undefined) {
         return;
@@ -68,14 +80,14 @@ async function renderChild(ctx: { __writer: WritableStreamDefaultWriter, [key: s
         return;
     }
     if (node.IS_ELEMENT) {
-        return await renderChild(ctx, await (node as any)(ctx));
+        return await renderChild(await (node as any)(ctx), ctx);
     }
     if (Array.isArray(node)) {
         for (const [i, child] of node.entries()) {
             if (i !== 0) {
                 __writer.write('\n');
             }
-            await renderChild(ctx, child);
+            await renderChild(child, ctx);
         }
         return;
     }
@@ -90,18 +102,18 @@ export async function jsxToHtml(element: JSX.Element, ctx?: {
     if (stream) {
         const writer = stream.getWriter();
         try {
-            await renderChild({ ...ctx, __writer: writer }, element)
+            await renderChild(element, { ...ctx, __writer: writer })
             return '';
         } finally {
             await writer.close();
         }
     } else {
         const chunks: string[] = [];
-        await renderChild({
+        await renderChild(element, {
             ...ctx, __writer: {
                 write: (chunk: string) => { chunks.push(chunk) }
             } as any
-        }, element)
+        })
         return chunks.join('');
     }
 }

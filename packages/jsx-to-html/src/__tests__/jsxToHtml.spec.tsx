@@ -1,6 +1,7 @@
 /// <reference path="../../index.d.ts" />
 import { CountQueuingStrategy, WritableStream } from 'node:stream/web';
 import { jsxToHtml } from '..';
+import { renderChild } from '../jsxToHtml';
 
 test('string literal', async () => {
     const result = <>hello</>
@@ -53,6 +54,14 @@ test('component with args', async () => {
     expect(await jsxToHtml(result)).toBe('<div>\nhello\n</div>');
 })
 
+test('component with children', async () => {
+    const C1 = ({ children }: { children?: any }) => {
+        return <div>{jsxToHtml(children)}</div>
+    }
+    const result = <C1>hello</C1>
+    expect(await jsxToHtml(result)).toBe('<div>\nhello\n</div>');
+})
+
 test('component with context', async () => {
     const C1 = async (props: {}, ctx: { msg: string }) => {
         await new Promise<void>(resolve => resolve());
@@ -72,4 +81,19 @@ test('streaming', async () => {
     const result = <div>hello</div>
     expect(await jsxToHtml(result, {}, stream)).toBe('');
     expect(chunks.join('')).toBe('<div>\nhello\n</div>');
+})
+
+test('recover from error', async () => {
+    const badPromise: string = new Promise<string>((resolve, reject) => reject(new Error('wtf'))) as any;
+    const ErrorBoundary = async ({ children }: { children?: any }, ctx: any) => {
+        try {
+            await renderChild(children, ctx)
+        } catch (e) {
+            await renderChild(<div>{`${e}`}</div>, ctx);
+        }
+        return null;
+    }
+    expect(await jsxToHtml(<ErrorBoundary>
+        <div>before<span title={badPromise}>hello</span>after</div>
+    </ErrorBoundary>)).toBe('<div>\nbefore\n<span>\n\n</span>\n</div><div>\nError: wtf\n</div>');
 })
