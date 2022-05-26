@@ -6,6 +6,7 @@ declare namespace JsxToHtml {
         ['motion:style']?: string,
         ['motion:layout']?: boolean,
         ['motion:layout-id']?: string,
+        ['motion:on-drag-end']?: string,
         ['motion:transition']?: string,
         ['motion:initial']?: string
         ['use:reorder']?: string

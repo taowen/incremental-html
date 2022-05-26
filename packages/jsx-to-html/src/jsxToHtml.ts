@@ -44,7 +44,10 @@ async function renderElement(ctx: {
                         __writer.write(' ');
                         __writer.write(k);
                         __writer.write('="');
-                        __writer.write(`${v}`);
+                        __writer.write(`${v}`.replace(/&/g, '&amp;') /* This MUST be the 1st replacement. */
+                        .replace(/"/g, '&quot;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;'));
                         __writer.write('"');
                     }
                 }
