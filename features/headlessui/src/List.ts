@@ -282,7 +282,7 @@ export class List extends Feature<{ masonryColumns?: number; masonryColumnClass?
 
     private _ = this.onMount(async () => {
         this.element.addEventListener('shouldMorph', (e) => {
-            // list children will not be updated when $navigator.reload()
+            // list children will not be updated when document.body.reloader.reload()
             // use $closestFeature(this, $List.Reloader).reload() to reload individual item
             e.preventDefault();
         })

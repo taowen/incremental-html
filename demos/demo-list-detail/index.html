@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/index.css"/>
 </head>
 
-<body>
+<body use:reloader="$Reloader">
     <div class="container">
         <header><span class="date">Thursday, August 8th</span>
             <h1>Today</h1>
@@ -28,7 +28,7 @@
                             <h2>5 Food Apps Delivering the Best of Your City</h2>
                         </div>
                     </div>
-                </div><a class="card-open-link" href="/detail-c.html" on:click="$navigator.href = this.href"></a>
+                </div><a class="card-open-link" href="/detail-c.html" on:click="document.body.reloader.reload(this.href)"></a>
             </li>
             <li class="card undefined">
                 <div class="card-content-container">
@@ -147,10 +147,10 @@
     <script type="module">
         import { startDomObserver, querySelector, setEvalGlobals } from '@incremental-html/reactivity';
         import { Motion } from '@incremental-html/motion';
-        import { navigator } from '@incremental-html/navigator';
+        import { Reloader } from '@incremental-html/headlessui';
         setEvalGlobals({
             Motion,
-            navigator
+            Reloader
         })
         // for properties like prop:xxx or on:xxx
         startDomObserver();
