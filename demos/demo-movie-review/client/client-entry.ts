@@ -1,5 +1,5 @@
 import { startDomObserver, setEvalGlobals } from '@incremental-html/reactivity';
-import { navigator } from '@incremental-html/navigator';
+import { Reloader } from '@incremental-html/headlessui';
 
-setEvalGlobals({ navigator })
+setEvalGlobals({ Reloader })
 startDomObserver();

@@ -17,7 +17,10 @@ server.get('/', async (req, resp) => {
         <nav>
             <ul>
                 {tabs.map(({ label, icon }) =>
-                    <li class={label === selectedTab ? 'selected' : ''} data-label={label} on:click="$navigator.replace('/?tab=' + this.dataset.label)">
+                    <li class={label === selectedTab ? 'selected' : ''} data-label={label} on:click="
+                    document.body.reloader.reload('/?tab=' + this.dataset.label);
+                    window.history.replaceState(undefined, '', '/?tab=' + this.dataset.label);
+                    ">
                         <span>{icon}{label}</span>
                         {label === selectedTab ? <div class="underline" use:motion="$Motion" motion:layout-id="'underline'"></div> : undefined}
                     </li>)}

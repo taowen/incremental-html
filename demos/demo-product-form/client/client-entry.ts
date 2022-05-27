@@ -5,6 +5,5 @@ import { Fetcher, Reloader } from '@incremental-html/headlessui';
 setEvalGlobals({
     Fetcher,
     Reloader,
-    navigator,
 })
 startDomObserver();

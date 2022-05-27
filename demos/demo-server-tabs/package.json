@@ -6,6 +6,7 @@
         "express": "^5.0.0-beta.1",
         "@incremental-html/navigator": "workspace:*",
         "@incremental-html/reactivity": "workspace:*",
+        "@incremental-html/headlessui": "workspace:*",
         "@incremental-html/motion": "workspace:*",
         "@incremental-html/jsx-to-html": "workspace:*"
     },
