@@ -19,6 +19,9 @@ server.use(bodyParser.urlencoded({ extended: false }));
 server.use(bodyParser.json());
 
 server.post('/add', async (req, resp) => {
+    if (Math.random() > 0.5) {
+        throw new Error('wtf');
+    }
     const form = decodeForm<NewTodoForm>(req.body);
     if (!form.task) {
         form.setError('task', 'task is required');
@@ -36,7 +39,9 @@ server.post('/reorder', async(req,resp) => {
 })
 
 server.post('/delete', async (req, resp) => {
-    await new Promise<void>(resolve => setTimeout(resolve, 1000));
+    if (Math.random() > 0.5) {
+        throw new Error('wtf');
+    }
     for (let i = 0; i < todoItems.length; i++) {
         const todoItem = todoItems[i];
         if (todoItem.id === req.body.id) {
@@ -65,12 +70,14 @@ server.get('/item', async (req, resp) => {
 server.get('/', async (req, resp) => {
     const form = createForm({} as NewTodoForm);
     const jsx = <>
-    <div class="m-4">
+    <div class="m-4" on:event-handler-error="
+    event.preventDefault();
+    document.querySelector('#error-toast').toast.show({ content: 'unexpected failure' });
+    ">
         <ul class="flex flex-col gap-2 w-96" use:motion-config="$Motion.Config" motion-config:block-initial-animation>
             {todoItems.map(item => <TodoItem item={item} />)}
             <li id="add" class="bg-blue-200 rounded p-2" use:motion="$Motion" motion:layout>
                 <form class="flex flex-row grow items-center justify-between" id="newTodo" method="post" action="/add" use:fetcher="$Fetcher" on:submit="
-                    document.querySelector('#success-toast').toast.show({ content: 'hello' });
                     await this.fetcher.submit();
                     this.closest('ul').motionConfig.blockInitialAnimation = false;
                     await document.body.reloader.reload();
@@ -89,7 +96,7 @@ server.get('/', async (req, resp) => {
         </ul>
     </div>
     <div class="absolute bottom-8 right-8 flex flex-col gap-2 items-end">
-        <template id="success-toast" use:toast="$Toast" toast:duration="3000">
+        <template id="error-toast" use:toast="$Toast" toast:duration="3000">
             <div class="rounded bg-red-300 px-3 py-1" prop:text-content="this.$props.content"/>
         </template>
     </div>

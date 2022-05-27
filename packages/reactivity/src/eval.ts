@@ -44,7 +44,9 @@ export async function callEventHandlerAsync(node: Element, eventName: string, ..
     try {
         return await evalAsync(node.getAttribute(`on:${eventName}`)!, node, ...args);
     } catch (e) {
-        console.error('failed to handle ' + eventName, { e });
+        if (node.dispatchEvent(new Event('event-handler-error', { cancelable: true,  bubbles: true }))) {
+            console.error('failed to handle ' + eventName, { e });
+        }
         return undefined;
     }
 }

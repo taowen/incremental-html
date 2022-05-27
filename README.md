@@ -1,6 +1,6 @@
 # incremental-html
 
-Argument HTML with iOS like layout animation and gestures, deliver modern user experience with traditional monolith web server.
+Argument HTML with iOS like layout animation and gestures, deliver modern user experience with multi-page application (MPA).
 
 Inspired by [[html over the wire]](https://hotwired.dev/) and [similar efforts](https://github.com/taowen/awesome-html), incremental-html adds declarative inline javascript to your server generated HTML. You do not need to write a lot of javascript, it is more like declarative annotation of data binding. The web page will be as performant, as reactive, as React built app. Checkout the demos >>>
 
