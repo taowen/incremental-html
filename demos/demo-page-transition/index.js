@@ -1,11 +1,12 @@
-// client side entry
+import * as quicklink from 'quicklink';
 import { startDomObserver, setEvalGlobals } from '@incremental-html/reactivity';
-import { Fetcher, Reloader } from '@incremental-html/headlessui';
 import { Motion } from '@incremental-html/motion';
 
+window.addEventListener('load', () => {
+  quicklink.listen();
+});
+
 setEvalGlobals({
-    Fetcher,
-    Reloader,
     Motion,
 })
 startDomObserver();
