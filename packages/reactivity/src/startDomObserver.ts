@@ -182,6 +182,7 @@ export function mountElement(element: Element) {
         childList: true,
         subtree: false
     });
+    element.removeAttribute('use-cloak');
     return xid;
 }
 

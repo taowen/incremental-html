@@ -1,8 +1,19 @@
 import { AnimationType, createAnimationState, HTMLProjectionNode, htmlVisualElement, makeVisualState, MeasureLayoutWithContext, MotionContextProps, MotionProps, useFocusGesture, useHoverGesture, usePanGesture, useProjection, useTapGesture, useViewport, VisualElementDragControls } from '@incremental-html/framer-motion';
-import { Feature, nextTick, closestFeature } from '@incremental-html/reactivity';
+import { closestFeature, Feature, nextTick, unmountElement } from '@incremental-html/reactivity';
 
-class MotionConfig extends Feature<{blockInitialAnimation?: boolean}> {
-    public blockInitialAnimation = this.props.blockInitialAnimation;
+class MotionConfig extends Feature<{ blockInitialAnimation?: boolean }> {
+    public blockInitialAnimation = this.create(() => {
+        if (localStorage.getItem('just-exit') === 'true') {
+            localStorage.removeItem('just-exit');
+            return false;
+        }
+        return this.props.blockInitialAnimation;
+    });
+
+    public async exit() {
+        localStorage.setItem('just-exit', 'true');
+        await unmountElement(this.element);
+    }
 }
 
 export class Motion extends Feature<MotionProps> {
