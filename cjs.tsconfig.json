@@ -9,12 +9,6 @@
       "path": "./packages/reactivity/cjs.tsconfig.json"
     },
     {
-      "path": "./packages/jsx-to-html/cjs.tsconfig.json"
-    },
-    {
-      "path": "./packages/form-object/cjs.tsconfig.json"
-    },
-    {
       "path": "./packages/morph/cjs.tsconfig.json"
     },
     {
@@ -22,5 +16,11 @@
     },
     {
       "path": "./features/motion/cjs.tsconfig.json"
+    },
+    {
+      "path": "./server/jsx-to-html/cjs.tsconfig.json"
+    },
+    {
+      "path": "./server/form-object/cjs.tsconfig.json"
     }]
   }

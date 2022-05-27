@@ -9,12 +9,6 @@
     "path": "./packages/reactivity/esm.tsconfig.json"
   },
   {
-    "path": "./packages/jsx-to-html/esm.tsconfig.json"
-  },
-  {
-    "path": "./packages/form-object/esm.tsconfig.json"
-  },
-  {
     "path": "./packages/morph/esm.tsconfig.json"
   },
   {
@@ -22,5 +16,11 @@
   },
   {
     "path": "./features/motion/esm.tsconfig.json"
+  },
+  {
+    "path": "./server/jsx-to-html/esm.tsconfig.json"
+  },
+  {
+    "path": "./server/form-object/esm.tsconfig.json"
   }]
 }
