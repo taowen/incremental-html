@@ -2,12 +2,13 @@ import { morphChildNodes } from "@incremental-html/morph";
 import { Feature } from "@incremental-html/reactivity";
 
 export class Reloader extends Feature<{}> {
+    public pageState = undefined;
+
     public async reload(url: string) {
-        const pageState = initPageState();
-        const respText = await (pageState ? sequentialFetch(url || window.location.href, {
+        const respText = await (this.pageState ? sequentialFetch(url || window.location.href, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(pageState)
+            body: JSON.stringify(this.pageState)
         }) : sequentialFetch(url || window.location.href));
         if (respText === null) {
             return;
@@ -27,23 +28,20 @@ export class Reloader extends Feature<{}> {
         this.reload(reload.href);
     }
 
+    private initPageState = () => {
+        const pageStateElement = (document.querySelector('template.page-state') as HTMLTemplateElement);
+        if (!pageStateElement) {
+            return;
+        }
+        this.pageState = JSON.parse(pageStateElement.content.textContent!);
+    }
+
     private _ = this.onMount(() => {
         this.autoReload();
         window.addEventListener('load', this.autoReload);
+        this.initPageState();
+        window.addEventListener('load', this.initPageState);
     });
-}
-
-let pageState: Record<string, any> | undefined | false;
-
-function initPageState(): Record<string, any> | false {
-    if (pageState !== undefined) {
-        return pageState;
-    }
-    const pageStateElement = (document.querySelector('template.page-state') as HTMLTemplateElement);
-    if (!pageStateElement) {
-        return pageState = false;
-    }
-    return pageState = JSON.parse(pageStateElement.content.textContent!);
 }
 
 function applyHtml(html: string) {
