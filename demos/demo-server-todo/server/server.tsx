@@ -90,11 +90,7 @@ server.get('/', async (req, resp) => {
     </div>
     <div class="absolute bottom-8 right-8 flex flex-col gap-2 items-end">
         <template id="success-toast" use:toast="$Toast" toast:duration="3000">
-            <div class="rounded bg-red-300 px-3 py-1" prop:text-content="this.$props.content" 
-            use:motion="$Motion" motion:layout
-            motion:initial="{ opacity: 0, y: 50, scale: 0.3 }"
-            motion:animate="{ opacity: 1, y: 0, scale: 1 }"
-            motion:exit="{ opacity: 0, y: 20, scale: 0.5 }"/>
+            <div class="rounded bg-red-300 px-3 py-1" prop:text-content="this.$props.content"/>
         </template>
     </div>
     </>;
