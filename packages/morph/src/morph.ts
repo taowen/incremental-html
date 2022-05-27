@@ -1,4 +1,4 @@
-let morphing: Promise<void>[] | undefined;
+let morphing: Promise<any>[] | undefined;
 
 export function morph(element: Element, cb: () => void) {
     const topLevel = !morphing;
@@ -16,7 +16,7 @@ export function morph(element: Element, cb: () => void) {
     }
 }
 
-async function postMorph(element: Element, morphingProgress: Promise<void>[]) {
+async function postMorph(element: Element, morphingProgress: Promise<any>[]) {
     await Promise.all(morphingProgress);
     element.dispatchEvent(new Event('afterMorph'));
 }

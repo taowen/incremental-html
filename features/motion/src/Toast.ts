@@ -5,6 +5,7 @@ import { render } from "@incremental-html/template";
 export class Toast extends Feature<{ duration?: number }> {
     public show(props: Record<string, any>) {
         const portal = this.element.parentElement!;
+        portal.addEventListener('shouldMorph', (e) => { e.preventDefault(); });
         const toastElements = render(this.element as HTMLTemplateElement, props);
         morph(portal, () => {
             for (const toastElement of toastElements) {

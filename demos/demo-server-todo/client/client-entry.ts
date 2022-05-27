@@ -1,5 +1,6 @@
 // client side entry
-import { Fetcher, Toast } from '@incremental-html/headlessui';
+import { Fetcher } from '@incremental-html/headlessui';
+import { Toast } from '@incremental-html/motion';
 import { navigator } from '@incremental-html/navigator';
 import { Motion, Reorder } from '@incremental-html/motion';
 import { closestFeature, setEvalGlobals, startDomObserver } from '@incremental-html/reactivity';

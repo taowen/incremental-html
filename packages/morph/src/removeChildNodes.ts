@@ -25,7 +25,6 @@ export function removeChildNodes(parent: Element, childNodes: Node[]) {
             doRemove();
             return;
         }
-        getMorphingProgress()?.push(...promises);
-        Promise.all(promises).finally(doRemove);
+        getMorphingProgress()?.push(Promise.all(promises).finally(doRemove));
     })
 }

@@ -28,7 +28,7 @@ function commitNewChildNodes(el: Element) {
         removeProgressPromise = removeProgressPromise.finally(() => {
             commitNewChildNodes(el);
         });
-        getMorphingProgress()?.push(removeProgressPromise as any);
+        getMorphingProgress()?.push(removeProgressPromise);
         return;
     }
     const newChildren = (el as any).$newChildNodes;
