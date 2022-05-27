@@ -9,9 +9,6 @@
       "path": "./packages/reactivity/cjs.tsconfig.json"
     },
     {
-      "path": "./packages/navigator/cjs.tsconfig.json"
-    },
-    {
       "path": "./packages/jsx-to-html/cjs.tsconfig.json"
     },
     {

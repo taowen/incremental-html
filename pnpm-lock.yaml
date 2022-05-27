@@ -16,7 +16,6 @@ importers:
       '@incremental-html/headlessui': workspace:*
       '@incremental-html/morph': workspace:*
       '@incremental-html/motion': workspace:*
-      '@incremental-html/navigator': workspace:*
       '@incremental-html/reactivity': workspace:*
       '@incremental-html/template': workspace:*
       typescript: ^4.5.5
@@ -26,7 +25,6 @@ importers:
       '@incremental-html/headlessui': link:../../features/headlessui
       '@incremental-html/morph': link:../../packages/morph
       '@incremental-html/motion': link:../../features/motion
-      '@incremental-html/navigator': link:../../packages/navigator
       '@incremental-html/reactivity': link:../../packages/reactivity
       '@incremental-html/template': link:../../packages/template
     devDependencies:
@@ -111,7 +109,6 @@ importers:
     specifiers:
       '@incremental-html/headlessui': workspace:*
       '@incremental-html/jsx-to-html': workspace:*
-      '@incremental-html/navigator': workspace:*
       '@incremental-html/reactivity': workspace:*
       '@types/express': ^4.17.13
       autoprefixer: ^10.4.5
@@ -123,7 +120,6 @@ importers:
     dependencies:
       '@incremental-html/headlessui': link:../../features/headlessui
       '@incremental-html/jsx-to-html': link:../../packages/jsx-to-html
-      '@incremental-html/navigator': link:../../packages/navigator
       '@incremental-html/reactivity': link:../../packages/reactivity
       body-parser: 1.20.0
       express: 5.0.0-beta.1
@@ -231,7 +227,6 @@ importers:
       '@incremental-html/headlessui': workspace:*
       '@incremental-html/jsx-to-html': workspace:*
       '@incremental-html/motion': workspace:*
-      '@incremental-html/navigator': workspace:*
       '@incremental-html/reactivity': workspace:*
       '@types/express': ^4.17.13
       express: ^5.0.0-beta.1
@@ -240,7 +235,6 @@ importers:
       '@incremental-html/headlessui': link:../../features/headlessui
       '@incremental-html/jsx-to-html': link:../../packages/jsx-to-html
       '@incremental-html/motion': link:../../features/motion
-      '@incremental-html/navigator': link:../../packages/navigator
       '@incremental-html/reactivity': link:../../packages/reactivity
       express: 5.0.0-beta.1
     devDependencies:
@@ -253,7 +247,6 @@ importers:
       '@incremental-html/headlessui': workspace:*
       '@incremental-html/jsx-to-html': workspace:*
       '@incremental-html/motion': workspace:*
-      '@incremental-html/navigator': workspace:*
       '@incremental-html/reactivity': workspace:*
       '@types/express': ^4.17.13
       '@unocss/preset-uno': ^0.34.1
@@ -268,7 +261,6 @@ importers:
       '@incremental-html/headlessui': link:../../features/headlessui
       '@incremental-html/jsx-to-html': link:../../packages/jsx-to-html
       '@incremental-html/motion': link:../../features/motion
-      '@incremental-html/navigator': link:../../packages/navigator
       '@incremental-html/reactivity': link:../../packages/reactivity
       '@unocss/preset-uno': 0.34.1
       '@unocss/reset': 0.34.1
@@ -421,19 +413,6 @@ importers:
     devDependencies:
       typescript: 4.6.3
       vite: 2.9.1
-
-  packages/navigator:
-    specifiers:
-      '@incremental-html/morph': 'workspace: *'
-      '@types/jest': 27.4.1
-      jest: 27.5.1
-      typescript: ^4.5.5
-    dependencies:
-      '@incremental-html/morph': link:../morph
-    devDependencies:
-      '@types/jest': 27.4.1
-      jest: 27.5.1
-      typescript: 4.6.3
 
   packages/reactivity:
     specifiers:

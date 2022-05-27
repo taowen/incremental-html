@@ -9,9 +9,6 @@
     "path": "./packages/reactivity/esm.tsconfig.json"
   },
   {
-    "path": "./packages/navigator/esm.tsconfig.json"
-  },
-  {
     "path": "./packages/jsx-to-html/esm.tsconfig.json"
   },
   {

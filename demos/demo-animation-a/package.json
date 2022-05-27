@@ -5,7 +5,6 @@
     "dependencies": {
         "@incremental-html/template": "workspace:*",
         "@incremental-html/reactivity": "workspace:*",
-        "@incremental-html/navigator": "workspace:*",
         "@incremental-html/framer-motion": "workspace:*",
         "@incremental-html/headlessui": "workspace:*",
         "@incremental-html/motion": "workspace:*",
