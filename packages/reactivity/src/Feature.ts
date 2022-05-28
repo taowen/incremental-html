@@ -1,7 +1,6 @@
 import { computed, effect, Ref, ref } from "@vue/reactivity";
 import { evalExpr } from "./eval";
 import { camelize } from "./naming";
-import { subscribeNode } from "./subscribeNode";
 
 export class Feature<Props extends Record<string, any>> {
     private computedProps: { value: Record<string, any> }
@@ -24,7 +23,6 @@ export class Feature<Props extends Record<string, any>> {
                 return propsProvider();
             }
             const prefix = propsProvider;
-            subscribeNode(element);
             const props: Record<string, any> = {};
             for (let i = 0; i < element.attributes.length; i++) {
                 const attr = element.attributes[i];

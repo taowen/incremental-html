@@ -4,7 +4,6 @@ import { copyFrom } from './copyFrom';
 import { callEventHandlerAsync, evalExpr } from './eval';
 import { Feature } from './Feature';
 import { camelize } from './naming';
-import { notifyNodeSubscribers } from './subscribeNode';
 
 let nextId = 1;
 
@@ -33,18 +32,7 @@ morphChildNodes.beforeRemove = (el) => {
 };
 
 export const mutationObserver: MutationObserver = typeof MutationObserver === 'undefined' ? undefined as any : new MutationObserver((mutationList) => {
-    let toNotify: Set<string> | undefined;
     for (const mutation of mutationList) {
-        if (mutation.attributeName) {
-            if (mutation.attributeName === 'style') {
-                // avoid animation trigger observer recompute
-                continue;
-            }
-            if (!toNotify) {
-                toNotify = new Set();
-            }
-            toNotify.add((mutation.target as any).$xid)
-        }
         for (let i = 0; i < mutation.addedNodes.length; i++) {
             const addedNode = mutation.addedNodes.item(i)!;
             if (addedNode.nodeType === 1 && addedNode.parentElement) {
@@ -56,11 +44,6 @@ export const mutationObserver: MutationObserver = typeof MutationObserver === 'u
             if (!removedNode.parentNode && removedNode.nodeType === 1) {
                 unmountElement(removedNode);
             }
-        }
-    }
-    if (toNotify) {
-        for (const xid of toNotify) {
-            notifyNodeSubscribers(xid);
         }
     }
 });
