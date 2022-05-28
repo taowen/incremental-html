@@ -2,7 +2,9 @@ import { Feature, reactive } from "@incremental-html/reactivity";
 
 export class Observed extends Feature<{}> {
     private state = reactive({
-        value: undefined as any
+        value: undefined as any,
+        width: undefined as any,
+        height: undefined as any,
     })
     public get value() {
         this.observeValue();
@@ -45,5 +47,38 @@ export class Observed extends Feature<{}> {
                 });
             }
         })
+    }
+
+    public get width() {
+        this.observeSize();
+        return this.state.width;
+    }
+
+    public get height() {
+        this.observeSize();
+        return this.state.height;
+    }
+    
+    private sizeObserving = false;
+    private _2: any;
+    private observeSize() {
+        if (this.sizeObserving) {
+            return;
+        }
+        this.sizeObserving = true;
+        this.updateSize();
+        this._2 = this.onMount(() => {
+            const resizeObserver = new ResizeObserver(this.updateSize);
+            resizeObserver.observe(this.element)
+            return () => {
+                resizeObserver.disconnect();
+            }
+        });
+    }
+    
+    private updateSize = () => {
+        const rect = this.element.getBoundingClientRect();
+        this.state.height = rect.height;
+        this.state.width = rect.width;
     }
 }

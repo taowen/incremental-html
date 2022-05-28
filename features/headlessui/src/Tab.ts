@@ -1,4 +1,4 @@
-import { effect, Feature, closestFeature, reactive, scheduleChange, unmountElement } from '@incremental-html/reactivity';
+import { effect, Feature, closestFeature, reactive, schedulePropChange, unmountElement } from '@incremental-html/reactivity';
 import { render } from '@incremental-html/template';
 
 export class TabGroup extends Feature<{ selectedIndex?: number }> {
@@ -99,8 +99,8 @@ export class Tab extends Feature<{}> {
     }
     private _ = this.effect(() => {
         const newElement = render(this.template, { selected: this.selected })[0] as Element;
-        scheduleChange(this.element, 'attributes', newElement);
-        scheduleChange(this.element, 'childNodes', newElement);
+        schedulePropChange(this.element, 'attributes', newElement);
+        schedulePropChange(this.element, 'childNodes', newElement);
     });
     public onClick = this.on('click', () => {
         this.tabGroup.store.selectedIndex = this.index;

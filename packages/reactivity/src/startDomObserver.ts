@@ -115,6 +115,20 @@ export function mountElement(element: Element) {
                 event.stopPropagation();
                 callEventHandlerAsync(element, eventName, ...args);
             })
+        } else if (attr.name.startsWith('attr:')) {
+            const attrName = camelize(attr.name.substring('attr:'.length));
+            let bindings = (element as any).$bindings;
+            if (!bindings) {
+                (element as any).$bindings = bindings = {};
+            }
+            bindings[attrName] = effect(() => {
+                try {
+                    const value = evalExpr(attr.value, element);
+                    scheduleAttrChange(element, attrName, value);
+                } catch (e) {
+                    console.error(`failed to eval ${attr.name} of `, element, e);
+                }
+            });
         } else if (attr.name.startsWith('prop:')) {
             const propName = camelize(attr.name.substring('prop:'.length));
             mountElementProp(element, propName, attr);
@@ -179,7 +193,7 @@ function mountElementPropBinding(element: Element, propName: string, attr: Attr)
     bindings[propName] = effect(() => {
         try {
             const value = evalExpr(attr.value, element);
-            scheduleChange(element, propName, value);
+            schedulePropChange(element, propName, value);
         } catch (e) {
             console.error(`failed to eval ${attr.name} of `, element, e);
         }
@@ -221,12 +235,22 @@ function createFeature(featureClass: any, element: Element, featureName: string)
 let scheduler: { current: Promise<void> | undefined } = { current: undefined };
 const dirtyElements = new Set<Element>();
 
-export function scheduleChange(element: Element, propName: string, propValue: any) {
+export function schedulePropChange(element: Element, propName: string, propValue: any) {
     let dirtyProps = (element as any).$dirtyProps;
     if (!dirtyProps) {
         (element as any).$dirtyProps = dirtyProps = new Map<string, any>();
     }
     dirtyProps.set(propName, propValue);
+    dirtyElements.add(element);
+    schedule();
+}
+
+export function scheduleAttrChange(element: Element, attrName: string, attrValue: string) {
+    let dirtyAttrs = (element as any).$dirtyAttrs;
+    if (!dirtyAttrs) {
+        (element as any).$dirtyAttrs = dirtyAttrs = new Map<string, string>();
+    }
+    dirtyAttrs.set(attrName, attrValue);
     dirtyElements.add(element);
     schedule();
 }
@@ -258,6 +282,15 @@ function applyChanges() {
                 }
             })
             dirtyProps.clear();
+        }
+        const dirtyAttrs: Map<string, string> = (el as any).$dirtyAttrs;
+        if (dirtyAttrs && dirtyAttrs.size > 0) {
+            morph(el, () => {
+                for (const [attrName, attrValue] of dirtyAttrs.entries()) {
+                    el.setAttribute(attrName, attrValue);
+                }
+            })
+            dirtyAttrs.clear();
         }
     }
 }

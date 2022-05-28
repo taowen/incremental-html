@@ -5,20 +5,21 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Demo</title>
     <link rel="shortcut icon" href="#" />
+    <link rel="stylesheet" href="/index.css" />
 </head>
 
 <body>
-    <button on:click="$('#counter').value = Number($('#counter').value) - 1">-</button>
-    <input id="counter" value="99" use:observed="$Observed"/>
-    <button on:click="$('#counter').value = Number($('#counter').value) + 1">+</button>
-    <p style:color="Number($('#counter').value) > 100 ? 'red' : 'black'" 
-        prop:inner-html="'value is: ' + $('#counter').value" />
+    <div class="flex flex-col h-screen">
+        <div class="m-4 grow overflow-hidden" use:observed="$Observed">
+            <svg class="bg-gray-400" attr:view-box="const parent = this.parentNode.observed; `0 0 ${parent.width} ${parent.height}`">
+            </svg>
+        </div>
+    </div>
     <script type="module">
         import { startDomObserver, setEvalGlobals } from '@incremental-html/reactivity';
         import { Observed } from '@incremental-html/headlessui';
         setEvalGlobals({
             Observed,
-            $: (selector) => document.querySelector(selector).observed
         })
         // for properties like prop:xxx or on:xxx
         startDomObserver();
