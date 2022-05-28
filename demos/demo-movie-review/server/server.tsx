@@ -23,7 +23,7 @@ server.get('/', async (req, resp) => {
                             <h3>Critics Consensus</h3>No consensus yet.
                         </div>
                     </div>
-                    <MovieReviews />
+                    <MovieReviewList />
                 </div>
             </div>
         </div>
@@ -40,7 +40,64 @@ server.get('/', async (req, resp) => {
     resp.end();
 })
 
-async function MovieReviews(props: {}, ctx: any) {
+// copied from https://react-async-io-testbed.netlify.app/
+function MovieList() {
+    return <div>
+        <h1>Top Box Office 🍿</h1>
+        <div>
+            <div class="movie">
+                <div class="rating">🍅</div>
+                <div class="main">
+                    <div class="title">Lady Bird</div>
+                    <div class="info">99% · $52.9M</div>
+                </div>
+                <div class="hover">👉</div>
+            </div>
+            <div class="movie">
+                <div class="rating">🤢</div>
+                <div class="main">
+                    <div class="title">Downsizing</div>
+                    <div class="info">51% · $24.5M</div>
+                </div>
+                <div class="hover">👉</div>
+            </div>
+            <div class="movie">
+                <div class="rating">🍅</div>
+                <div class="main">
+                    <div class="title">Black Panther</div>
+                    <div class="info">98% · $403.6M</div>
+                </div>
+                <div class="hover">👉</div>
+            </div>
+            <div class="movie">
+                <div class="rating">🍅</div>
+                <div class="main">
+                    <div class="title">A Fantastic Woman</div>
+                    <div class="info">93% · $0.6M</div>
+                </div>
+                <div class="hover">👉</div>
+            </div>
+            <div class="movie">
+                <div class="rating">🤢</div>
+                <div class="main">
+                    <div class="title">Father Figures</div>
+                    <div class="info">22% · $17.5M</div>
+                </div>
+                <div class="hover">👉</div>
+            </div>
+            <div class="movie">
+                <div class="rating">🍅</div>
+                <div class="main">
+                    <div class="title">Early Man</div>
+                    <div class="info">81% · $6.8M</div>
+                </div>
+                <div class="hover">👉</div>
+            </div>
+        </div>
+    </div>
+}
+
+async function MovieReviewList(props: {}, ctx: any) {
     const movieReviews = await loadMovieReviews(ctx);
     if (movieReviews.loading) {
         return <div class="MovieReviews"><Spinner /></div>

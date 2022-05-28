@@ -96,10 +96,12 @@ importers:
 
   demos/demo-counter:
     specifiers:
+      '@incremental-html/headlessui': workspace:*
       '@incremental-html/reactivity': workspace:*
       typescript: ^4.5.5
       vite: ^2.9.1
     dependencies:
+      '@incremental-html/headlessui': link:../../features/headlessui
       '@incremental-html/reactivity': link:../../packages/reactivity
     devDependencies:
       typescript: 4.6.3

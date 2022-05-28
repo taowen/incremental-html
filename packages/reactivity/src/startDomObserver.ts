@@ -121,33 +121,6 @@ export function mountElement(element: Element) {
             console.error(`copy-from ${copyFromSelector} not found`);
         }
     }
-    if (element.tagName === 'INPUT') {
-        element.addEventListener('input', () => {
-            const ref = (element as any).$valueRef;
-            if (ref) {
-                ref.value = (element as HTMLInputElement).value;
-            }
-            notifyNodeSubscribers(xid);
-        });
-        const superProps = Object.getPrototypeOf(element);
-        const superSet = Object.getOwnPropertyDescriptor(superProps, "value")!.set!;
-        const superGet = Object.getOwnPropertyDescriptor(superProps, "value")!.get!;
-        Object.defineProperty(element, "value", {
-            get: function () {
-                return superGet.apply(this);
-            },
-            set: function (t) {
-                if (isRef(t)) {
-                    this.$valueRef = t;
-                    t = t.value;
-                } else {
-                    delete this.$valueRef;
-                }
-                superSet.call(this, t);
-                notifyNodeSubscribers(xid);
-            }
-        });
-    }
     for (let i = 0; i < element.attributes.length; i++) {
         const attr = element.attributes[i];
         if (attr.name.startsWith('on:')) {
