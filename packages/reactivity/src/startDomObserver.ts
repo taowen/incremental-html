@@ -1,5 +1,5 @@
 import { morph, morphAttributes, morphChildNodes, morphInnerHTML } from '@incremental-html/morph';
-import { computed, ComputedRef, effect, isRef, ReactiveEffectRunner } from '@vue/reactivity';
+import { computed, ComputedRef, effect, ReactiveEffectRunner } from '@vue/reactivity';
 import { copyFrom } from './copyFrom';
 import { callEventHandlerAsync, evalExpr } from './eval';
 import { Feature } from './Feature';
@@ -28,6 +28,7 @@ morphChildNodes.morphProperties = (oldEl, newEl) => {
 };
 
 morphChildNodes.beforeRemove = (el) => {
+    // unmount before DOM node removal, so that exit animation can be played
     return unmountElement(el);
 };
 
@@ -158,7 +159,6 @@ function mountElementProp(element: Element, propName: string, attr: Attr) {
             }
         });
         computedProps[propName] = computedProp;
-        // define new property
         Object.defineProperty(element, propName, {
             enumerable: true,
             get() {
