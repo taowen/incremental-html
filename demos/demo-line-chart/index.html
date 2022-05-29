@@ -13,14 +13,19 @@
         <div class="m-4 grow overflow-hidden" use:observed="$Observed">
             <!-- https://gist.github.com/samselikoff/4aff333f7c8538bb44f1806931c39be5 -->
             <svg class="bg-gray-400"
-                attr:view-box="const parent = this.parentNode.observed; `0 0 ${parent.width} ${parent.height}`"
+                prop:parent = "this.parentNode.observed"
+                attr:view-box="`0 0 ${this.parent.width} ${this.parent.height}`"
                 prop:data="[{
                     date: $parseISO('2021-10-05T14:48:00.000Z'),
                     estimatedMax: 100
                 }, {
                     date: $parseISO('2022-5-04T14:48:00.000Z'),
                     estimatedMax: 120
-                }]" 
+                }]"
+                props:start-date = "startOfMonth(data.at(0).date);"
+                prop:x-scale="$scaleTime()
+                    .domain([startDay, endDay])
+                    .range([0, this.parent.width]);"
                 prop:inner-html="">
             </svg>
         </div>

@@ -1,14 +1,14 @@
 {
-    "name": "@incremental-html/headlessui",
+    "name": "@incremental-html/scale",
     "version": "1.0.0",
-    "description": "reusable ui components without style",
+    "description": "wrap d3-scale",
     "main": "dist/cjs/index.js",
     "module": "dist/esm/index.js",
     "types": "index.d.ts",
     "dependencies": {
         "@incremental-html/reactivity": "workspace:*",
-        "@incremental-html/morph": "workspace:*",
-        "@incremental-html/template": "workspace:*"
+        "d3-scale": "^4.0.2",
+        "date-fn": "^0.0.2"
     },
     "devDependencies": {
         "@types/jest": "27.4.1",

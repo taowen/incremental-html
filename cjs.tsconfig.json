@@ -18,6 +18,9 @@
       "path": "./features/motion/cjs.tsconfig.json"
     },
     {
+      "path": "./features/scale/cjs.tsconfig.json"
+    },
+    {
       "path": "./server/jsx-to-html/cjs.tsconfig.json"
     },
     {

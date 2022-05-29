@@ -368,7 +368,6 @@ importers:
 
   features/headlessui:
     specifiers:
-      '@incremental-html/jsx-to-html': workspace:*
       '@incremental-html/morph': workspace:*
       '@incremental-html/reactivity': workspace:*
       '@incremental-html/template': workspace:*
@@ -377,7 +376,6 @@ importers:
       typedoc: ^0.22.15
       typescript: ^4.5.5
     dependencies:
-      '@incremental-html/jsx-to-html': link:../../server/jsx-to-html
       '@incremental-html/morph': link:../../packages/morph
       '@incremental-html/reactivity': link:../../packages/reactivity
       '@incremental-html/template': link:../../packages/template
@@ -408,6 +406,25 @@ importers:
       typedoc: 0.22.15_typescript@4.6.3
       typescript: 4.6.3
 
+  features/scale:
+    specifiers:
+      '@incremental-html/reactivity': workspace:*
+      '@types/jest': 27.4.1
+      d3-scale: ^4.0.2
+      date-fn: ^0.0.2
+      jest: 27.5.1
+      typedoc: ^0.22.15
+      typescript: ^4.5.5
+    dependencies:
+      '@incremental-html/reactivity': link:../../packages/reactivity
+      d3-scale: 4.0.2
+      date-fn: 0.0.2
+    devDependencies:
+      '@types/jest': 27.4.1
+      jest: 27.5.1
+      typedoc: 0.22.15_typescript@4.6.3
+      typescript: 4.6.3
+
   packages/morph:
     specifiers:
       '@types/jest': 27.4.1
@@ -419,17 +436,6 @@ importers:
       jest: 27.5.1
       jsdom: 19.0.0
       typescript: 4.6.3
-
-  packages/morph.js:
-    specifiers:
-      '@incremental-html/morph': 'workspace: *'
-      typescript: ^4.5.5
-      vite: ^2.9.1
-    dependencies:
-      '@incremental-html/morph': link:../morph
-    devDependencies:
-      typescript: 4.6.3
-      vite: 2.9.1
 
   packages/reactivity:
     specifiers:
@@ -449,17 +455,6 @@ importers:
       jsdom: 19.0.0
       typedoc: 0.22.15_typescript@4.6.3
       typescript: 4.6.3
-
-  packages/reactivity.js:
-    specifiers:
-      '@incremental-html/reactivity': 'workspace: *'
-      typescript: ^4.5.5
-      vite: ^2.9.1
-    dependencies:
-      '@incremental-html/reactivity': link:../reactivity
-    devDependencies:
-      typescript: 4.6.3
-      vite: 2.9.1
 
   packages/template:
     specifiers:
@@ -1961,6 +1956,55 @@ packages:
     resolution: {integrity: sha512-sa6P2wJ+CAbgyy4KFssIb/JNMLxFvKF1pCYCSXS8ZMuqZnMsrxqI2E5sPyoTpxoPU/gVZMzr2zjOfg8GIZOMsw==}
     dev: true
 
+  /d3-array/3.1.6:
+    resolution: {integrity: sha512-DCbBBNuKOeiR9h04ySRBMW52TFVc91O9wJziuyXw6Ztmy8D3oZbmCkOO3UHKC7ceNJsN2Mavo9+vwV8EAEUXzA==}
+    engines: {node: '>=12'}
+    dependencies:
+      internmap: 2.0.3
+    dev: false
+
+  /d3-color/3.1.0:
+    resolution: {integrity: sha512-zg/chbXyeBtMQ1LbD/WSoW2DpC3I0mpmPdW+ynRTj/x2DAWYrIY7qeZIHidozwV24m4iavr15lNwIwLxRmOxhA==}
+    engines: {node: '>=12'}
+    dev: false
+
+  /d3-format/3.1.0:
+    resolution: {integrity: sha512-YyUI6AEuY/Wpt8KWLgZHsIU86atmikuoOmCfommt0LYHiQSPjvX2AcFc38PX0CBpr2RCyZhjex+NS/LPOv6YqA==}
+    engines: {node: '>=12'}
+    dev: false
+
+  /d3-interpolate/3.0.1:
+    resolution: {integrity: sha512-3bYs1rOD33uo8aqJfKP3JWPAibgw8Zm2+L9vBKEHJ2Rg+viTR7o5Mmv5mZcieN+FRYaAOWX5SJATX6k1PWz72g==}
+    engines: {node: '>=12'}
+    dependencies:
+      d3-color: 3.1.0
+    dev: false
+
+  /d3-scale/4.0.2:
+    resolution: {integrity: sha512-GZW464g1SH7ag3Y7hXjf8RoUuAFIqklOAq3MRl4OaWabTFJY9PN/E1YklhXLh+OQ3fM9yS2nOkCoS+WLZ6kvxQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      d3-array: 3.1.6
+      d3-format: 3.1.0
+      d3-interpolate: 3.0.1
+      d3-time: 3.0.0
+      d3-time-format: 4.1.0
+    dev: false
+
+  /d3-time-format/4.1.0:
+    resolution: {integrity: sha512-dJxPBlzC7NugB2PDLwo9Q8JiTR3M3e4/XANkreKSUxF8vvXKqm1Yfq4Q5dl8budlunRVlUUaDUgFt7eA8D6NLg==}
+    engines: {node: '>=12'}
+    dependencies:
+      d3-time: 3.0.0
+    dev: false
+
+  /d3-time/3.0.0:
+    resolution: {integrity: sha512-zmV3lRnlaLI08y9IMRXSDshQb5Nj77smnfpnd2LrBa/2K281Jijactokeak14QacHs/kKq0AQ121nidNYlarbQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      d3-array: 3.1.6
+    dev: false
+
   /data-urls/2.0.0:
     resolution: {integrity: sha512-X5eWTSXO/BJmpdIKCRuKUgSCgAN0OwliVK3yPKbwIWU1Tdw5BRajxlzMidvh+gwko9AfQ9zIj52pzF91Q3YAvQ==}
     engines: {node: '>=10'}
@@ -1978,6 +2022,10 @@ packages:
       whatwg-mimetype: 3.0.0
       whatwg-url: 10.0.0
     dev: true
+
+  /date-fn/0.0.2:
+    resolution: {integrity: sha512-DBIKrlB2w9d6UPZwYn6qqSeKLwHt5uRf9Mj/PiGWHGQ5CxnvMCx2KteO5owfiknkYzMngrDwz5nX4CGxYlr0uA==}
+    dev: false
 
   /debug/2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
@@ -2008,7 +2056,7 @@ packages:
     dev: true
 
   /dedent/0.7.0:
-    resolution: {integrity: sha1-JJXduvbrh0q7Dhvp3yLS5aVEMmw=}
+    resolution: {integrity: sha512-Q6fKUPqnAHAyhiUgFU7BUzLiv0kd8saH9al7tnu5Q/okj6dnupxyTgFIBjVzJATdfIAm9NAsvXNzjaKa+bxVyA==}
     dev: true
 
   /deep-is/0.1.4:
@@ -2032,7 +2080,7 @@ packages:
     dev: true
 
   /delayed-stream/1.0.0:
-    resolution: {integrity: sha1-3zrhmayt+31ECqrgsp4icrJOxhk=}
+    resolution: {integrity: sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ==}
     engines: {node: '>=0.4.0'}
     dev: true
 
@@ -2378,7 +2426,7 @@ packages:
     dev: false
 
   /escape-string-regexp/1.0.5:
-    resolution: {integrity: sha1-G2HAViGQqN/2rjuyzwIAyhMLhtQ=}
+    resolution: {integrity: sha512-vbRorB5FUQWvla16U8R/qgaFIya2qGzwDrNmCZuYKrbdSUMG6I1ZCGQRefkRVhuOkIGVne7BQ35DSfo1qvJqFg==}
     engines: {node: '>=0.8.0'}
     dev: true
 
@@ -2437,7 +2485,7 @@ packages:
     dev: true
 
   /exit/0.1.2:
-    resolution: {integrity: sha1-BjJjj42HfMghB9MKD/8aF8uhzQw=}
+    resolution: {integrity: sha512-Zk/eNKV2zbjpKzrsQ+n1G6poVbErQxJ0LBOJXaKZ1EViLzH+hrLu9cdXI4zw9dBQJslwBEpbQ2P1oS7nDxs6jQ==}
     engines: {node: '>= 0.8.0'}
     dev: true
 
@@ -2878,6 +2926,11 @@ packages:
       has: 1.0.3
       side-channel: 1.0.4
     dev: true
+
+  /internmap/2.0.3:
+    resolution: {integrity: sha512-5Hh7Y1wQbvY5ooGgPbDaL5iYLAPzMTUrjMulskHLH6wnv/A+1q5rgEaiuqEjB+oxGXIVZs1FF+R/KPN3ZSQYYg==}
+    engines: {node: '>=12'}
+    dev: false
 
   /ipaddr.js/1.9.1:
     resolution: {integrity: sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g==}
