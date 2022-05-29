@@ -139,7 +139,8 @@ export function mountElement(element: Element) {
         } else if (attr.name.startsWith('use:')) {
             let featureClass = evalExpr(attr.value, element);
             const featureName = attr.name.substring('use:'.length);
-            createFeature(featureClass, element, featureName);
+            const feature = new featureClass(element, `${featureName}:`);
+            setNodeProperty(element, camelize(featureName), feature);
         }
     }
     for (let i = 0; i < element.children.length; i++) {
@@ -210,24 +211,6 @@ function isExistingProp(obj: any, propName: string): any {
         return desc;
     }
     return isExistingProp(Object.getPrototypeOf(obj), propName);
-}
-
-function createFeature(featureClass: any, element: Element, featureName: string) {
-    const prefix = `${featureName}:`;
-    if (typeof featureClass !== 'function') {
-        throw new Error(`invalid feature class: ${featureClass}`);
-    }
-    const isSubclassOfFeature = featureClass.prototype.__proto__ === Feature.prototype;
-    if (isSubclassOfFeature) {
-        const feature = new featureClass(element, prefix);
-        setNodeProperty(element, camelize(featureName), feature);
-        return;
-    }
-    return (async () => {
-        const { default: lazyLoadedFeatureClass } = await (featureClass());
-        const feature = new lazyLoadedFeatureClass(element);
-        setNodeProperty(element, camelize(featureName), feature);
-    })();
 }
 
 let scheduler: { current: Promise<void> | undefined } = { current: undefined };
