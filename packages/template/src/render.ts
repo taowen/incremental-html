@@ -52,7 +52,7 @@ function renderNode(parentNode: { removeChild(node: Node): void }, node: Node, p
                 console.error(`failed to eval ${attr.name} of `, node, e);
                 continue;
             }
-            setNodeProperty(element, propName, value);
+            setNodeAttr(element, propName, value);
         }
     }
     for (const attr of toRemove) {
@@ -85,26 +85,7 @@ const camelize = cacheStringFunction((str: string): string => {
     return str.replace(camelizeRE, (_, c) => (c ? c.toUpperCase() : ''))
 })
 
-function setNodeProperty(node: HTMLElement, name: string, value: any) {
-    if (name.startsWith('style.')) {
-        Reflect.set(node.style, name.substring('style.'.length), value)
-        return;
-    }
-    if (name === 'class') {
-        node.className = value;
-        return;
-    }
-    if (name.startsWith('class.')) {
-        value = ' ' + value;
-        const oldClass = Reflect.get(node, name);
-        Reflect.set(node, name, value);
-        if (oldClass) {
-            node.className = node.className.replace(oldClass, '') + value;
-        } else {
-            node.className = node.className + value;
-        }
-        return;
-    }
+function setNodeAttr(node: HTMLElement, name: string, value: any) {
     if (name === 'innerHtml') {
         if (typeof value === 'string') {
             node.innerHTML = value;
@@ -114,12 +95,7 @@ function setNodeProperty(node: HTMLElement, name: string, value: any) {
         }
         return;
     }
-    if (name === 'childNodes') {
-        node.innerHTML = '';
-        appendChildNodes(node, value);
-        return;
-    }
-    Reflect.set(node, name, value);
+    node.setAttribute(name, value);
 }
 
 function appendChildNodes(element: HTMLElement, childNodes: Node[]) {

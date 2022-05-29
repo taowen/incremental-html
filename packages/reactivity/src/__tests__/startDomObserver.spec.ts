@@ -34,9 +34,9 @@ test('set style partially', async () => {
 })
 
 test('set class partially', async () => {
-    document.body.innerHTML = `<p id="abc" class:part1="'ml-4'" class:part2="'mt-4'"></p>`;
+    document.body.innerHTML = `<p id="abc" class="fixed" prop:class="{ 'ml-4': true, 'mt-4': false }"></p>`;
     await nextTick();
-    expect(document.getElementById('abc')!.className).toBe('ml-4 mt-4');
+    expect(document.getElementById('abc')!.className).toBe('fixed ml-4');
 })
 
 test('copy from', async () => {

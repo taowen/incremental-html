@@ -136,8 +136,6 @@ export function mountElement(element: Element) {
             mountElementPropBinding(element, attr.name, attr);
         } else if (attr.name.startsWith('style:')) {
             mountElementPropBinding(element, attr.name, attr);
-        } else if (attr.name.startsWith('class:')) {
-            mountElementPropBinding(element, attr.name, attr);
         } else if (attr.name.startsWith('use:')) {
             let featureClass = evalExpr(attr.value, element);
             const featureName = attr.name.substring('use:'.length);
@@ -201,7 +199,7 @@ function mountElementPropBinding(element: Element, propName: string, attr: Attr)
 }
 
 function isExistingProp(obj: any, propName: string): any {
-    if (propName === 'innerHtml' || propName.startsWith('class.') || propName.startsWith('style.')) {
+    if (propName === 'innerHtml' || propName === 'class') {
         return true;
     }
     if (!obj) {
@@ -308,28 +306,24 @@ function setNodeProperty(node: Element, name: string, value: any) {
         Reflect.set((node as HTMLElement).style, name.substring('style:'.length), value)
         return;
     }
-    if (name.startsWith('class:')) {
-        const oldClass = Reflect.get(node, name);
-        Reflect.set(node, name, value);
-        if (oldClass) {
-            node.className = node.className.replace(oldClass, '') + value;
-        } else if (node.className) {
-            node.className = node.className + ' ' + value;
+    if (name === 'class') {
+        if (typeof value === 'object') {
+            const classes = node.className.split(' ').filter(c => !!c);
+            for (const [itemClass, itemEnabled] of Object.entries(value)) {
+                if (itemEnabled && !classes.includes(itemClass)) {
+                    classes.push(itemClass);
+                } else if (!itemEnabled && classes.includes(itemClass)) {
+                    classes.splice(classes.indexOf(itemClass), 1);
+                }
+            }
+            node.className = classes.join(' ');
         } else {
             node.className = value;
         }
         return;
     }
-    if (name === 'class') {
-        node.className = value;
-        return;
-    }
     if (name === 'innerHtml') {
         morphInnerHTML(node, value);
-        return;
-    }
-    if (name === 'childNodes') {
-        morphChildNodes(node, value);
         return;
     }
     if (name === 'attributes') {

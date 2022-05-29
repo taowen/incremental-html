@@ -16,16 +16,16 @@
         <div use:tab-group="$Tab.Group" tab-group:selected-index="1" class="w-full max-w-md px-2 py-16 sm:px-0">
             <div use:tab-list="$Tab.List" class="flex p-1 space-x-1 bg-blue-900/20 rounded-xl">
                 <button use:tab="$Tab"
-                    class:selection="this.tab.selected ? 'bg-white shadow' : 'text-blue-100 hover:bg-white/[0.12] hover:text-white'"
+                    prop:class="{ 'bg-white shadow': this.tab.selected, 'text-blue-100 hover:bg-white/[0.12] hover:text-white': !this.tab.selected }"
                     class="w-full py-2.5 text-sm leading-5 font-medium text-blue-700 rounded-lg focus:outline-none focus:ring-2 ring-offset-2 ring-offset-blue-400 ring-white ring-opacity-60"
                     id="headlessui-tabs-tab-1" type="button" aria-selected="true" tabindex="0"
                     aria-controls="headlessui-tabs-panel-4">Recent</button>
                 <button use:tab="$Tab"
-                    class:selection="this.tab.selected ? 'bg-white shadow' : 'text-blue-100 hover:bg-white/[0.12] hover:text-white'"
+                    prop:class="{ 'bg-white shadow': this.tab.selected, 'text-blue-100 hover:bg-white/[0.12] hover:text-white': !this.tab.selected }"
                     class="w-full py-2.5 text-sm leading-5 font-medium text-blue-700 rounded-lg focus:outline-none focus:ring-2 ring-offset-2 ring-offset-blue-400 ring-white ring-opacity-60"
                     id="headlessui-tabs-tab-2" type="button" aria-selected="false" tabindex="-1">Popular</button>
                 <button use:tab="$Tab"
-                    class:selection="this.tab.selected ? 'bg-white shadow' : 'text-blue-100 hover:bg-white/[0.12] hover:text-white'"
+                    prop:class="{ 'bg-white shadow': this.tab.selected, 'text-blue-100 hover:bg-white/[0.12] hover:text-white': !this.tab.selected }"
                     class="w-full py-2.5 text-sm leading-5 font-medium text-blue-700 rounded-lg focus:outline-none focus:ring-2 ring-offset-2 ring-offset-blue-400 ring-white ring-opacity-60"
                     id="headlessui-tabs-tab-3" type="button" aria-selected="false" tabindex="-1">Trending</button>
             </div>

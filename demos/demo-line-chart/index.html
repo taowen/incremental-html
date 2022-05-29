@@ -11,15 +11,39 @@
 <body>
     <div class="flex flex-col h-screen">
         <div class="m-4 grow overflow-hidden" use:observed="$Observed">
-            <svg class="bg-gray-400" attr:view-box="const parent = this.parentNode.observed; `0 0 ${parent.width} ${parent.height}`">
+            <!-- https://gist.github.com/samselikoff/4aff333f7c8538bb44f1806931c39be5 -->
+            <svg class="bg-gray-400"
+                attr:view-box="const parent = this.parentNode.observed; `0 0 ${parent.width} ${parent.height}`"
+                prop:data="[{
+                    date: $parseISO('2021-10-05T14:48:00.000Z'),
+                    estimatedMax: 100
+                }, {
+                    date: $parseISO('2022-5-04T14:48:00.000Z'),
+                    estimatedMax: 120
+                }]" 
+                prop:inner-html="">
             </svg>
         </div>
     </div>
     <script type="module">
         import { startDomObserver, setEvalGlobals } from '@incremental-html/reactivity';
         import { Observed } from '@incremental-html/headlessui';
+        import {
+            eachMonthOfInterval,
+            endOfMonth,
+            format,
+            isSameMonth,
+            parseISO,
+            startOfMonth,
+        } from "date-fns";
         setEvalGlobals({
             Observed,
+            eachMonthOfInterval,
+            endOfMonth,
+            format,
+            isSameMonth,
+            parseISO,
+            startOfMonth,
         })
         // for properties like prop:xxx or on:xxx
         startDomObserver();
