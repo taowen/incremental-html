@@ -1,5 +1,6 @@
 {
     "name": "@incremental-html/scale",
+    "type": "module",
     "version": "1.0.0",
     "description": "wrap d3-scale",
     "main": "dist/cjs/index.js",
@@ -8,9 +9,10 @@
     "dependencies": {
         "@incremental-html/reactivity": "workspace:*",
         "d3-scale": "^4.0.2",
-        "date-fn": "^0.0.2"
+        "date-fns": "^2.28.0"
     },
     "devDependencies": {
+        "@types/d3-scale": "^4.0.2",
         "@types/jest": "27.4.1",
         "jest": "27.5.1",
         "typedoc": "^0.22.15",
@@ -20,5 +22,16 @@
         "dist/*",
         "README.md",
         "LICENSE"
-    ]
+    ],
+    "scripts": {
+        "test": "tsc -p esm.tsconfig.json && NODE_OPTIONS=--experimental-vm-modules jest"
+    },
+    "jest": {
+        "verbose": true,
+        "testEnvironment": "jsdom",
+        "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.[j]sx?$",
+        "roots": [
+            "<rootDir>/dist/esm"
+        ]
+    }
 }
