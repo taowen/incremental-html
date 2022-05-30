@@ -8,10 +8,11 @@
     "types": "index.d.ts",
     "dependencies": {
         "@incremental-html/reactivity": "workspace:*",
-        "d3-scale": "^4.0.2",
-        "date-fns": "^2.28.0"
+        "d3-array": "^3.1.6",
+        "d3-scale": "^4.0.2"
     },
     "devDependencies": {
+        "@types/d3-array": "^3.0.3",
         "@types/d3-scale": "^4.0.2",
         "@types/jest": "27.4.1",
         "jest": "27.5.1",
