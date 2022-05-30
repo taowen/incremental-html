@@ -13,42 +13,40 @@
         <div class="m-4 grow overflow-hidden" use:observed="$Observed">
             <!-- https://gist.github.com/samselikoff/4aff333f7c8538bb44f1806931c39be5 -->
             <svg class="bg-gray-400"
-                prop:parent = "this.parentNode.observed"
-                attr:view-box="`0 0 ${this.parent.width} ${this.parent.height}`"
                 prop:data="[{
-                    date: $parseISO('2021-10-05T14:48:00.000Z'),
+                    date: new Date('2021-10-05T14:48:00.000Z'),
                     estimatedMax: 100
                 }, {
-                    date: $parseISO('2022-5-04T14:48:00.000Z'),
+                    date: new Date('2022-5-04T14:48:00.000Z'),
                     estimatedMax: 120
                 }]"
-                props:start-date = "startOfMonth(data.at(0).date);"
-                prop:x-scale="$scaleTime()
-                    .domain([startDay, endDay])
-                    .range([0, this.parent.width]);"
-                prop:inner-html="">
+                use:x-axis="$TimeScale"
+                x-axis:data="this.data.map(e => e.date)"
+                x-axis:ticks-interval="month"
+                x-axis:padding-left="24"
+                x-axis:padding-right="10"
+                use:y-axis="$LinearScale"
+                y-axis:data="this.data.map(e => e.estimatedMax)"
+                y-axis:padding-top="10"
+                y-axis:padding-bottom="20">
+                    <svg 
+                        attr:x="this.parentNode.xAxis.chart.x" 
+                        attr:y="this.parentNode.yAxis.chart.y" 
+                        attr:width="this.parentNode.xAxis.chart.width" 
+                        attr:height="this.parentNode.yAxis.chart.height">
+                        <rect width="100%" height="100%" style="stroke: #777; stroke-width: 3; fill: #07B492;"/>
+                    </svg>
             </svg>
         </div>
     </div>
     <script type="module">
         import { startDomObserver, setEvalGlobals } from '@incremental-html/reactivity';
         import { Observed } from '@incremental-html/headlessui';
-        import {
-            eachMonthOfInterval,
-            endOfMonth,
-            format,
-            isSameMonth,
-            parseISO,
-            startOfMonth,
-        } from "date-fns";
+        import { TimeScale, LinearScale } from '@incremental-html/scale';
         setEvalGlobals({
             Observed,
-            eachMonthOfInterval,
-            endOfMonth,
-            format,
-            isSameMonth,
-            parseISO,
-            startOfMonth,
+            TimeScale,
+            LinearScale
         })
         // for properties like prop:xxx or on:xxx
         startDomObserver();

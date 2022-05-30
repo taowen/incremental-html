@@ -7,13 +7,16 @@
     "module": "dist/esm/index.js",
     "types": "index.d.ts",
     "dependencies": {
+        "@incremental-html/headlessui": "workspace:*",
         "@incremental-html/reactivity": "workspace:*",
         "d3-array": "^3.1.6",
-        "d3-scale": "^4.0.2"
+        "d3-scale": "^4.0.2",
+        "d3-time": "^3.0.0"
     },
     "devDependencies": {
         "@types/d3-array": "^3.0.3",
         "@types/d3-scale": "^4.0.2",
+        "@types/d3-time": "^3.0.0",
         "@types/jest": "27.4.1",
         "jest": "27.5.1",
         "typedoc": "^0.22.15",

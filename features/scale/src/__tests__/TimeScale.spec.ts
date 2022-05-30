@@ -1,9 +1,10 @@
-import { utcMonth } from 'd3-time';
 import { TimeScale } from "../TimeScale";
 
 test('generate ticks from data', () => {
     const scale = new TimeScale(document.createElement('svg'), () => ({
-        interval: utcMonth,
+        ticksInterval: 'utcMonth',
+        range: [0, 100],
+        nice: true,
         data: [
             new Date('2014-02-11T11:30:30'),
             new Date('2014-01-11T11:30:30'),

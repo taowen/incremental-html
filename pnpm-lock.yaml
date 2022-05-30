@@ -149,6 +149,7 @@ importers:
     specifiers:
       '@incremental-html/headlessui': workspace:*
       '@incremental-html/reactivity': workspace:*
+      '@incremental-html/scale': workspace:*
       autoprefixer: ^10.4.5
       postcss: ^8.4.12
       tailwindcss: ^3.0.24
@@ -157,6 +158,7 @@ importers:
     dependencies:
       '@incremental-html/headlessui': link:../../features/headlessui
       '@incremental-html/reactivity': link:../../packages/reactivity
+      '@incremental-html/scale': link:../../features/scale
     devDependencies:
       autoprefixer: 10.4.5_postcss@8.4.12
       postcss: 8.4.12
@@ -408,22 +410,28 @@ importers:
 
   features/scale:
     specifiers:
+      '@incremental-html/headlessui': workspace:*
       '@incremental-html/reactivity': workspace:*
       '@types/d3-array': ^3.0.3
       '@types/d3-scale': ^4.0.2
+      '@types/d3-time': ^3.0.0
       '@types/jest': 27.4.1
       d3-array: ^3.1.6
       d3-scale: ^4.0.2
+      d3-time: ^3.0.0
       jest: 27.5.1
       typedoc: ^0.22.15
       typescript: ^4.5.5
     dependencies:
+      '@incremental-html/headlessui': link:../headlessui
       '@incremental-html/reactivity': link:../../packages/reactivity
       d3-array: 3.1.6
       d3-scale: 4.0.2
+      d3-time: 3.0.0
     devDependencies:
       '@types/d3-array': 3.0.3
       '@types/d3-scale': 4.0.2
+      '@types/d3-time': 3.0.0
       '@types/jest': 27.4.1
       jest: 27.5.1
       typedoc: 0.22.15_typescript@4.6.3
