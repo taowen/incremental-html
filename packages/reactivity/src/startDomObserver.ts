@@ -95,6 +95,7 @@ export function mountElement(element: Element) {
     }
     const xid = `n${nextId++}`;
     (element as any).$xid = xid;
+    (element as any).$ctx = {...(element.parentNode as any)?.$ctx, ...(element.parentNode as any)?.$computedProps};
     const copyFromSelector = element.getAttribute('copy-from');
     if (copyFromSelector) {
         const template = document.querySelector(copyFromSelector);
@@ -141,6 +142,7 @@ export function mountElement(element: Element) {
             const featureName = attr.name.substring('use:'.length);
             const feature = new featureClass(element, `${featureName}:`);
             setNodeProperty(element, camelize(featureName), feature);
+            (element as any).$ctx[camelize(featureName)] = feature;
         }
     }
     for (let i = 0; i < element.children.length; i++) {

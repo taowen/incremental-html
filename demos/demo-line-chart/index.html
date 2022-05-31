@@ -38,23 +38,22 @@
                     attr:height="this.parentNode.yAxis.range[0]">
                     <!-- <rect width="100%" height="100%" class="text-gray-100" fill="currentColor"/> -->
                 </svg>
-                <g use:template="$Template" prop:x-axis="$closestFeature(this, $TimeScale)" 
-                    prop:inner-html="this.xAxis.ticks.slice(0, this.xAxis.ticks.length - 1).map(
-                        (month, index) => this.template.render({ index, month, nextMonth: this.xAxis.ticks[index+1]}))">
-                    <g render:id="'month-' + this.$props.index" class="text-gray-400" prop:x-axis="$closestFeature(this, $TimeScale)" 
-                        attr:transform="`translate(${this.xAxis.scale(this.$props.month)},0)`">
-                        <rect prop:x-axis="$closestFeature(this, $TimeScale)"
-                            attr:width="this.xAxis.scale(this.$props.nextMonth) - this.xAxis.scale(this.$props.month)"
-                            attr:height="$closestFeature(this, $LinearScale).range[0]"
+                <g use:template="$Template"
+                    prop:inner-html="ctx.xAxis.ticks.slice(0, ctx.xAxis.ticks.length - 1).map(
+                        (month, index) => this.template.render({ index, month }))">
+                    <g render:id="'month-' + this.$props.index" class="text-gray-400"
+                        attr:transform="`translate(${ctx.xAxis.scale(this.$props.month)},0)`">
+                        <rect attr:width="ctx.xAxis.oneTickLength"
+                            attr:height="ctx.yAxis.range[0]"
                             fill="currentColor"
                             class="text-gray-100"
                             render:if="this.$props.index % 2 === 1"
                         />
-                        <text text-anchor="middle" prop:x-axis="$closestFeature(this, $TimeScale)"
-                            attr:x="(this.xAxis.scale(this.$props.nextMonth) - this.xAxis.scale(this.$props.month)) / 2"
-                            attr:y="$closestFeature(this, $LinearScale).range[0] + 20"
+                        <text text-anchor="middle"
+                            attr:x="ctx.xAxis.oneTickLength / 2"
+                            attr:y="ctx.yAxis.range[0] + 20"
                             fill="currentColor"
-                            class="text-black text-[10px]"
+                            class="text-[10px]"
                             prop:text-content="this.$props.month.toLocaleString('en-US', { month: 'long' })">
                         </text>
                     </g>

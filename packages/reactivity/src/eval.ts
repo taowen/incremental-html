@@ -31,13 +31,13 @@ export function setEvalGlobals(kv: Record<string, any>) {
 }
 
 export function evalExpr(expr: string, theThis?: any, ...args: any[]) {
-    const syncEvaluator = Function.apply(null, [...evalGlobals.globalKeys, 'expr', 'arguments', "return eval('expr = undefined;' + expr)"]);
-    return syncEvaluator.apply(theThis, [...evalGlobals.globalValues, expr.includes(';') ? expr : `(${expr})`, args]);
+    const syncEvaluator = Function.apply(null, [...evalGlobals.globalKeys, 'ctx', 'expr', 'arguments', "return eval('expr = undefined;' + expr)"]);
+    return syncEvaluator.apply(theThis, [...evalGlobals.globalValues, theThis?.$ctx, expr.includes(';') ? expr : `(${expr})`, args]);
 }
 
 function evalAsync(expr: string, theThis?: any, ...args: any[]) {
-    const asyncEvaluator = Function.apply(null, [...evalGlobals.globalKeys, 'expr', 'event', 'arguments', "return eval('expr = undefined; (async() => {' + expr + '})();')"]);
-    return asyncEvaluator.apply(theThis, [...evalGlobals.globalValues, expr, args[0], args]);
+    const asyncEvaluator = Function.apply(null, [...evalGlobals.globalKeys, 'ctx', 'expr', 'event', 'arguments', "return eval('expr = undefined; (async() => {' + expr + '})();')"]);
+    return asyncEvaluator.apply(theThis, [...evalGlobals.globalValues, theThis?.$ctx, expr, args[0], args]);
 }
 
 export async function callEventHandlerAsync(node: Element, eventName: string, ...args: any[]) {
