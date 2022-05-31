@@ -95,7 +95,16 @@ export function mountElement(element: Element) {
     }
     const xid = `n${nextId++}`;
     (element as any).$xid = xid;
-    (element as any).$ctx = {...(element.parentNode as any)?.$ctx, ...(element.parentNode as any)?.$computedProps};
+    const ctx = {...(element.parentNode as any)?.$ctx};
+    ctx.$computedProps = {...ctx.$computedProps, ...(element.parentNode as any)?.$computedProps};
+    for (const [k, v] of Object.entries(ctx.$computedProps as Record<string, ComputedRef>)) {
+        Object.defineProperty(ctx, k, {
+            get() {
+                return v.value;
+            }
+        })
+    }
+    (element as any).$ctx = ctx;
     const copyFromSelector = element.getAttribute('copy-from');
     if (copyFromSelector) {
         const template = document.querySelector(copyFromSelector);

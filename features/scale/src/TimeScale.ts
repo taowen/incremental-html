@@ -66,4 +66,18 @@ export class TimeScale extends Feature<{ data: Date[], ticksInterval: string, ni
     protected isStringProp(propName: string): boolean {
         return propName === 'ticksInterval'
     }
+
+    public locateTick(date: Date): number {
+        const dateTime = date.getTime();
+        for (const [i, tick] of this.ticks.entries()) {
+            const nextTick = this.ticks[i + 1];
+            if (!nextTick) {
+                break;
+            }
+            if (dateTime >= tick.getTime() && dateTime < nextTick.getTime()) {
+                return i;
+            }
+        }
+        return -1;
+    }
 }
