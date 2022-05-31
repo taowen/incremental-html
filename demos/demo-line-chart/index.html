@@ -58,6 +58,19 @@
                         </text>
                     </g>
                 </g>
+                <g use:template="$Template"
+                    prop:inner-html="ctx.yAxis.ticks.map(tick => this.template.render({ tick }))">
+                    <g class="text-gray-400" attr:transform="`translate(0,${ctx.yAxis.scale(this.$props.tick)})`">
+                        <line attr:x1="ctx.xAxis.range[0]"
+                            attr:x2="ctx.xAxis.range[1]"
+                            stroke="currentColor"
+                            stroke-dasharray="1,3" />
+                        <text alignment-baseline="middle"
+                        class="text-[10px]"
+                        fill="currentColor"
+                        prop:text-content="this.$props.tick" />
+                    </g>
+                </g>
             </svg>
         </div>
     </div>
