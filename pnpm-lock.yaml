@@ -150,6 +150,7 @@ importers:
       '@incremental-html/headlessui': workspace:*
       '@incremental-html/reactivity': workspace:*
       '@incremental-html/scale': workspace:*
+      '@incremental-html/template': workspace:*
       autoprefixer: ^10.4.5
       postcss: ^8.4.12
       tailwindcss: ^3.0.24
@@ -159,6 +160,7 @@ importers:
       '@incremental-html/headlessui': link:../../features/headlessui
       '@incremental-html/reactivity': link:../../packages/reactivity
       '@incremental-html/scale': link:../../features/scale
+      '@incremental-html/template': link:../../packages/template
     devDependencies:
       autoprefixer: 10.4.5_postcss@8.4.12
       postcss: 8.4.12

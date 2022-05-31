@@ -6,19 +6,28 @@ import * as d3Time from 'd3-time';
 
 export class TimeScale extends Feature<{ data: Date[], ticksInterval: string, nice?: boolean, range?: [number, number], paddingLeft?: number, paddingRight?: number }> {
 
-    private _ = this.effect(() => {
+    private _1 = this.effect(() => {
         if (this.parent) {
             this.element.setAttribute('width', this.parent.width);
         }
     })
 
-    public readonly scale = this.create(() => {
-        let scale = scaleTime().domain(extent(this.props.data) as [Date, Date]).range(this.range);
+    public readonly _scale = this.create(() => {
+        let scale = scaleTime().domain(extent(this.props.data) as [Date, Date]);
         if (this.props.nice) {
             scale = scale.nice(this.interval)
         }
         return scale;
     });
+
+    public scale(v: any) {
+        this.range; // subscribe
+        return this._scale(v);
+    }
+
+    private _2 = this.effect(() => {
+        this._scale.range(this.range);
+    })
 
     public get range(): [number, number] {
         if (this.props.range) {
@@ -27,22 +36,15 @@ export class TimeScale extends Feature<{ data: Date[], ticksInterval: string, ni
         if (!this.parent) {
             throw new Error('use:observed not found, can not determine TimeScale range');
         }
-        return [0, this.parent.width - (this.props.paddingLeft || 0) - (this.props.paddingRight || 0)];
+        return [this.props.paddingLeft || 0, this.parent.width - (this.props.paddingLeft || 0) - (this.props.paddingRight || 0)];
     }
 
     private get parent() {
         return closestFeature(this.element, Observed);
     }
 
-    public get chart() {
-        return {
-            x: this.props.paddingLeft || 0,
-            width: this.range[1]
-        }
-    }
-
     public get ticks() {
-        return this.scale.ticks(this.interval);
+        return this._scale.ticks(this.interval);
     }
 
     private get interval(): d3Time.CountableTimeInterval {

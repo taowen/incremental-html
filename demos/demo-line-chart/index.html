@@ -12,39 +12,66 @@
     <div class="flex flex-col h-screen">
         <div class="m-4 grow overflow-hidden" use:observed="$Observed">
             <!-- https://gist.github.com/samselikoff/4aff333f7c8538bb44f1806931c39be5 -->
-            <svg class="bg-gray-400"
-                prop:data="[{
+            <svg class="text-black" prop:data="[{
                     date: new Date('2021-10-05T14:48:00.000Z'),
                     estimatedMax: 100
                 }, {
-                    date: new Date('2022-5-04T14:48:00.000Z'),
+                    date: new Date('2022-03-04T14:48:00.000Z'),
+                    estimatedMax: 60
+                }, {
+                    date: new Date('2022-05-04T14:48:00.000Z'),
                     estimatedMax: 120
                 }]"
                 use:x-axis="$TimeScale"
                 x-axis:data="this.data.map(e => e.date)"
-                x-axis:ticks-interval="month"
+                x-axis:ticks-interval="timeMonth"
                 x-axis:padding-left="24"
                 x-axis:padding-right="10"
+                x-axis:nice
                 use:y-axis="$LinearScale"
                 y-axis:data="this.data.map(e => e.estimatedMax)"
                 y-axis:padding-top="10"
                 y-axis:padding-bottom="20">
-                    <svg 
-                        attr:x="this.parentNode.xAxis.chart.x" 
-                        attr:y="this.parentNode.yAxis.chart.y" 
-                        attr:width="this.parentNode.xAxis.chart.width" 
-                        attr:height="this.parentNode.yAxis.chart.height">
-                        <rect width="100%" height="100%" style="stroke: #777; stroke-width: 3; fill: #07B492;"/>
-                    </svg>
+                <svg attr:x="this.parentNode.xAxis.range[0]" 
+                    attr:y="this.parentNode.yAxis.range[1]" 
+                    attr:width="this.parentNode.xAxis.range[1]" 
+                    attr:height="this.parentNode.yAxis.range[0]">
+                    <!-- <rect width="100%" height="100%" class="text-gray-100" fill="currentColor"/> -->
+                </svg>
+                <g use:template="$Template" prop:x-axis="$closestFeature(this, $TimeScale)" 
+                    prop:inner-html="this.xAxis.ticks.slice(0, this.xAxis.ticks.length - 1).map(
+                        (month, index) => this.template.render({ index, month, nextMonth: this.xAxis.ticks[index+1]}))">
+                    <g render:id="'month-' + this.$props.index" class="text-gray-400" prop:x-axis="$closestFeature(this, $TimeScale)" 
+                        attr:transform="`translate(${this.xAxis.scale(this.$props.month)},0)`">
+                        <rect prop:x-axis="$closestFeature(this, $TimeScale)"
+                            attr:width="this.xAxis.scale(this.$props.nextMonth) - this.xAxis.scale(this.$props.month)"
+                            attr:height="$closestFeature(this, $LinearScale).range[0]"
+                            fill="currentColor"
+                            class="text-gray-100"
+                            render:if="this.$props.index % 2 === 1"
+                        />
+                        <text text-anchor="middle" prop:x-axis="$closestFeature(this, $TimeScale)"
+                            attr:x="(this.xAxis.scale(this.$props.nextMonth) - this.xAxis.scale(this.$props.month)) / 2"
+                            attr:y="$closestFeature(this, $LinearScale).range[0] + 20"
+                            fill="currentColor"
+                            class="text-black text-[10px]"
+                            prop:text-content="this.$props.month.toLocaleString('en-US', { month: 'long' })">
+                        </text>
+                    </g>
+                </g>
             </svg>
         </div>
     </div>
     <script type="module">
-        import { startDomObserver, setEvalGlobals } from '@incremental-html/reactivity';
-        import { Observed } from '@incremental-html/headlessui';
+        import { startDomObserver, setEvalGlobals, closestFeature } from '@incremental-html/reactivity';
+        import { Observed, Template } from '@incremental-html/headlessui';
+        import { render } from '@incremental-html/template';
         import { TimeScale, LinearScale } from '@incremental-html/scale';
         setEvalGlobals({
+            closestFeature,
             Observed,
+            Template,
+            render,
             TimeScale,
             LinearScale
         })

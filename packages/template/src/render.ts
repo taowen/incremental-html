@@ -60,8 +60,9 @@ function renderNode(parentNode: { removeChild(node: Node): void }, node: Node, p
     }
     let child = element.firstChild;
     while(child) {
+        const nextSibling = child.nextSibling;
         renderNode(element, child, props);
-        child = child.nextSibling;
+        child = nextSibling;
     }
 }
 
