@@ -10,82 +10,57 @@
 
 <body>
     <div class="flex flex-col h-screen">
-        <div class="m-4 grow overflow-hidden" use:observed="$Observed">
-            <!-- https://gist.github.com/samselikoff/4aff333f7c8538bb44f1806931c39be5 -->
-            <svg class="text-black" prop:data="[{
-                    date: new Date('2021-10-05T14:48:00.000Z'),
-                    estimatedMax: 100
-                }, {
-                    date: new Date('2022-03-04T14:48:00.000Z'),
-                    estimatedMax: 64
-                }, {
-                    date: new Date('2022-05-04T14:48:00.000Z'),
-                    estimatedMax: 120
-                }]"
-                use:x-axis="$TimeScale"
-                x-axis:data="this.data.map(e => e.date)"
-                x-axis:ticks-interval="timeMonth"
-                x-axis:padding-left="24"
-                x-axis:padding-right="10"
-                x-axis:nice
-                use:y-axis="$LinearScale"
-                y-axis:data="this.data.map(e => e.estimatedMax)"
-                y-axis:padding-top="10"
-                y-axis:padding-bottom="20">
-                <svg attr:x="this.parentNode.xAxis.range[0]" 
-                    attr:y="this.parentNode.yAxis.range[1]" 
-                    attr:width="this.parentNode.xAxis.range[1]" 
-                    attr:height="this.parentNode.yAxis.range[0]">
-                    <!-- <rect width="100%" height="100%" class="text-gray-100" fill="currentColor"/> -->
-                </svg>
-                <g use:template="$Template"
-                    prop:inner-html="ctx.xAxis.ticks.slice(0, ctx.xAxis.ticks.length - 1).map(
+        <!-- https://gist.github.com/samselikoff/4aff333f7c8538bb44f1806931c39be5 -->
+        <svg class="m-4 grow overflow-hidden" prop:data="[{
+            date: new Date('2021-10-05T14:48:00.000Z'),
+            estimatedMax: 100
+        }, {
+            date: new Date('2022-03-04T14:48:00.000Z'),
+            estimatedMax: 64
+        }, {
+            date: new Date('2022-05-04T14:48:00.000Z'),
+            estimatedMax: 120
+        }]" use:observed="$Observed" use:x-axis="$TimeScale" x-axis:data="this.data.map(e => e.date)"
+            x-axis:ticks-interval="timeMonth" x-axis:padding-left="24" x-axis:padding-right="10" x-axis:nice
+            use:y-axis="$LinearScale" y-axis:data="this.data.map(e => e.estimatedMax)" y-axis:padding-top="10"
+            y-axis:padding-bottom="20">
+            <g use:template="$Template" prop:inner-html="ctx.xAxis.ticks.slice(0, ctx.xAxis.ticks.length - 1).map(
                         (month, index) => this.template.render({ index, month }))">
-                    <g render:id="'month-' + this.$props.index" class="text-gray-400"
-                        attr:transform="`translate(${ctx.xAxis.scale(this.$props.month)},0)`">
-                        <rect attr:width="ctx.xAxis.oneTickLength"
-                            attr:height="ctx.yAxis.range[0]"
-                            fill="currentColor"
-                            class="text-gray-100"
-                            render:if="this.$props.index % 2 === 1"
-                        />
-                        <text text-anchor="middle"
-                            attr:x="ctx.xAxis.oneTickLength / 2"
-                            attr:y="ctx.yAxis.range[0] + 20"
-                            fill="currentColor"
-                            class="text-[10px]"
-                            prop:text-content="this.$props.month.toLocaleString('en-US', { month: 'long' })">
-                        </text>
-                    </g>
+                <g render:id="'month-' + this.$props.index" class="text-gray-400"
+                    attr:transform="`translate(${ctx.xAxis.scale(this.$props.month)},0)`">
+                    <rect attr:width="ctx.xAxis.oneTickLength" attr:height="ctx.yAxis.range[0]" fill="currentColor"
+                        class="text-gray-100" render:if="this.$props.index % 2 === 1" />
+                    <text text-anchor="middle" attr:x="ctx.xAxis.oneTickLength / 2" attr:y="ctx.yAxis.range[0] + 20"
+                        fill="currentColor" class="text-[10px]"
+                        prop:text-content="this.$props.month.toLocaleString('en-US', { month: 'long' })">
+                    </text>
                 </g>
-                <g use:template="$Template"
-                    prop:inner-html="ctx.yAxis.ticks.map(tick => this.template.render({ tick }))">
-                    <g class="text-gray-400" attr:transform="`translate(0,${ctx.yAxis.scale(this.$props.tick)})`">
-                        <line attr:x1="ctx.xAxis.range[0]"
-                            attr:x2="ctx.xAxis.range[1]"
-                            stroke="currentColor"
-                            stroke-dasharray="1,3" />
-                        <text alignment-baseline="middle"
-                        class="text-[10px]"
-                        fill="currentColor"
+            </g>
+            <g use:template="$Template" prop:inner-html="ctx.yAxis.ticks.map(tick => this.template.render({ tick }))">
+                <g class="text-gray-400" attr:transform="`translate(0,${ctx.yAxis.scale(this.$props.tick)})`">
+                    <line attr:x1="ctx.xAxis.range[0]" attr:x2="ctx.xAxis.range[1]" stroke="currentColor"
+                        stroke-dasharray="1,3" />
+                    <text alignment-baseline="middle" class="text-[10px]" fill="currentColor"
                         prop:text-content="this.$props.tick" />
-                    </g>
                 </g>
-            </svg>
-        </div>
+            </g>
+            <path use:line="$Line" line:x="ctx.xAxis.scaledData" line:y="ctx.yAxis.scaledData" fill="none" stroke="currentColor" stroke-width="2"/>
+        </svg>
     </div>
     <script type="module">
         import { startDomObserver, setEvalGlobals, closestFeature } from '@incremental-html/reactivity';
         import { Observed, Template } from '@incremental-html/headlessui';
         import { render } from '@incremental-html/template';
         import { TimeScale, LinearScale } from '@incremental-html/scale';
+        import { Line } from '@incremental-html/shape';
         setEvalGlobals({
             closestFeature,
             Observed,
             Template,
             render,
             TimeScale,
-            LinearScale
+            LinearScale,
+            Line
         })
         // for properties like prop:xxx or on:xxx
         startDomObserver();

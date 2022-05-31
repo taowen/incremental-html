@@ -6,7 +6,8 @@
         "@incremental-html/reactivity": "workspace:*",
         "@incremental-html/headlessui": "workspace:*",
         "@incremental-html/template": "workspace:*",
-        "@incremental-html/scale": "workspace:*"
+        "@incremental-html/scale": "workspace:*",
+        "@incremental-html/shape": "workspace:*"
     },
     "devDependencies": {
         "typescript": "^4.5.5",

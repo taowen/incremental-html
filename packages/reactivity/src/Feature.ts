@@ -52,6 +52,10 @@ export class Feature<Props extends Record<string, any>> {
         getInstanceCounter(this.constructor).value += 1;
     }
 
+    public get svgElement(): SVGElement {
+        return this.element as any;
+    }
+
     protected isStringProp(propName: string) {
         return false;
     }

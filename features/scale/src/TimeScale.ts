@@ -51,6 +51,10 @@ export class TimeScale extends Feature<{ data: Date[], ticksInterval: string, ni
         return this.scale(this.ticks[1]) - this.scale(this.ticks[0]);
     }
 
+    public get scaledData() {
+        return this.props.data.map(d => this.scale(d));
+    }
+
     private get interval(): d3Time.CountableTimeInterval {
         const interval = Reflect.get(d3Time, this.props.ticksInterval);
         if (!interval?.count) {

@@ -8,9 +8,11 @@
     "types": "index.d.ts",
     "dependencies": {
         "@incremental-html/headlessui": "workspace:*",
-        "@incremental-html/reactivity": "workspace:*"
+        "@incremental-html/reactivity": "workspace:*",
+        "d3-shape": "^3.1.0"
     },
     "devDependencies": {
+        "@types/d3-shape": "^3.1.0",
         "@types/jest": "27.4.1",
         "jest": "27.5.1",
         "typedoc": "^0.22.15",

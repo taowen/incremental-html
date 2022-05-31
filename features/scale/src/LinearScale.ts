@@ -39,4 +39,8 @@ export class LinearScale extends Feature<{ data: number[], ticksCount: number, r
     public get ticks() {
         return this._scale.ticks(this.props.ticksCount)
     }
+
+    public get scaledData() {
+        return this.props.data.map(d => this.scale(d));
+    }
 }
