@@ -1483,7 +1483,7 @@ function calcViewportConstraints(layoutBox, constraintsBox) {
     y: calcViewportAxisConstraints(layoutBox.y, constraintsBox.y)
   };
 }
-function calcOrigin(source, target) {
+function calcOrigin$1(source, target) {
   let origin = 0.5;
   const sourceLength = calcLength(source);
   const targetLength = calcLength(target);
@@ -1898,7 +1898,7 @@ class VisualElementDragControls {
       const axisValue = this.getAxisMotionValue(axis);
       if (axisValue) {
         const latest = axisValue.get();
-        boxProgress[axis] = calcOrigin({ min: latest, max: latest }, this.constraints[axis]);
+        boxProgress[axis] = calcOrigin$1({ min: latest, max: latest }, this.constraints[axis]);
       }
     });
     const { transformTemplate } = this.visualElement.getProps();
@@ -3893,7 +3893,7 @@ const parseDomVariant = (visualElement2, target, origin, transitionEnd) => {
 function isForcedMotionValue(key, { layout, layoutId }) {
   return isTransformProp(key) || isTransformOriginProp(key) || (layout || layoutId !== void 0) && (!!scaleCorrectors[key] || key === "opacity");
 }
-function scrapeMotionValuesFromProps(props) {
+function scrapeMotionValuesFromProps$1(props) {
   const { style } = props;
   const newValues = {};
   for (const key in style) {
@@ -3967,7 +3967,7 @@ const htmlConfig = {
       transitionEnd
     }, target);
   },
-  scrapeMotionValuesFromProps,
+  scrapeMotionValuesFromProps: scrapeMotionValuesFromProps$1,
   build(element, renderState, latestValues, options, props) {
     if (element.isVisible !== void 0) {
       renderState.style.visibility = element.isVisible ? "visible" : "hidden";
@@ -3977,6 +3977,162 @@ const htmlConfig = {
   render: renderHTML
 };
 const htmlVisualElement = visualElement(htmlConfig);
+function scrapeMotionValuesFromProps(props) {
+  const newValues = scrapeMotionValuesFromProps$1(props);
+  for (const key in props) {
+    if (isMotionValue(props[key])) {
+      const targetKey = key === "x" || key === "y" ? "attr" + key.toUpperCase() : key;
+      newValues[targetKey] = props[key];
+    }
+  }
+  return newValues;
+}
+function calcOrigin(origin, offset, size) {
+  return typeof origin === "string" ? origin : styleValueTypes.px.transform(offset + size * origin);
+}
+function calcSVGTransformOrigin(dimensions, originX, originY) {
+  const pxOriginX = calcOrigin(originX, dimensions.x, dimensions.width);
+  const pxOriginY = calcOrigin(originY, dimensions.y, dimensions.height);
+  return `${pxOriginX} ${pxOriginY}`;
+}
+const dashKeys = {
+  offset: "stroke-dashoffset",
+  array: "stroke-dasharray"
+};
+const camelKeys = {
+  offset: "strokeDashoffset",
+  array: "strokeDasharray"
+};
+function buildSVGPath(attrs, length, spacing = 1, offset = 0, useDashCase = true) {
+  attrs.pathLength = 1;
+  const keys = useDashCase ? dashKeys : camelKeys;
+  attrs[keys.offset] = styleValueTypes.px.transform(-offset);
+  const pathLength = styleValueTypes.px.transform(length);
+  const pathSpacing = styleValueTypes.px.transform(spacing);
+  attrs[keys.array] = `${pathLength} ${pathSpacing}`;
+}
+function buildSVGAttrs(state, _h, options, transformTemplate) {
+  var _i = _h, {
+    attrX,
+    attrY,
+    originX,
+    originY,
+    pathLength,
+    pathSpacing = 1,
+    pathOffset = 0
+  } = _i, latest = __objRest(_i, [
+    "attrX",
+    "attrY",
+    "originX",
+    "originY",
+    "pathLength",
+    "pathSpacing",
+    "pathOffset"
+  ]);
+  buildHTMLStyles(state, latest, options, transformTemplate);
+  state.attrs = state.style;
+  state.style = {};
+  const { attrs, style, dimensions } = state;
+  if (attrs.transform) {
+    if (dimensions)
+      style.transform = attrs.transform;
+    delete attrs.transform;
+  }
+  if (dimensions && (originX !== void 0 || originY !== void 0 || style.transform)) {
+    style.transformOrigin = calcSVGTransformOrigin(dimensions, originX !== void 0 ? originX : 0.5, originY !== void 0 ? originY : 0.5);
+  }
+  if (attrX !== void 0)
+    attrs.x = attrX;
+  if (attrY !== void 0)
+    attrs.y = attrY;
+  if (pathLength !== void 0) {
+    buildSVGPath(attrs, pathLength, pathSpacing, pathOffset, false);
+  }
+}
+const CAMEL_CASE_PATTERN = /([a-z])([A-Z])/g;
+const REPLACE_TEMPLATE = "$1-$2";
+const camelToDash = (str) => str.replace(CAMEL_CASE_PATTERN, REPLACE_TEMPLATE).toLowerCase();
+const camelCaseAttributes = /* @__PURE__ */ new Set([
+  "baseFrequency",
+  "diffuseConstant",
+  "kernelMatrix",
+  "kernelUnitLength",
+  "keySplines",
+  "keyTimes",
+  "limitingConeAngle",
+  "markerHeight",
+  "markerWidth",
+  "numOctaves",
+  "targetX",
+  "targetY",
+  "surfaceScale",
+  "specularConstant",
+  "specularExponent",
+  "stdDeviation",
+  "tableValues",
+  "viewBox",
+  "gradientTransform",
+  "pathLength"
+]);
+function renderSVG(element, renderState, _styleProp, projection) {
+  renderHTML(element, renderState, void 0, projection);
+  for (const key in renderState.attrs) {
+    element.setAttribute(!camelCaseAttributes.has(key) ? camelToDash(key) : key, renderState.attrs[key]);
+  }
+}
+const svgVisualElement = visualElement(__spreadProps(__spreadValues({}, htmlConfig), {
+  getBaseTarget(props, key) {
+    return props[key];
+  },
+  readValueFromInstance(domElement, key) {
+    var _a;
+    if (isTransformProp(key)) {
+      return ((_a = getDefaultValueType(key)) == null ? void 0 : _a.default) || 0;
+    }
+    key = !camelCaseAttributes.has(key) ? camelToDash(key) : key;
+    return domElement.getAttribute(key);
+  },
+  scrapeMotionValuesFromProps,
+  build(_element, renderState, latestValues, options, props) {
+    buildSVGAttrs(renderState, latestValues, options, props.transformTemplate);
+  },
+  render: renderSVG
+}));
+const lowercaseSVGElements = [
+  "animate",
+  "circle",
+  "defs",
+  "desc",
+  "ellipse",
+  "g",
+  "image",
+  "line",
+  "filter",
+  "marker",
+  "mask",
+  "metadata",
+  "path",
+  "pattern",
+  "polygon",
+  "polyline",
+  "rect",
+  "stop",
+  "svg",
+  "switch",
+  "symbol",
+  "text",
+  "tspan",
+  "use",
+  "view"
+];
+function isSVGComponent(Component) {
+  if (typeof Component !== "string" || Component.includes("-")) {
+    return false;
+  } else if (lowercaseSVGElements.indexOf(Component) > -1 || /[A-Z]/.test(Component)) {
+    return true;
+  }
+  return false;
+}
 const isCustomValueType = (v2) => {
   return typeof v2 === "object" && v2.mix;
 };
@@ -4038,10 +4194,10 @@ const fireObserverCallback = (entry) => {
 const fireAllObserverCallbacks = (entries) => {
   entries.forEach(fireObserverCallback);
 };
-function initIntersectionObserver(_h) {
-  var _i = _h, {
+function initIntersectionObserver(_j) {
+  var _k = _j, {
     root
-  } = _i, options = __objRest(_i, [
+  } = _k, options = __objRest(_k, [
     "root"
   ]);
   const lookupRoot = root || document;
@@ -4141,7 +4297,7 @@ function makeVisualState(props, context, presenceContext) {
 function makeLatestValues(props, context, presenceContext) {
   const values = {};
   const blockInitialAnimation = (presenceContext == null ? void 0 : presenceContext.initial) === false;
-  const motionValues = scrapeMotionValuesFromProps(props);
+  const motionValues = scrapeMotionValuesFromProps$1(props);
   for (const key in motionValues) {
     values[key] = resolveMotionValue(motionValues[key]);
   }
@@ -4460,8 +4616,10 @@ exports.animationControls = animationControls;
 exports.createAnimationState = createAnimationState;
 exports.htmlVisualElement = htmlVisualElement;
 exports.isMotionValue = isMotionValue;
+exports.isSVGComponent = isSVGComponent;
 exports.makeVisualState = makeVisualState;
 exports.motionValue = motionValue;
+exports.svgVisualElement = svgVisualElement;
 exports.useCombineMotionValues = useCombineMotionValues;
 exports.useFocusGesture = useFocusGesture;
 exports.useHoverGesture = useHoverGesture;

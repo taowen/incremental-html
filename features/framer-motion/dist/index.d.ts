@@ -1227,6 +1227,8 @@ declare interface IProjectionNode<I = unknown> {
 
 export declare const isMotionValue: (value: any) => value is MotionValue<any>;
 
+export declare function isSVGComponent(Component: string | ComponentType): boolean;
+
 /* Excluded from this release type: Just */
 
 /* Excluded from this release type: Keyframes */
@@ -2375,6 +2377,8 @@ declare interface SVGPathProperties {
     pathOffset?: number;
     pathSpacing?: number;
 }
+
+export declare const svgVisualElement: ({ parent, props, presenceId, blockInitialAnimation, visualState, shouldReduceMotion, }: VisualElementOptions<SVGElement, any>, options?: DOMVisualElementOptions) => VisualElement<SVGElement, any>;
 
 declare interface SwitchLayoutGroup {
     register?: (member: IProjectionNode) => void;

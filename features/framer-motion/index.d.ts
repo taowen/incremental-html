@@ -1,4 +1,6 @@
 export { htmlVisualElement } from './motion/packages/framer-motion/types/render/html/visual-element'
+export { svgVisualElement } from './motion/packages/framer-motion/types/render/svg/visual-element'
+export { isSVGComponent } from './motion/packages/framer-motion/types/render/dom/utils/is-svg-component'
 export { createAnimationState } from './motion/packages/framer-motion/types/render/utils/animation-state';
 export { animationControls } from './motion/packages/framer-motion/types/animation/animation-controls';
 export { MotionProps } from "./motion/packages/framer-motion/types/motion/types"

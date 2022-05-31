@@ -1,5 +1,6 @@
 /// <reference types="react" />
 
+import { ComponentType } from 'react';
 import { Context } from 'react';
 import { CSSProperties } from 'react';
 import { Easing as Easing_2 } from 'popmotion';
@@ -1252,6 +1253,8 @@ declare interface IProjectionNode<I = unknown> {
 }
 
 export declare const isMotionValue: (value: any) => value is MotionValue<any>;
+
+export declare function isSVGComponent(Component: string | ComponentType): boolean;
 
 /**
  * @internal
@@ -2666,6 +2669,8 @@ declare interface SVGPathProperties {
     pathOffset?: number;
     pathSpacing?: number;
 }
+
+export declare const svgVisualElement: ({ parent, props, presenceId, blockInitialAnimation, visualState, shouldReduceMotion, }: VisualElementOptions<SVGElement, any>, options?: DOMVisualElementOptions) => VisualElement<SVGElement, any>;
 
 declare interface SwitchLayoutGroup {
     register?: (member: IProjectionNode) => void;

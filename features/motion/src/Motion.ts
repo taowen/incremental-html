@@ -1,4 +1,4 @@
-import { AnimationType, createAnimationState, HTMLProjectionNode, htmlVisualElement, makeVisualState, MeasureLayoutWithContext, MotionContextProps, MotionProps, useFocusGesture, useHoverGesture, usePanGesture, useProjection, useTapGesture, useViewport, VisualElementDragControls } from '@incremental-html/framer-motion';
+import { isSVGComponent, svgVisualElement, AnimationType, createAnimationState, HTMLProjectionNode, htmlVisualElement, makeVisualState, MeasureLayoutWithContext, MotionContextProps, MotionProps, useFocusGesture, useHoverGesture, usePanGesture, useProjection, useTapGesture, useViewport, VisualElementDragControls } from '@incremental-html/framer-motion';
 import { closestFeature, Feature, nextTick, unmountElement } from '@incremental-html/reactivity';
 
 class MotionConfig extends Feature<{ blockInitialAnimation?: boolean }> {
@@ -47,7 +47,12 @@ export class Motion extends Feature<MotionProps> {
             initial: !blockInitialAnimation
         } as any);
         const parent = closestFeature(this.element.parentElement, Motion)?.visualElement;
-        const visualElement = htmlVisualElement({
+        const visualElement: ReturnType<typeof htmlVisualElement> = isSVGComponent(this.element.tagName.toLowerCase()) ? svgVisualElement({
+            visualState,
+            props: this.props,
+            parent,
+            blockInitialAnimation
+        }) as any : htmlVisualElement({
             visualState,
             props: this.props,
             parent,

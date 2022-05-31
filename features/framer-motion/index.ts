@@ -3,6 +3,8 @@ export { addPointerEvent } from './motion/packages/framer-motion/src/events/use-
 export { VisualElementDragControls } from './motion/packages/framer-motion/src/gestures/drag/VisualElementDragControls';
 export { HTMLProjectionNode } from './motion/packages/framer-motion/src/projection/node/HTMLProjectionNode';
 export { htmlVisualElement } from './motion/packages/framer-motion/src/render/html/visual-element';
+export { svgVisualElement } from './motion/packages/framer-motion/src/render/svg/visual-element';
+export { isSVGComponent } from './motion/packages/framer-motion/src/render/dom/utils/is-svg-component';
 export { createAnimationState } from './motion/packages/framer-motion/src/render/utils/animation-state';
 export { AnimationType } from './motion/packages/framer-motion/src/render/utils/types';
 export * from './transform';
