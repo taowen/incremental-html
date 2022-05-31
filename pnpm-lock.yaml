@@ -148,6 +148,7 @@ importers:
   demos/demo-line-chart:
     specifiers:
       '@incremental-html/headlessui': workspace:*
+      '@incremental-html/motion': workspace:*
       '@incremental-html/reactivity': workspace:*
       '@incremental-html/scale': workspace:*
       '@incremental-html/shape': workspace:*
@@ -159,6 +160,7 @@ importers:
       vite: ^2.9.1
     dependencies:
       '@incremental-html/headlessui': link:../../features/headlessui
+      '@incremental-html/motion': link:../../features/motion
       '@incremental-html/reactivity': link:../../packages/reactivity
       '@incremental-html/scale': link:../../features/scale
       '@incremental-html/shape': link:../../features/shape

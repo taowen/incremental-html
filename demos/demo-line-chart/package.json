@@ -7,7 +7,8 @@
         "@incremental-html/headlessui": "workspace:*",
         "@incremental-html/template": "workspace:*",
         "@incremental-html/scale": "workspace:*",
-        "@incremental-html/shape": "workspace:*"
+        "@incremental-html/shape": "workspace:*",
+        "@incremental-html/motion": "workspace:*"
     },
     "devDependencies": {
         "typescript": "^4.5.5",

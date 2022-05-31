@@ -12,16 +12,16 @@
     <div class="flex flex-col h-screen">
         <div class="m-4 grow overflow-hidden" use:observed="$Observed">
             <!-- https://gist.github.com/samselikoff/4aff333f7c8538bb44f1806931c39be5 -->
-            <svg prop:data="[{
-            date: new Date('2021-10-05T14:48:00.000Z'),
-            estimatedMax: 100
-        }, {
-            date: new Date('2022-03-04T14:48:00.000Z'),
-            estimatedMax: 64
-        }, {
-            date: new Date('2022-05-04T14:48:00.000Z'),
-            estimatedMax: 120
-        }]" use:x-axis="$TimeScale" x-axis:data="this.data.map(e => e.date)" x-axis:ticks-interval="timeMonth"
+            <svg use-cloak prop:data="[{
+                date: new Date('2021-10-05T14:48:00.000Z'),
+                estimatedMax: 100
+            }, {
+                date: new Date('2022-03-04T14:48:00.000Z'),
+                estimatedMax: 64
+            }, {
+                date: new Date('2022-05-04T14:48:00.000Z'),
+                estimatedMax: 120
+            }]" use:x-axis="$TimeScale" x-axis:data="this.data.map(e => e.date)" x-axis:ticks-interval="timeMonth"
                 x-axis:padding-left="24" x-axis:padding-right="10" x-axis:nice use:y-axis="$LinearScale"
                 y-axis:data="this.data.map(e => e.estimatedMax)" y-axis:padding-top="10" y-axis:padding-bottom="20">
                 <g use:template="$Template" prop:inner-html="ctx.xAxis.ticks.slice(0, ctx.xAxis.ticks.length - 1).map(
@@ -44,8 +44,10 @@
                             prop:text-content="this.$props.tick" />
                     </g>
                 </g>
-                <path use:line="$Line" line:x="ctx.xAxis.scaledData" line:y="ctx.yAxis.scaledData" fill="none"
-                    stroke="currentColor" stroke-width="2" />
+                <path use:line="$Line" line:x="ctx.xAxis.scaledData" line:y="ctx.yAxis.scaledData" use:motion="$Motion"
+                    motion:initial="{ pathLength: 0 }" motion:animate="{ pathLength: 1 }"
+                    motion:transition="{ duration: 1.5, type: 'spring' }" fill="none" stroke="currentColor"
+                    stroke-width="2" />
                 <g use:template="$Template" prop:inner-html="ctx.data.map(d => this.template.render(d))">
                     <circle r="5" attr:cx="ctx.xAxis.scale(this.$props.date)"
                         attr:cy="ctx.yAxis.scale(this.$props.estimatedMax)" fill="currentColor" stroke-width="2"
@@ -55,21 +57,20 @@
         </div>
     </div>
     <script type="module">
-        import { startDomObserver, setEvalGlobals, closestFeature } from '@incremental-html/reactivity';
+        import { startDomObserver, setEvalGlobals } from '@incremental-html/reactivity';
         import { Observed, Template } from '@incremental-html/headlessui';
-        import { render } from '@incremental-html/template';
         import { TimeScale, LinearScale } from '@incremental-html/scale';
+        import { Motion } from '@incremental-html/motion';
         import { Line } from '@incremental-html/shape';
         setEvalGlobals({
-            closestFeature,
-            Observed,
-            Template,
-            render,
-            TimeScale,
-            LinearScale,
-            Line
+            Observed, // observe the dimensions of a div, to allow svg to resize automatically
+            Template, // turn the child nodes into a template, to allow render array of html elements dynamically
+            TimeScale, // d3 based x axis
+            LinearScale, // d3 based y axis
+            Line, // d3 based svg line
+            Motion // framer motion based animation
         })
-        // for properties like prop:xxx or on:xxx
+        // to support reactive dom update with prop:xxx, attr:xxx or on:xxx
         startDomObserver();
     </script>
 </body>
