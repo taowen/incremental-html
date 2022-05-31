@@ -1,0 +1,35 @@
+{
+    "name": "@incremental-html/shape",
+    "type": "module",
+    "version": "1.0.0",
+    "description": "wrap d3-shape",
+    "main": "dist/cjs/index.js",
+    "module": "dist/esm/index.js",
+    "types": "index.d.ts",
+    "dependencies": {
+        "@incremental-html/headlessui": "workspace:*",
+        "@incremental-html/reactivity": "workspace:*"
+    },
+    "devDependencies": {
+        "@types/jest": "27.4.1",
+        "jest": "27.5.1",
+        "typedoc": "^0.22.15",
+        "typescript": "^4.5.5"
+    },
+    "files": [
+        "dist/*",
+        "README.md",
+        "LICENSE"
+    ],
+    "scripts": {
+        "test": "tsc -p esm.tsconfig.json && NODE_OPTIONS=--experimental-vm-modules jest"
+    },
+    "jest": {
+        "verbose": true,
+        "testEnvironment": "jsdom",
+        "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.[j]sx?$",
+        "roots": [
+            "<rootDir>/dist/esm"
+        ]
+    }
+}

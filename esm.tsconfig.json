@@ -21,6 +21,9 @@
     "path": "./features/scale/esm.tsconfig.json"
   },
   {
+    "path": "./features/shape/esm.tsconfig.json"
+  },
+  {
     "path": "./server/jsx-to-html/esm.tsconfig.json"
   },
   {

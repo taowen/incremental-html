@@ -21,6 +21,9 @@
       "path": "./features/scale/cjs.tsconfig.json"
     },
     {
+      "path": "./features/shape/cjs.tsconfig.json"
+    },
+    {
       "path": "./server/jsx-to-html/cjs.tsconfig.json"
     },
     {
